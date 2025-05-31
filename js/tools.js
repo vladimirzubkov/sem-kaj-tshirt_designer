@@ -1,8 +1,12 @@
 // js/tools.js
 
 export class Tool {
-  constructor(ctx) {
+  constructor(ctx, color = '#000000') {
     this.ctx = ctx;
+    this.color = color; // Default color
+  }
+  setColor(color) {
+    this.color = color; // Update color dynamically
   }
   onMouseDown(e) {}
   onMouseMove(e) {}
@@ -13,7 +17,7 @@ export class Pencil extends Tool {
   onMouseDown(e) {
     this.ctx.beginPath();
     this.ctx.moveTo(e.offsetX, e.offsetY);
-    this.ctx.strokeStyle = '#000';
+    this.ctx.strokeStyle = this.color; // Use dynamic color
     this.ctx.lineWidth = 1;
     this.ctx.lineCap = 'round';
   }
@@ -30,7 +34,7 @@ export class Brush extends Tool {
   onMouseDown(e) {
     this.ctx.beginPath();
     this.ctx.moveTo(e.offsetX, e.offsetY);
-    this.ctx.strokeStyle = '#000';
+    this.ctx.strokeStyle = this.color; // Use dynamic color
     this.ctx.lineWidth = 5;
     this.ctx.lineCap = 'round';
   }
@@ -47,7 +51,7 @@ export class Eraser extends Tool {
   onMouseDown(e) {
     this.ctx.beginPath();
     this.ctx.moveTo(e.offsetX, e.offsetY);
-    this.ctx.strokeStyle = '#fff';
+    this.ctx.strokeStyle = '#fff'; // Fixed color for eraser
     this.ctx.lineWidth = 10;
     this.ctx.lineCap = 'round';
   }
@@ -98,7 +102,7 @@ export class TextTool extends Tool {
   onMouseDown(e) {
     const text = prompt('Enter text:');
     if (text) {
-      this.ctx.fillStyle = '#000';
+      this.ctx.fillStyle = this.color; // Use dynamic color
       this.ctx.font = '20px sans-serif';
       this.ctx.fillText(text, e.offsetX, e.offsetY);
     }
