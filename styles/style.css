@@ -1,5 +1,10 @@
 /* styles/style.css */
 
+/* Debug borders for significant containers */
+.debug-border {
+  border: 1px solid gray;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -66,20 +71,70 @@ canvas {
   flex-direction: column;
   align-items: center;
   gap: 2px;
+  height: 76px; /* Fixed height: 60px (max icon size) + 2px (gap) + 14px (label height) */
 }
 
 .tool-icon {
   width: 50px;
-  height: 50px; /* Restored original height */
+  height: 50px;
   background: #ddd;
   display: flex;
   justify-content: center;
   align-items: center;
   border: 1px solid #aaa;
   cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: auto; /* Align at the bottom of tool-item */
+}
+
+.tool-icon.selected {
+  width: 60px;
+  height: 60px;
+  border: 2px solid orange;
+}
+
+/* Increase size of "𝐓" for TextTool */
+.tool-icon[data-tool="text"] {
+  font-size: 1.5em;
 }
 
 .tool-label {
+  font-size: 0.7em;
+  color: #666;
+  text-align: center;
+}
+
+.color-picker-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  height: 76px; /* Match tool-item height */
+}
+
+.color-picker-wrapper {
+  display: flex;
+  align-items: center;
+  height: 50px; /* Match tool-icon height */
+  margin-top: auto; /* Align at the bottom, matching tool-icon */
+  padding-top: 2px; /* Adjusted previously */
+}
+
+.control-element {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  height: 50px; /* Match tool-icon height */
+  margin-top: auto; /* Align at the bottom */
+  position: relative; /* Allow absolute positioning of size-value */
+}
+
+.size-control .control-element {
+  margin-top: 28px; /* Move size slider down */
+}
+
+.control-label {
   font-size: 0.7em;
   color: #666;
   text-align: center;
@@ -90,30 +145,28 @@ canvas {
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  position: relative;
-  height: 50px; /* Match tool-icon height */
+  height: 76px; /* Match tool-item height */
 }
 
 .size-value {
   font-size: 0.8em;
   color: #666;
   position: absolute;
-  top: -2px; /* Move 2px higher */
+  top: -14px; /* Position above the slider, matching previous offset */
   transform: translateX(-50%);
 }
 
 #sizeSlider {
   width: 100px;
-  margin-top: 14px; /* Shift slider down to align its middle with tool-icon middle */
 }
 
 .size-labels {
   display: flex;
   justify-content: space-between;
   width: 100px;
-  font-size: 0.7em;
+  font-size: 0.65em;
   color: #666;
-  margin-top: -2px;
+  margin-top: -4px;
 }
 
 .panel-c {

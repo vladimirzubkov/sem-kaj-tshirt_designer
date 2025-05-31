@@ -23,6 +23,13 @@ Vytvořit webovou stránku pro online návrh trička s možností:
 - **Výběr nástrojů**: Nástroje (tužka, štětec, text, guma, voda) jsou identifikovány pomocí atributů `data-tool` na prvcích rozhraní, což zajišťuje spolehlivé a škálovatelné přepínání nástrojů.
 - **Výběr velikosti nástrojů**: Uživatel může nastavit velikost nástrojů (tužka, štětec, guma, text, voda) pomocí posuvníku (`<input type="range">`) s rozsahem 1–300 px a výchozí hodnotou 10 px. Velikost se dynamicky aplikuje na šířku čáry (tužka, štětec, guma), velikost písma (text) nebo poloměr rozmazání (voda) podle typu nástroje. Aktuální velikost je zobrazena nad posuvníkem a přesně sleduje pozici jeho "thumb" (ukazatele), včetně inicializace. Pod posuvníkem jsou uvedeny hodnoty "1px" a "300px" pro lepší orientaci.
 - **Popisky nástrojů**: Pod každým nástrojem (tužka, štětec, text, voda, guma) je zobrazen popisek ("Pencil", "Brush", "Text", "Water", "Eraser"), který zvyšuje srozumitelnost rozhraní. Popisky jsou generovány dynamicky z názvů nástrojů definovaných v `tools.js`.
+- **Vylepšené uživatelské rozhraní**:
+  - Aktuálně vybraný nástroj je vizuálně zvýrazněn zvětšením ikony a oranžovým rámečkem.
+  - Ikona nástroje Text byla změněna na výraznější symbol "𝐓".
+  - Přidány popisky "Color" a "Brush Size" pod výběr barvy a posuvník velikosti, které jsou zarovnány na úroveň popisků nástrojů.
+  - Všechny kontejnery (nástroje, výběr barvy, posuvník velikosti) mají jednotnou výšku 76px.
+  - Prvky ovládání (posuvník, výběr barvy) a popisky byly odděleny do samostatných kontejnerů (.control-element, .control-label), což umožňuje jejich nezávislé nastavení přes CSS.
+  - Text nad posuvníkem velikosti ("size-value") je nyní umístěn relativně k posuvníku, nikoli k vnějšímu kontejneru, což zajišťuje konzistentní pozici při změnách rozložení.
 - **Struktura kódu**:
   - **JavaScript**: Rozdělen do dvou modulů: `tools.js` obsahuje třídy nástrojů (Tool, Pencil, Brush, Eraser, Water, TextTool) a `main.js` obsahuje logiku aplikace (inicializace, zpracování událostí). Modul `main.js` importuje třídy z `tools.js` a je připojen v `index.html` pomocí `<script type="module">`. Kód byl refaktorován pro odstranění nepoužívaných proměnných, aby byl čistší a lépe udržovatelný.
   - **CSS**: Všechny styly jsou vyňaty z `index.html` do samostatného souboru `styles/style.css` pro lepší organizaci a údržbu. Soubor je připojen v `index.html` pomocí `<link rel="stylesheet">`.

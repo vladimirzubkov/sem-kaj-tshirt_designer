@@ -7,55 +7,66 @@
   <link rel="stylesheet" href="styles/style.css">
 </head>
 <body>
-<header>
+<header class="debug-border">
   <div><strong>T-Shirt Editor</strong> | <a href="#">About</a></div>
   <button class="button">English</button>
 </header>
 
-<main>
-  <div class="panel-b">
+<main class="debug-border">
+  <div class="panel-b debug-border">
     <div class="instruction">
       Canvas: Draw here using tools below or drag’n’drop an image (SVG, PNG, GIF, JPG supported).
     </div>
-    <div class="canvas-area">
+    <div class="canvas-area debug-border">
       <canvas id="drawCanvas" width="500" height="500"></canvas>
     </div>
-    <div class="tools-bar">
-      <div class="tool-item">
+    <div class="tools-bar debug-border">
+      <div class="tool-item debug-border">
         <div class="tool-icon" data-tool="pencil">✏️</div>
         <span class="tool-label" data-tool-label="pencil"></span>
       </div>
-      <div class="tool-item">
+      <div class="tool-item debug-border">
         <div class="tool-icon" data-tool="brush">🖌️</div>
         <span class="tool-label" data-tool-label="brush"></span>
       </div>
-      <div class="tool-item">
-        <div class="tool-icon" data-tool="text">T</div>
+      <div class="tool-item debug-border">
+        <div class="tool-icon" data-tool="text">𝐓</div>
         <span class="tool-label" data-tool-label="text"></span>
       </div>
-      <div class="tool-item">
+      <div class="tool-item debug-border">
         <div class="tool-icon" data-tool="water">💧</div>
         <span class="tool-label" data-tool-label="water"></span>
       </div>
-      <div class="tool-item">
+      <div class="tool-item debug-border">
         <div class="tool-icon" data-tool="eraser">🧽</div>
         <span class="tool-label" data-tool-label="eraser"></span>
       </div>
-      <div class="size-control">
-        <span id="sizeValue" class="size-value">10</span>
-        <input type="range" id="sizeSlider" min="1" max="300" value="10" title="Tool Size">
-        <div class="size-labels">
-          <span>1px</span>
-          <span>300px</span>
+      <div class="size-control debug-border">
+        <div class="control-element">
+          <span id="sizeValue" class="size-value">10</span>
+          <input type="range" id="sizeSlider" min="1" max="300" value="10" title="Tool Size">
+          <div class="size-labels">
+            <span>1px</span>
+            <span>300px</span>
+          </div>
         </div>
+        <span class="control-label">Brush Size</span>
+      </div>
+      <div class="color-picker-container debug-border">
+        <div class="control-element">
+          <div class="color-picker-wrapper">
+            <!-- Color picker will be inserted here -->
+          </div>
+        </div>
+        <span class="control-label">Color</span>
       </div>
       <button class="button">Complete</button>
       <button class="button" id="clearButton">Clear</button>
     </div>
   </div>
 
-  <div class="panel-c">
-    <div class="shirt-options">
+  <div class="panel-c debug-border">
+    <div class="shirt-options debug-border">
       <div class="tool-icon">Male</div>
       <div class="tool-icon">Female</div>
       <div class="tool-icon">Kid</div>
@@ -67,13 +78,13 @@
     <div class="shirt-preview">
       <img src="assets/tshirt-placeholder.png" alt="T-shirt preview" width="213">
     </div>
-    <div class="tools-bar">
+    <div class="tools-bar debug-border">
       <div class="tool-icon">Spray</div>
       <div class="tool-icon">Roll</div>
       <div class="tool-icon">Mixer</div>
       <div class="tool-icon">Shred</div>
     </div>
-    <div class="action-buttons">
+    <div class="action-buttons debug-border">
       <button class="button">Save Design</button>
       <button class="button">Load Design</button>
       <button class="button">Download PDF</button>
@@ -82,7 +93,7 @@
   </div>
 </main>
 
-<footer>
+<footer class="debug-border">
   COPYRIGHT © 2025 T-SHIRT DESIGNER
 </footer>
 

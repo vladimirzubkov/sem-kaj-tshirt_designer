@@ -11,12 +11,12 @@ const colorPicker = document.createElement('input');
 colorPicker.type = 'color';
 colorPicker.value = '#000000';
 colorPicker.title = 'Color';
-colorPicker.style.margin = '0 10px';
-colorPicker.style.alignSelf = 'center';
+
+const colorPickerWrapper = document.querySelector('.color-picker-wrapper');
+colorPickerWrapper.appendChild(colorPicker);
 
 const toolsBar = document.querySelector('.tools-bar');
 const completeButton = toolsBar.querySelector('button');
-toolsBar.insertBefore(colorPicker, completeButton);
 
 // Map tools using static names
 const toolClasses = [Pencil, Brush, Eraser, Water, TextTool];
@@ -62,11 +62,15 @@ sizeSlider.addEventListener('input', () => {
   }
 });
 
-// Tool selection
+// Tool selection with highlighting
 document.querySelectorAll('.tool-icon').forEach(el => {
   el.addEventListener('click', () => {
     const toolName = el.dataset.tool;
     if (toolName && tools[toolName]) {
+      document.querySelectorAll('.tool-icon').forEach(icon => {
+        icon.classList.remove('selected');
+      });
+      el.classList.add('selected');
       currentTool = tools[toolName];
       if (currentTool && currentTool !== tools.eraser && currentTool !== tools.water) {
         currentTool.setColor(colorPicker.value);
@@ -109,4 +113,6 @@ const initialSize = parseInt(sizeSlider.value);
 sizeValue.textContent = initialSize;
 positionSizeValue(initialSize);
 
+// Set initial tool (Pencil) as selected
+document.querySelector('.tool-icon[data-tool="pencil"]').classList.add('selected');
 currentTool = tools.pencil;
