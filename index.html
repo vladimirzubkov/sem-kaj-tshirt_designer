@@ -51,8 +51,9 @@
       background: #f9f9f9;
     }
 
-    .canvas-area canvas {
+    canvas {
       border: 1px dashed #aaa;
+      background: white;
     }
 
     .tools-bar {
@@ -126,7 +127,7 @@
       Canvas: Draw here using tools below or drag’n’drop an image (SVG, PNG, GIF, JPG supported).
     </div>
     <div class="canvas-area">
-      <canvas width="500" height="500"></canvas>
+      <canvas id="drawCanvas" width="500" height="500"></canvas>
     </div>
     <div class="tools-bar">
       <div class="tool-icon">✏️</div>
@@ -150,7 +151,7 @@
       <button class="button">New Shirt</button>
     </div>
     <div class="shirt-preview">
-      <img src="tshirt-placeholder.png" alt="T-shirt preview" width="150">
+      <img src="assets/tshirt-placeholder.png" alt="T-shirt preview" width="213">
     </div>
     <div class="tools-bar">
       <div class="tool-icon">Spray</div>
@@ -170,5 +171,35 @@
 <footer>
   COPYRIGHT © 2025 T-SHIRT DESIGNER
 </footer>
+
+<script>
+  // Canvas init
+  const canvas = document.getElementById('drawCanvas');
+  const ctx = canvas.getContext('2d');
+
+  let drawing = false;
+
+  canvas.addEventListener('mousedown', (e) => {
+    drawing = true;
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener('mousemove', (e) => {
+    if (!drawing) return;
+    ctx.lineTo(e.offsetX, e.offsetY);
+    ctx.stroke();
+  });
+
+  canvas.addEventListener('mouseup', () => {
+    drawing = false;
+    ctx.closePath();
+  });
+
+  canvas.addEventListener('mouseleave', () => {
+    drawing = false;
+    ctx.closePath();
+  });
+</script>
 </body>
 </html>
