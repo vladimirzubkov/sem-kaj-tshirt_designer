@@ -2,10 +2,49 @@
 
 import { Pencil, Brush, Eraser, Water, TextTool } from './tools.js';
 
-const canvas = document.getElementById('drawCanvas');
-const ctx = canvas.getContext('2d');
+const drawCanvas = document.getElementById('drawCanvas');
+const ctx = drawCanvas.getContext('2d');
 let drawing = false;
 let currentTool = null;
+
+// Function to generate a custom cursor SVG for drawing tools (circle)
+function generateDrawingCursor(size, color = '#000000') {
+  // Limit cursor size to 128px (browser restriction), but scale visually
+  const maxCursorSize = 128;
+  const scale = size > maxCursorSize ? maxCursorSize / size : 1;
+  const cursorSize = Math.min(size, maxCursorSize);
+  const radius = (size / 2) * scale;
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="${cursorSize}" height="${cursorSize}">
+      <circle cx="${cursorSize / 2}" cy="${cursorSize / 2}" r="${radius - 1}" fill="none" stroke="${color}" stroke-width="1"/>
+    </svg>
+  `;
+  return `url('data:image/svg+xml;utf8,${encodeURIComponent(svg)}') ${cursorSize / 2} ${cursorSize / 2}, auto`;
+}
+
+// Function to generate a custom cursor SVG for TextTool (vertical line with serifs)
+function generateTextCursor(size, color = '#000000') {
+  // Adjust cursor height to match text height (font-size * 0.75 for sans-serif)
+  const maxCursorSize = 128;
+  const scale = size > maxCursorSize ? maxCursorSize / size : 1;
+  const cursorHeight = Math.min(size * 0.75, maxCursorSize);
+  const width = 10 * scale;
+  const height = cursorHeight;
+  // Make serif length proportional to original size, not scaled height
+  const serifLength = Math.min(size * 0.15, maxCursorSize * 0.15); // 15% of original size
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
+      <!-- Vertical line -->
+      <line x1="${width / 2}" y1="0" x2="${width / 2}" y2="${height}" stroke="${color}" stroke-width="2"/>
+      <!-- Top serif -->
+      <line x1="${width / 2 - serifLength}" y1="0" x2="${width / 2 + serifLength}" y2="0" stroke="${color}" stroke-width="2"/>
+      <!-- Bottom serif -->
+      <line x1="${width / 2 - serifLength}" y1="${height}" x2="${width / 2 + serifLength}" y2="${height}" stroke="${color}" stroke-width="2"/>
+    </svg>
+  `;
+  // Align cursor so the bottom edge matches the text baseline
+  return `url('data:image/svg+xml;utf8,${encodeURIComponent(svg)}') ${width / 2} ${height}, auto`;
+}
 
 const colorPicker = document.createElement('input');
 colorPicker.type = 'color';
@@ -59,10 +98,14 @@ sizeSlider.addEventListener('input', () => {
   positionSizeValue(size);
   if (currentTool) {
     currentTool.setSize(size);
+    // Determine cursor color based on size
+    const cursorColor = size >= 128 ? '#FF0000' : '#000000';
+    // Update cursor based on tool
+    drawCanvas.style.cursor = currentTool === tools.text ? generateTextCursor(size, cursorColor) : generateDrawingCursor(size, cursorColor);
   }
 });
 
-// Tool selection with highlighting
+// Tool selection with cursor handling
 document.querySelectorAll('.tool-icon').forEach(el => {
   el.addEventListener('click', () => {
     const toolName = el.dataset.tool;
@@ -79,33 +122,47 @@ document.querySelectorAll('.tool-icon').forEach(el => {
       currentTool.setSize(size);
       sizeValue.textContent = size;
       positionSizeValue(size);
+
+      // Determine cursor color based on size
+      const cursorColor = size >= 128 ? '#FF0000' : '#000000';
+      // Set cursor style based on tool
+      drawCanvas.style.cursor = toolName === 'text' ? generateTextCursor(size, cursorColor) : generateDrawingCursor(size, cursorColor);
     }
   });
 });
 
 // Clear canvas
 document.getElementById('clearButton').addEventListener('click', () => {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
 });
 
 // Canvas events
-canvas.addEventListener('mousedown', (e) => {
+drawCanvas.addEventListener('mousedown', (e) => {
   drawing = true;
   currentTool?.onMouseDown(e);
 });
 
-canvas.addEventListener('mousemove', (e) => {
-  if (drawing) currentTool?.onMouseMove(e);
+drawCanvas.addEventListener('mousemove', (e) => {
+  if (drawing) {
+    currentTool?.onMouseMove(e);
+  }
+  // Restore custom cursor on mousemove if the tool is active
+  if (currentTool) {
+    const size = parseInt(sizeSlider.value);
+    const cursorColor = size >= 128 ? '#FF0000' : '#000000';
+    drawCanvas.style.cursor = currentTool === tools.text ? generateTextCursor(size, cursorColor) : generateDrawingCursor(size, cursorColor);
+  }
 });
 
-canvas.addEventListener('mouseup', (e) => {
+drawCanvas.addEventListener('mouseup', (e) => {
   drawing = false;
   currentTool?.onMouseUp(e);
 });
 
-canvas.addEventListener('mouseleave', (e) => {
+drawCanvas.addEventListener('mouseleave', (e) => {
   drawing = false;
   currentTool?.onMouseUp(e);
+  drawCanvas.style.cursor = currentTool === tools.text ? 'text' : 'default';
 });
 
 // Initialize size value position
@@ -116,3 +173,4 @@ positionSizeValue(initialSize);
 // Set initial tool (Pencil) as selected
 document.querySelector('.tool-icon[data-tool="pencil"]').classList.add('selected');
 currentTool = tools.pencil;
+drawCanvas.style.cursor = generateDrawingCursor(initialSize);

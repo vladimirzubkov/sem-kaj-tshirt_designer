@@ -30,6 +30,11 @@ Vytvořit webovou stránku pro online návrh trička s možností:
   - Všechny kontejnery (nástroje, výběr barvy, posuvník velikosti) mají jednotnou výšku 76px.
   - Prvky ovládání (posuvník, výběr barvy) a popisky byly odděleny do samostatných kontejnerů (.control-element, .control-label), což umožňuje jejich nezávislé nastavení přes CSS.
   - Text nad posuvníkem velikosti ("size-value") je nyní umístěn relativně k posuvníku, nikoli k vnějšímu kontejneru, což zajišťuje konzistentní pozici při změnách rozložení.
+- **Zobrazení kurzoru nástrojů**:
+  - Pro nástroje kreslení (tužka, štětec, guma, voda) je kurzor zobrazen jako kruh, jehož velikost odpovídá nastavené velikosti nástroje.
+  - Pro nástroj Text je kurzor zobrazen jako svislá čára s výstupky (serifs) nahoře a dole, přičemž jeho velikost odpovídá velikosti textu.
+  - Kurzor se dynamicky mění při změně velikosti nástroje a zůstává viditelný i po opuštění a návratu na plátno.
+  - Při dosažení velikosti 128 pixelů a více se kurzor zbarví červeně, jinak je černý.
 - **Struktura kódu**:
   - **JavaScript**: Rozdělen do dvou modulů: `tools.js` obsahuje třídy nástrojů (Tool, Pencil, Brush, Eraser, Water, TextTool) a `main.js` obsahuje logiku aplikace (inicializace, zpracování událostí). Modul `main.js` importuje třídy z `tools.js` a je připojen v `index.html` pomocí `<script type="module">`. Kód byl refaktorován pro odstranění nepoužívaných proměnných, aby byl čistší a lépe udržovatelný.
   - **CSS**: Všechny styly jsou vyňaty z `index.html` do samostatného souboru `styles/style.css` pro lepší organizaci a údržbu. Soubor je připojen v `index.html` pomocí `<link rel="stylesheet">`.
