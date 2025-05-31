@@ -1,0 +1,111 @@
+/* styles/style.css */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: sans-serif;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  border-bottom: 1px solid #ccc;
+}
+
+main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  gap: 1px;
+}
+
+.panel-b {
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #ccc;
+}
+
+.instruction {
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+  background: #f5f5f5;
+}
+
+.canvas-area {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f9f9f9;
+}
+
+canvas {
+  border: 1px dashed #aaa;
+  background: white;
+}
+
+.tools-bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px;
+  border-top: 1px solid #ccc;
+}
+
+.tool-icon {
+  width: 50px;
+  height: 50px;
+  background: #ddd;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid #aaa;
+  cursor: pointer;
+}
+
+.panel-c {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  gap: 10px;
+  background: #fafafa;
+}
+
+.shirt-options, .action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.shirt-preview {
+  text-align: center;
+}
+
+.button {
+  padding: 5px 10px;
+  border: 1px solid #000;
+  background: #eee;
+  cursor: pointer;
+}
+
+footer {
+  text-align: center;
+  padding: 10px;
+  font-size: 0.9em;
+  border-top: 1px solid #ccc;
+}
+
+@media (max-width: 768px) {
+  main {
+    grid-template-columns: 1fr;
+  }
+}
