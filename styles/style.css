@@ -57,6 +57,11 @@ canvas {
   background: white;
 }
 
+canvas.droppable.dragover {
+  border: 2px solid #00f; /* Highlight canvas when dragging over */
+  background: #e6f0ff; /* Light blue background */
+}
+
 .tools-bar {
   display: flex;
   flex-wrap: wrap;

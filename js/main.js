@@ -7,6 +7,10 @@ const ctx = drawCanvas.getContext('2d');
 let drawing = false;
 let currentTool = null;
 
+// Canvas dimensions
+const canvasWidth = drawCanvas.width;
+const canvasHeight = drawCanvas.height;
+
 // Function to generate a custom cursor SVG for drawing tools (circle)
 function generateDrawingCursor(size, color = '#000000') {
   // Limit cursor size to 128px (browser restriction), but scale visually
@@ -30,8 +34,7 @@ function generateTextCursor(size, color = '#000000') {
   const cursorHeight = Math.min(size * 0.75, maxCursorSize);
   const width = 10 * scale;
   const height = cursorHeight;
-  // Make serif length proportional to original size, not scaled height
-  const serifLength = Math.min(size * 0.15, maxCursorSize * 0.15); // 15% of original size
+  const serifLength = Math.min(size * 0.15, maxCursorSize * 0.15); // Proportional serif length
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
       <!-- Vertical line -->
@@ -88,6 +91,70 @@ function positionSizeValue(size) {
   const leftPosition = percentage * trackWidth + thumbWidth / 2 + 1;
   sizeValue.style.left = `${leftPosition}px`;
 }
+
+// Drag-and-drop handling
+drawCanvas.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  drawCanvas.classList.add('dragover');
+});
+
+drawCanvas.addEventListener('dragenter', (e) => {
+  e.preventDefault();
+  drawCanvas.classList.add('dragover');
+});
+
+drawCanvas.addEventListener('dragleave', (e) => {
+  e.preventDefault();
+  drawCanvas.classList.remove('dragover');
+});
+
+drawCanvas.addEventListener('drop', (e) => {
+  e.preventDefault();
+  drawCanvas.classList.remove('dragover');
+
+  const file = e.dataTransfer.files[0];
+  if (!file) return;
+
+  // Check file type (SVG, PNG, GIF, JPG)
+  const validTypes = ['image/svg+xml', 'image/png', 'image/gif', 'image/jpeg'];
+  if (!validTypes.includes(file.type)) {
+    alert('Please drop an SVG, PNG, GIF, or JPG file.');
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    const img = new Image();
+    img.onload = () => {
+      const rect = drawCanvas.getBoundingClientRect();
+      let x = e.clientX - rect.left;
+      let y = e.clientY - rect.top;
+      let newWidth = img.width;
+      let newHeight = img.height;
+
+      // Check if image is larger than canvas
+      if (img.width > canvasWidth || img.height > canvasHeight) {
+        // Determine scaling factor based on larger dimension
+        const aspectRatio = img.width / img.height;
+        if (img.width > img.height) {
+          newWidth = canvasWidth;
+          newHeight = newWidth / aspectRatio;
+        } else {
+          newHeight = canvasHeight;
+          newWidth = newHeight * aspectRatio;
+        }
+        // Center the image
+        x = (canvasWidth - newWidth) / 2;
+        y = (canvasHeight - newHeight) / 2;
+      }
+
+      // Draw image on canvas
+      ctx.drawImage(img, x, y, newWidth, newHeight);
+    };
+    img.src = event.target.result;
+  };
+  reader.readAsDataURL(file);
+});
 
 // Update tool size on slider change
 const sizeSlider = document.getElementById('sizeSlider');
