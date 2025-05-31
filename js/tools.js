@@ -4,13 +4,13 @@ export class Tool {
   constructor(ctx, color = '#000000', size = 10) {
     this.ctx = ctx;
     this.color = color;
-    this.size = size; // Default size
+    this.size = size;
   }
   setColor(color) {
     this.color = color;
   }
   setSize(size) {
-    this.size = size; // Update size dynamically
+    this.size = size;
   }
   onMouseDown(e) {}
   onMouseMove(e) {}
@@ -18,11 +18,13 @@ export class Tool {
 }
 
 export class Pencil extends Tool {
+  static name = 'pencil'; // Unique name
+  static displayName = 'Pencil'; // Display name for UI
   onMouseDown(e) {
     this.ctx.beginPath();
     this.ctx.moveTo(e.offsetX, e.offsetY);
     this.ctx.strokeStyle = this.color;
-    this.ctx.lineWidth = this.size; // Use dynamic size
+    this.ctx.lineWidth = this.size;
     this.ctx.lineCap = 'round';
   }
   onMouseMove(e) {
@@ -35,11 +37,13 @@ export class Pencil extends Tool {
 }
 
 export class Brush extends Tool {
+  static name = 'brush';
+  static displayName = 'Brush';
   onMouseDown(e) {
     this.ctx.beginPath();
     this.ctx.moveTo(e.offsetX, e.offsetY);
     this.ctx.strokeStyle = this.color;
-    this.ctx.lineWidth = this.size; // Use dynamic size
+    this.ctx.lineWidth = this.size;
     this.ctx.lineCap = 'round';
   }
   onMouseMove(e) {
@@ -52,11 +56,13 @@ export class Brush extends Tool {
 }
 
 export class Eraser extends Tool {
+  static name = 'eraser';
+  static displayName = 'Eraser';
   onMouseDown(e) {
     this.ctx.beginPath();
     this.ctx.moveTo(e.offsetX, e.offsetY);
     this.ctx.strokeStyle = '#fff';
-    this.ctx.lineWidth = this.size; // Use dynamic size
+    this.ctx.lineWidth = this.size;
     this.ctx.lineCap = 'round';
   }
   onMouseMove(e) {
@@ -69,21 +75,18 @@ export class Eraser extends Tool {
 }
 
 export class Water extends Tool {
+  static name = 'water';
+  static displayName = 'Water';
   onMouseMove(e) {
-    const r = this.size; // Use dynamic size as radius
+    const r = this.size;
     const x = e.offsetX;
     const y = e.offsetY;
 
-    // Crop a square region around cursor
     const img = this.ctx.getImageData(x - r, y - r, 2 * r, 2 * r);
-
-    // Create temporary canvas to blur
     const tempCanvas = document.createElement('canvas');
     tempCanvas.width = 2 * r;
     tempCanvas.height = 2 * r;
     const tempCtx = tempCanvas.getContext('2d');
-
-    // Put the image data, blur, then draw back
     tempCtx.putImageData(img, 0, 0);
 
     this.ctx.save();
@@ -98,11 +101,13 @@ export class Water extends Tool {
 }
 
 export class TextTool extends Tool {
+  static name = 'text';
+  static displayName = 'Text';
   onMouseDown(e) {
     const text = prompt('Enter text:');
     if (text) {
       this.ctx.fillStyle = this.color;
-      this.ctx.font = `${this.size}px sans-serif`; // Use dynamic size for font
+      this.ctx.font = `${this.size}px sans-serif`;
       this.ctx.fillText(text, e.offsetX, e.offsetY);
     }
   }

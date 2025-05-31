@@ -18,13 +18,21 @@ const toolsBar = document.querySelector('.tools-bar');
 const completeButton = toolsBar.querySelector('button');
 toolsBar.insertBefore(colorPicker, completeButton);
 
-const tools = {
-  pencil: new Pencil(ctx),
-  brush: new Brush(ctx),
-  eraser: new Eraser(ctx),
-  water: new Water(ctx),
-  text: new TextTool(ctx)
-};
+// Map tools using static names
+const toolClasses = [Pencil, Brush, Eraser, Water, TextTool];
+const tools = {};
+toolClasses.forEach(ToolClass => {
+  tools[ToolClass.name] = new ToolClass(ctx);
+});
+
+// Set tool labels dynamically
+document.querySelectorAll('[data-tool-label]').forEach(label => {
+  const toolName = label.dataset.toolLabel;
+  const ToolClass = toolClasses.find(cls => cls.name === toolName);
+  if (ToolClass) {
+    label.textContent = ToolClass.displayName;
+  }
+});
 
 // Update tool color on color picker change
 colorPicker.addEventListener('input', () => {
@@ -36,9 +44,9 @@ colorPicker.addEventListener('input', () => {
 // Function to position size value above slider thumb
 function positionSizeValue(size) {
   const percentage = (size - sizeSlider.min) / (sizeSlider.max - sizeSlider.min);
-  const thumbWidth = 16; // Approximate thumb width
+  const thumbWidth = 16;
   const trackWidth = sizeSlider.offsetWidth - thumbWidth;
-  const leftPosition = percentage * trackWidth + thumbWidth / 2 + 1; // Shift 1px to the right
+  const leftPosition = percentage * trackWidth + thumbWidth / 2 + 1;
   sizeValue.style.left = `${leftPosition}px`;
 }
 
@@ -60,7 +68,6 @@ document.querySelectorAll('.tool-icon').forEach(el => {
     const toolName = el.dataset.tool;
     if (toolName && tools[toolName]) {
       currentTool = tools[toolName];
-      // Sync color and size with current tool
       if (currentTool && currentTool !== tools.eraser && currentTool !== tools.water) {
         currentTool.setColor(colorPicker.value);
       }
