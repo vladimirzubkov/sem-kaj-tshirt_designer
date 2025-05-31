@@ -4,6 +4,9 @@ import { Pencil, Brush, Eraser, Water, TextTool } from './tools.js';
 import { generateDrawingCursor, generateTextCursor } from './cursorManager.js';
 import { saveCanvasState, undo, redo, getCurrentHistoryIndex, getHistoryStatesLength, getRedoStatesLength } from './historyManager.js';
 
+// Access jsPDF from CDN
+const { jsPDF } = window.jspdf;
+
 const drawCanvas = document.getElementById('drawCanvas');
 const shirtCanvas = document.getElementById('shirtCanvas');
 const ctx = drawCanvas.getContext('2d');
@@ -56,6 +59,54 @@ function saveDesign() {
 function loadDesign() {
   const loadInput = document.getElementById('loadDesignInput');
   loadInput.click();
+}
+
+// Function to export design to PDF
+function exportToPDF() {
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'px',
+    format: [canvasWidth, canvasHeight + 50] // Add space for title
+  });
+
+  // Add title
+  doc.setFontSize(16);
+  doc.text('T-Shirt Design', 20, 30);
+
+  // Add design from drawCanvas
+  const designData = drawCanvas.toDataURL('image/png');
+  doc.addImage(designData, 'PNG', 0, 50, canvasWidth, canvasHeight);
+
+  // Save the PDF
+  doc.save('tshirt-design.pdf');
+  saveCanvasState(drawCanvas, 'Export to PDF', null);
+}
+
+// Function to "send" PDF via email (stub)
+function sendEmail() {
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'px',
+    format: [canvasWidth, canvasHeight + 50]
+  });
+
+  doc.setFontSize(16);
+  doc.text('T-Shirt Design', 20, 30);
+
+  const designData = drawCanvas.toDataURL('image/png');
+  doc.addImage(designData, 'PNG', 0, 50, canvasWidth, canvasHeight);
+
+  // Simulate email sending (stub)
+  const dataURL = doc.output('datauristring');
+  const link = document.createElement('a');
+  link.href = dataURL;
+  link.download = 'tshirt-design-for-email.pdf';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  alert('PDF has been "sent" via email. In a real application, this would send the PDF to an email server. For now, it has been downloaded.');
+  saveCanvasState(drawCanvas, 'Send Email', null);
 }
 
 const colorPicker = document.createElement('input');
@@ -192,6 +243,15 @@ document.getElementById('saveDesignButton').addEventListener('click', () => {
 
 document.getElementById('loadDesignButton').addEventListener('click', () => {
   loadDesign();
+});
+
+// PDF export and email buttons
+document.getElementById('downloadPDFButton').addEventListener('click', () => {
+  exportToPDF();
+});
+
+document.getElementById('sendEmailButton').addEventListener('click', () => {
+  sendEmail();
 });
 
 // Update tool size on slider change

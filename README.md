@@ -54,6 +54,11 @@ Vytvořit webovou stránku pro online návrh trička s možností:
   - Implementováno ukládání návrhu do PNG souboru pomocí tlačítka "Save Design".
   - Implementováno načítání návrhu z PNG souboru pomocí tlačítka "Load Design".
   - Akce uložení a načítání jsou integrovány do historie, což umožňuje vrácení (Undo) a opakování (Redo).
+- **Export do PDF a odeslání e-mailem**:
+  - Implementován export návrhu do PDF pomocí knihovny `jsPDF` a tlačítka "Download PDF".
+  - PDF obsahuje název ("T-Shirt Design") a návrh z plátna.
+  - Implementována simulace odeslání PDF e-mailem pomocí tlačítka "Send Email" (v současnosti zobrazí zprávu o "odeslání" a umožní stáhnout PDF, protože není k dispozici serverní část).
+  - Akce exportu a odeslání jsou integrovány do historie (Undo/Redo).
 - **Struktura kódu**:
   - **JavaScript**: Rozdělen do čtyř modulů:
     - `tools.js` obsahuje třídy nástrojů (Tool, Pencil, Brush, Eraser, Water, TextTool).
@@ -63,4 +68,5 @@ Vytvořit webovou stránku pro online návrh trička s možností:
   - **CSS**: Všechny styly jsou vyňaty z `index.html` do samostatného souboru `styles/style.css` pro lepší organizaci a údržbu. Soubor je připojen v `index.html` pomocí `<link rel="stylesheet">`.
 
 ## Plánované funkce
-- Export do PDF a odeslání e-mailem.
+- Přidání efektů pro tlačítka "Spray", "Roll", "Mixer", "Shred" při přenosu návrhu na tričko.
+- Vylepšení zobrazení trička pomocí skutečné 3D modelu (např. s použitím Three.js).
