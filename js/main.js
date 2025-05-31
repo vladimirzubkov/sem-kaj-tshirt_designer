@@ -36,15 +36,13 @@ colorPicker.addEventListener('input', () => {
 // Tool selection
 document.querySelectorAll('.tool-icon').forEach(el => {
   el.addEventListener('click', () => {
-    const label = el.textContent.trim();
-    if (label === '✏️') currentTool = tools.pencil;
-    if (label === '🖌️') currentTool = tools.brush;
-    if (label === '🧽') currentTool = tools.eraser;
-    if (label === '💧') currentTool = tools.water;
-    if (label === 'T') currentTool = tools.text;
-    // Sync color with current tool
-    if (currentTool && currentTool !== tools.eraser && currentTool !== tools.water) {
-      currentTool.setColor(colorPicker.value);
+    const toolName = el.dataset.tool;
+    if (toolName && tools[toolName]) {
+      currentTool = tools[toolName];
+      // Sync color with current tool
+      if (currentTool && currentTool !== tools.eraser && currentTool !== tools.water) {
+        currentTool.setColor(colorPicker.value);
+      }
     }
   });
 });
