@@ -35,9 +35,12 @@ colorPicker.addEventListener('input', () => {
 
 // Update tool size on slider change
 const sizeSlider = document.getElementById('sizeSlider');
+const sizeValue = document.getElementById('sizeValue');
 sizeSlider.addEventListener('input', () => {
+  const size = parseInt(sizeSlider.value);
+  sizeValue.textContent = size;
   if (currentTool) {
-    currentTool.setSize(parseInt(sizeSlider.value));
+    currentTool.setSize(size);
   }
 });
 
@@ -52,6 +55,7 @@ document.querySelectorAll('.tool-icon').forEach(el => {
         currentTool.setColor(colorPicker.value);
       }
       currentTool.setSize(parseInt(sizeSlider.value));
+      sizeValue.textContent = sizeSlider.value;
     }
   });
 });
