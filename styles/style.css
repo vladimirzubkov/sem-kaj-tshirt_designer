@@ -72,6 +72,11 @@ canvas {
   cursor: pointer;
 }
 
+#sizeSlider {
+  width: 100px;
+  align-self: center;
+}
+
 .panel-c {
   display: flex;
   flex-direction: column;
@@ -98,10 +103,14 @@ canvas {
 }
 
 footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   text-align: center;
   padding: 10px;
   font-size: 0.9em;
   border-top: 1px solid #ccc;
+  width: 100%;
 }
 
 @media (max-width: 768px) {

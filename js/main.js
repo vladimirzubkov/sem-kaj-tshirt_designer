@@ -33,16 +33,25 @@ colorPicker.addEventListener('input', () => {
   }
 });
 
+// Update tool size on slider change
+const sizeSlider = document.getElementById('sizeSlider');
+sizeSlider.addEventListener('input', () => {
+  if (currentTool) {
+    currentTool.setSize(parseInt(sizeSlider.value));
+  }
+});
+
 // Tool selection
 document.querySelectorAll('.tool-icon').forEach(el => {
   el.addEventListener('click', () => {
     const toolName = el.dataset.tool;
     if (toolName && tools[toolName]) {
       currentTool = tools[toolName];
-      // Sync color with current tool
+      // Sync color and size with current tool
       if (currentTool && currentTool !== tools.eraser && currentTool !== tools.water) {
         currentTool.setColor(colorPicker.value);
       }
+      currentTool.setSize(parseInt(sizeSlider.value));
     }
   });
 });

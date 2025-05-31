@@ -1,12 +1,16 @@
 // js/tools.js
 
 export class Tool {
-  constructor(ctx, color = '#000000') {
+  constructor(ctx, color = '#000000', size = 10) {
     this.ctx = ctx;
-    this.color = color; // Default color
+    this.color = color;
+    this.size = size; // Default size
   }
   setColor(color) {
-    this.color = color; // Update color dynamically
+    this.color = color;
+  }
+  setSize(size) {
+    this.size = size; // Update size dynamically
   }
   onMouseDown(e) {}
   onMouseMove(e) {}
@@ -17,8 +21,8 @@ export class Pencil extends Tool {
   onMouseDown(e) {
     this.ctx.beginPath();
     this.ctx.moveTo(e.offsetX, e.offsetY);
-    this.ctx.strokeStyle = this.color; // Use dynamic color
-    this.ctx.lineWidth = 1;
+    this.ctx.strokeStyle = this.color;
+    this.ctx.lineWidth = this.size; // Use dynamic size
     this.ctx.lineCap = 'round';
   }
   onMouseMove(e) {
@@ -34,8 +38,8 @@ export class Brush extends Tool {
   onMouseDown(e) {
     this.ctx.beginPath();
     this.ctx.moveTo(e.offsetX, e.offsetY);
-    this.ctx.strokeStyle = this.color; // Use dynamic color
-    this.ctx.lineWidth = 5;
+    this.ctx.strokeStyle = this.color;
+    this.ctx.lineWidth = this.size; // Use dynamic size
     this.ctx.lineCap = 'round';
   }
   onMouseMove(e) {
@@ -51,8 +55,8 @@ export class Eraser extends Tool {
   onMouseDown(e) {
     this.ctx.beginPath();
     this.ctx.moveTo(e.offsetX, e.offsetY);
-    this.ctx.strokeStyle = '#fff'; // Fixed color for eraser
-    this.ctx.lineWidth = 10;
+    this.ctx.strokeStyle = '#fff';
+    this.ctx.lineWidth = this.size; // Use dynamic size
     this.ctx.lineCap = 'round';
   }
   onMouseMove(e) {
@@ -65,13 +69,8 @@ export class Eraser extends Tool {
 }
 
 export class Water extends Tool {
-  constructor(ctx) {
-    super(ctx);
-    this.radius = 16;
-  }
-
   onMouseMove(e) {
-    const r = this.radius;
+    const r = this.size; // Use dynamic size as radius
     const x = e.offsetX;
     const y = e.offsetY;
 
@@ -102,8 +101,8 @@ export class TextTool extends Tool {
   onMouseDown(e) {
     const text = prompt('Enter text:');
     if (text) {
-      this.ctx.fillStyle = this.color; // Use dynamic color
-      this.ctx.font = '20px sans-serif';
+      this.ctx.fillStyle = this.color;
+      this.ctx.font = `${this.size}px sans-serif`; // Use dynamic size for font
       this.ctx.fillText(text, e.offsetX, e.offsetY);
     }
   }
