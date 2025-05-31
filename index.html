@@ -172,34 +172,58 @@
   COPYRIGHT © 2025 T-SHIRT DESIGNER
 </footer>
 
-<script>
-  // Canvas init
+<script type="module">
+  import { Pencil, Brush, Eraser, Water, TextTool } from './js/tools.js';
+
   const canvas = document.getElementById('drawCanvas');
   const ctx = canvas.getContext('2d');
-
   let drawing = false;
+  let currentTool = null;
+
+  const tools = {
+    pencil: new Pencil(ctx),
+    brush: new Brush(ctx),
+    eraser: new Eraser(ctx),
+    water: new Water(ctx),
+    text: new TextTool(ctx)
+  };
+
+  document.querySelectorAll('.tool-icon').forEach(el => {
+    el.addEventListener('click', () => {
+      const label = el.textContent.trim();
+      if (label === '✏️') currentTool = tools.pencil;
+      if (label === '🖌️') currentTool = tools.brush;
+      if (label === '🧽') currentTool = tools.eraser;
+      if (label === '💧') currentTool = tools.water;
+      if (label === 'T') currentTool = tools.text;
+    });
+  });
+
+  document.querySelector('.button:nth-of-type(2)').addEventListener('click', () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  });
 
   canvas.addEventListener('mousedown', (e) => {
     drawing = true;
-    ctx.beginPath();
-    ctx.moveTo(e.offsetX, e.offsetY);
+    currentTool?.onMouseDown(e);
   });
 
   canvas.addEventListener('mousemove', (e) => {
-    if (!drawing) return;
-    ctx.lineTo(e.offsetX, e.offsetY);
-    ctx.stroke();
+    if (drawing) currentTool?.onMouseMove(e);
   });
 
-  canvas.addEventListener('mouseup', () => {
+  canvas.addEventListener('mouseup', (e) => {
     drawing = false;
-    ctx.closePath();
+    currentTool?.onMouseUp(e);
   });
 
-  canvas.addEventListener('mouseleave', () => {
+  canvas.addEventListener('mouseleave', (e) => {
     drawing = false;
-    ctx.closePath();
+    currentTool?.onMouseUp(e);
   });
+
+  currentTool = tools.pencil;
 </script>
+
 </body>
 </html>
