@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>T-Shirt Editor</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+      border-bottom: 1px solid #ccc;
+    }
+
+    main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 3fr 1fr;
+      gap: 1px;
+    }
+
+    .panel-b {
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid #ccc;
+    }
+
+    .instruction {
+      padding: 10px;
+      border-bottom: 1px solid #ccc;
+      background: #f5f5f5;
+    }
+
+    .canvas-area {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #f9f9f9;
+    }
+
+    .canvas-area canvas {
+      border: 1px dashed #aaa;
+    }
+
+    .tools-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      padding: 10px;
+      border-top: 1px solid #ccc;
+    }
+
+    .tool-icon {
+      width: 50px;
+      height: 50px;
+      background: #ddd;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: 1px solid #aaa;
+      cursor: pointer;
+    }
+
+    .panel-c {
+      display: flex;
+      flex-direction: column;
+      padding: 10px;
+      gap: 10px;
+      background: #fafafa;
+    }
+
+    .shirt-options, .action-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .shirt-preview {
+      text-align: center;
+    }
+
+    .button {
+      padding: 5px 10px;
+      border: 1px solid #000;
+      background: #eee;
+      cursor: pointer;
+    }
+
+    footer {
+      text-align: center;
+      padding: 10px;
+      font-size: 0.9em;
+      border-top: 1px solid #ccc;
+    }
+
+    @media (max-width: 768px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div><strong>T-Shirt Editor</strong> | <a href="#">About</a></div>
+  <button class="button">English</button>
+</header>
+
+<main>
+  <div class="panel-b">
+    <div class="instruction">
+      Canvas: Draw here using tools below or drag’n’drop an image (SVG, PNG, GIF, JPG supported).
+    </div>
+    <div class="canvas-area">
+      <canvas width="500" height="500"></canvas>
+    </div>
+    <div class="tools-bar">
+      <div class="tool-icon">✏️</div>
+      <div class="tool-icon">🖌️</div>
+      <div class="tool-icon">T</div>
+      <div class="tool-icon">💧</div>
+      <div class="tool-icon">🧽</div>
+      <button class="button">Complete</button>
+      <button class="button">Clear</button>
+    </div>
+  </div>
+
+  <div class="panel-c">
+    <div class="shirt-options">
+      <div class="tool-icon">Male</div>
+      <div class="tool-icon">Female</div>
+      <div class="tool-icon">Kid</div>
+      <div class="tool-icon">O</div>
+      <div class="tool-icon">B</div>
+      <div class="tool-icon">C</div>
+      <button class="button">New Shirt</button>
+    </div>
+    <div class="shirt-preview">
+      <img src="tshirt-placeholder.png" alt="T-shirt preview" width="150">
+    </div>
+    <div class="tools-bar">
+      <div class="tool-icon">Spray</div>
+      <div class="tool-icon">Roll</div>
+      <div class="tool-icon">Mixer</div>
+      <div class="tool-icon">Shred</div>
+    </div>
+    <div class="action-buttons">
+      <button class="button">Save Design</button>
+      <button class="button">Load Design</button>
+      <button class="button">Download PDF</button>
+      <button class="button">Send Email</button>
+    </div>
+  </div>
+</main>
+
+<footer>
+  COPYRIGHT © 2025 T-SHIRT DESIGNER
+</footer>
+</body>
+</html>
