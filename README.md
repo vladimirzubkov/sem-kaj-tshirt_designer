@@ -46,7 +46,11 @@ Vytvořit webovou stránku pro online návrh trička s možností:
   - Každá akce (kreslení, přidání textu, přidání obrázku, vyčištění plátna) je uložena do historie.
   - Zprávy v historii zahrnují použitý nástroj (např. "Draw with Pencil", "Add Text with TextTool") a jsou viditelné v záhlaví stránky a URL fragmentu.
 - **Struktura kódu**:
-  - **JavaScript**: Rozdělen do dvou modulů: `tools.js` obsahuje třídy nástrojů (Tool, Pencil, Brush, Eraser, Water, TextTool) a `main.js` obsahuje logiku aplikace (inicializace, zpracování událostí). Modul `main.js` importuje třídy z `tools.js` a je připojen v `index.html` pomocí `<script type="module">`. Kód byl refaktorován pro odstranění nepoužívaných proměnných, aby byl čistší a lépe udržovatelný.
+  - **JavaScript**: Rozdělen do čtyř modulů:
+    - `tools.js` obsahuje třídy nástrojů (Tool, Pencil, Brush, Eraser, Water, TextTool).
+    - `cursorManager.js` obsahuje logiku pro generování vlastních kurzorů (kruh pro kreslení, svislá čára s výstupky pro text).
+    - `historyManager.js` obsahuje logiku pro správu historie akcí (uložení stavu plátna, Undo, Redo, synchronizace s historií prohlížeče).
+    - `main.js` obsahuje hlavní logiku aplikace (inicializace, zpracování událostí) a importuje funkce z ostatních modulů.
   - **CSS**: Všechny styly jsou vyňaty z `index.html` do samostatného souboru `styles/style.css` pro lepší organizaci a údržbu. Soubor je připojen v `index.html` pomocí `<link rel="stylesheet">`.
 
 ## Plánované funkce

@@ -1,6 +1,8 @@
 // js/main.js
 
 import { Pencil, Brush, Eraser, Water, TextTool } from './tools.js';
+import { generateDrawingCursor, generateTextCursor } from './cursorManager.js';
+import { saveCanvasState, undo, redo, getCurrentHistoryIndex, getHistoryStatesLength, getRedoStatesLength } from './historyManager.js';
 
 const drawCanvas = document.getElementById('drawCanvas');
 const ctx = drawCanvas.getContext('2d');
@@ -10,100 +12,6 @@ let currentTool = null;
 // Canvas dimensions
 const canvasWidth = drawCanvas.width;
 const canvasHeight = drawCanvas.height;
-
-// History for undo/redo
-let historyStates = [];
-let redoStates = [];
-
-// Save canvas state to history with tool information
-function saveCanvasState(action, toolName) {
-  const state = drawCanvas.toDataURL();
-  historyStates.push({ state, action, toolName });
-  redoStates = []; // Clear redo stack on new action
-  // Add to browser history with descriptive message
-  const historyMessage = toolName ? `${action} with ${toolName}` : action;
-  window.history.pushState({ stateIndex: historyStates.length - 1 }, historyMessage, `#${historyMessage.replace(/\s+/g, '-')}`);
-  // Update document title to reflect the action and tool
-  document.title = `T-Shirt Editor | ${historyMessage}`;
-  console.log(`Saved state: ${historyMessage}, History length: ${historyStates.length}, Redo length: ${redoStates.length}`);
-}
-
-// Restore canvas state
-function restoreCanvasState(state) {
-  const img = new Image();
-  img.onload = () => {
-    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-    ctx.drawImage(img, 0, 0);
-    console.log('Restored canvas state');
-  };
-  img.onerror = () => {
-    console.error('Failed to restore canvas state');
-  };
-  img.src = state;
-}
-
-// Undo action
-function undo() {
-  if (historyStates.length <= 1) {
-    console.log('Cannot undo: no more states to revert to');
-    return; // Keep at least one state
-  }
-  const lastState = historyStates.pop();
-  redoStates.push(lastState);
-  const previousState = historyStates[historyStates.length - 1];
-  restoreCanvasState(previousState.state);
-  // Update document title to reflect the undone state
-  const historyMessage = previousState.toolName ? `${previousState.action} with ${previousState.toolName}` : previousState.action;
-  document.title = `T-Shirt Editor | ${historyMessage}`;
-  console.log(`Undo: History length: ${historyStates.length}, Redo length: ${redoStates.length}`);
-}
-
-// Redo action
-function redo() {
-  if (redoStates.length === 0) {
-    console.log('Cannot redo: no states to redo');
-    return;
-  }
-  const nextState = redoStates.pop();
-  historyStates.push(nextState);
-  restoreCanvasState(nextState.state);
-  // Update document title to reflect the redone state
-  const historyMessage = nextState.toolName ? `${nextState.action} with ${nextState.toolName}` : nextState.action;
-  document.title = `T-Shirt Editor | ${historyMessage}`;
-  console.log(`Redo: History length: ${historyStates.length}, Redo length: ${redoStates.length}`);
-}
-
-// Function to generate a custom cursor SVG for drawing tools (circle)
-function generateDrawingCursor(size, color = '#000000') {
-  const maxCursorSize = 128;
-  const scale = size > maxCursorSize ? maxCursorSize / size : 1;
-  const cursorSize = Math.min(size, maxCursorSize);
-  const radius = (size / 2) * scale;
-  const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="${cursorSize}" height="${cursorSize}">
-      <circle cx="${cursorSize / 2}" cy="${cursorSize / 2}" r="${radius - 1}" fill="none" stroke="${color}" stroke-width="1"/>
-    </svg>
-  `;
-  return `url('data:image/svg+xml;utf8,${encodeURIComponent(svg)}') ${cursorSize / 2} ${cursorSize / 2}, auto`;
-}
-
-// Function to generate a custom cursor SVG for TextTool (vertical line with serifs)
-function generateTextCursor(size, color = '#000000') {
-  const maxCursorSize = 128;
-  const scale = size > maxCursorSize ? maxCursorSize / size : 1;
-  const cursorHeight = Math.min(size * 0.75, maxCursorSize);
-  const width = 10 * scale;
-  const height = cursorHeight;
-  const serifLength = Math.min(size * 0.15, maxCursorSize * 0.15);
-  const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
-      <line x1="${width / 2}" y1="0" x2="${width / 2}" y2="${height}" stroke="${color}" stroke-width="2"/>
-      <line x1="${width / 2 - serifLength}" y1="0" x2="${width / 2 + serifLength}" y2="0" stroke="${color}" stroke-width="2"/>
-      <line x1="${width / 2 - serifLength}" y1="${height}" x2="${width / 2 + serifLength}" y2="${height}" stroke="${color}" stroke-width="2"/>
-    </svg>
-  `;
-  return `url('data:image/svg+xml;utf8,${encodeURIComponent(svg)}') ${width / 2} ${height}, auto`;
-}
 
 const colorPicker = document.createElement('input');
 colorPicker.type = 'color';
@@ -204,7 +112,7 @@ drawCanvas.addEventListener('drop', (e) => {
 
       // Draw image on canvas and save state
       ctx.drawImage(img, x, y, newWidth, newHeight);
-      saveCanvasState('Add Image', null);
+      saveCanvasState(drawCanvas, 'Add Image', null);
     };
     img.src = event.target.result;
   };
@@ -252,7 +160,7 @@ document.querySelectorAll('.tool-icon').forEach(el => {
 // Clear canvas
 document.getElementById('clearButton').addEventListener('click', () => {
   ctx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
-  saveCanvasState('Clear Canvas', null);
+  saveCanvasState(drawCanvas, 'Clear Canvas', null);
 });
 
 // Canvas events
@@ -278,7 +186,7 @@ drawCanvas.addEventListener('mouseup', (e) => {
     currentTool?.onMouseUp(e);
     if (currentTool) {
       const action = currentTool === tools.text ? 'Add Text' : 'Draw';
-      saveCanvasState(action, currentTool.constructor.name);
+      saveCanvasState(drawCanvas, action, currentTool.constructor.name);
     }
   }
 });
@@ -289,7 +197,7 @@ drawCanvas.addEventListener('mouseleave', (e) => {
     currentTool?.onMouseUp(e);
     if (currentTool) {
       const action = currentTool === tools.text ? 'Add Text' : 'Draw';
-      saveCanvasState(action, currentTool.constructor.name);
+      saveCanvasState(drawCanvas, action, currentTool.constructor.name);
     }
   }
   drawCanvas.style.cursor = currentTool === tools.text ? 'text' : 'default';
@@ -299,10 +207,10 @@ drawCanvas.addEventListener('mouseleave', (e) => {
 document.addEventListener('keydown', (e) => {
   if (e.ctrlKey && e.key === 'z') {
     e.preventDefault();
-    undo();
+    undo(ctx, canvasWidth, canvasHeight);
   } else if (e.ctrlKey && e.key === 'y') {
     e.preventDefault();
-    redo();
+    redo(ctx, canvasWidth, canvasHeight);
   }
 }, { capture: true });
 
@@ -310,17 +218,19 @@ document.addEventListener('keydown', (e) => {
 window.addEventListener('popstate', (e) => {
   if (e.state && e.state.stateIndex !== undefined) {
     const targetIndex = e.state.stateIndex;
-    const currentIndex = historyStates.length - 1;
+    const currentIndex = getCurrentHistoryIndex();
 
     if (targetIndex < currentIndex) {
+      // Going back (undo)
       const steps = currentIndex - targetIndex;
       for (let i = 0; i < steps; i++) {
-        undo();
+        undo(ctx, canvasWidth, canvasHeight);
       }
     } else if (targetIndex > currentIndex) {
+      // Going forward (redo)
       const steps = targetIndex - currentIndex;
       for (let i = 0; i < steps; i++) {
-        redo();
+        redo(ctx, canvasWidth, canvasHeight);
       }
     }
     console.log(`Popstate: Target index: ${targetIndex}, Current index: ${currentIndex}`);
@@ -340,4 +250,4 @@ currentTool = tools.pencil;
 drawCanvas.style.cursor = generateDrawingCursor(initialSize);
 
 // Save initial canvas state
-saveCanvasState('Initial State', null);
+saveCanvasState(drawCanvas, 'Initial State', null);
