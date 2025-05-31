@@ -45,6 +45,11 @@ Vytvořit webovou stránku pro online návrh trička s možností:
   - Historie je synchronizována s historií prohlížeče, což umožňuje použití tlačítek "Zpět" a "Vpřed" v prohlížeči.
   - Každá akce (kreslení, přidání textu, přidání obrázku, vyčištění plátna) je uložena do historie.
   - Zprávy v historii zahrnují použitý nástroj (např. "Draw with Pencil", "Add Text with TextTool") a jsou viditelné v záhlaví stránky a URL fragmentu.
+- **Přenos návrhu na 3D model trička**:
+  - Implementován přenos návrhu z plátna na zobrazení trička v pravé části rozhraní.
+  - Návrh je škálován a centrován na tričku (rozměry 213x284 px).
+  - Přenos je spuštěn tlačítky "Spray", "Roll", "Mixer", "Shred" (v současnosti všechny provádějí stejný základní přenos bez efektů).
+  - Akce přenosu je uložena do historie, což umožňuje vrácení pomocí Undo (Ctrl+Z).
 - **Struktura kódu**:
   - **JavaScript**: Rozdělen do čtyř modulů:
     - `tools.js` obsahuje třídy nástrojů (Tool, Pencil, Brush, Eraser, Water, TextTool).
@@ -54,6 +59,5 @@ Vytvořit webovou stránku pro online návrh trička s možností:
   - **CSS**: Všechny styly jsou vyňaty z `index.html` do samostatného souboru `styles/style.css` pro lepší organizaci a údržbu. Soubor je připojen v `index.html` pomocí `<link rel="stylesheet">`.
 
 ## Plánované funkce
-- Přenos návrhu na 3D model trička.
 - Uložení a načítání návrhu.
 - Export do PDF a odeslání e-mailem.

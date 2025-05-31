@@ -76,13 +76,16 @@
       <button class="button">New Shirt</button>
     </div>
     <div class="shirt-preview">
-      <img src="assets/tshirt-placeholder.png" alt="T-shirt preview" width="213">
+      <div class="shirt-container">
+        <img src="assets/tshirt-placeholder.png" alt="T-shirt preview" width="213" class="shirt-base">
+        <canvas id="shirtCanvas" width="213" height="284" class="shirt-design"></canvas>
+      </div>
     </div>
     <div class="tools-bar debug-border">
-      <div class="tool-icon">Spray</div>
-      <div class="tool-icon">Roll</div>
-      <div class="tool-icon">Mixer</div>
-      <div class="tool-icon">Shred</div>
+      <div class="tool-icon" data-effect="spray">Spray</div>
+      <div class="tool-icon" data-effect="roll">Roll</div>
+      <div class="tool-icon" data-effect="mixer">Mixer</div>
+      <div class="tool-icon" data-effect="shred">Shred</div>
     </div>
     <div class="action-buttons debug-border">
       <button class="button">Save Design</button>

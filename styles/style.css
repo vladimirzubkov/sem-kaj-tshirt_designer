@@ -58,8 +58,8 @@ canvas {
 }
 
 canvas.droppable.dragover {
-  border: 2px solid #00f; /* Highlight canvas when dragging over */
-  background: #e6f0ff; /* Light blue background */
+  border: 2px solid #00f;
+  background: #e6f0ff;
 }
 
 .tools-bar {
@@ -76,7 +76,7 @@ canvas.droppable.dragover {
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  height: 76px; /* Fixed height: 60px (max icon size) + 2px (gap) + 14px (label height) */
+  height: 76px;
 }
 
 .tool-icon {
@@ -89,7 +89,7 @@ canvas.droppable.dragover {
   border: 1px solid #aaa;
   cursor: pointer;
   transition: all 0.2s ease;
-  margin-top: auto; /* Align at the bottom of tool-item */
+  margin-top: auto;
 }
 
 .tool-icon.selected {
@@ -114,15 +114,15 @@ canvas.droppable.dragover {
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  height: 76px; /* Match tool-item height */
+  height: 76px;
 }
 
 .color-picker-wrapper {
   display: flex;
   align-items: center;
-  height: 50px; /* Match tool-icon height */
-  margin-top: auto; /* Align at the bottom, matching tool-icon */
-  padding-top: 2px; /* Adjusted previously */
+  height: 50px;
+  margin-top: auto;
+  padding-top: 2px;
 }
 
 .control-element {
@@ -130,13 +130,13 @@ canvas.droppable.dragover {
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  height: 50px; /* Match tool-icon height */
-  margin-top: auto; /* Align at the bottom */
-  position: relative; /* Allow absolute positioning of size-value */
+  height: 50px;
+  margin-top: auto;
+  position: relative;
 }
 
 .size-control .control-element {
-  margin-top: 28px; /* Move size slider down */
+  margin-top: 28px;
 }
 
 .control-label {
@@ -150,14 +150,14 @@ canvas.droppable.dragover {
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  height: 76px; /* Match tool-item height */
+  height: 76px;
 }
 
 .size-value {
   font-size: 0.8em;
   color: #666;
   position: absolute;
-  top: -14px; /* Position above the slider, matching previous offset */
+  top: -14px;
   transform: translateX(-50%);
 }
 
@@ -190,6 +190,28 @@ canvas.droppable.dragover {
 
 .shirt-preview {
   text-align: center;
+}
+
+.shirt-container {
+  position: relative;
+  width: 213px;
+  height: 284px;
+  display: inline-block;
+}
+
+.shirt-base {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+.shirt-design {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  background: transparent;
 }
 
 .button {

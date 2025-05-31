@@ -5,13 +5,44 @@ import { generateDrawingCursor, generateTextCursor } from './cursorManager.js';
 import { saveCanvasState, undo, redo, getCurrentHistoryIndex, getHistoryStatesLength, getRedoStatesLength } from './historyManager.js';
 
 const drawCanvas = document.getElementById('drawCanvas');
+const shirtCanvas = document.getElementById('shirtCanvas');
 const ctx = drawCanvas.getContext('2d');
+const shirtCtx = shirtCanvas.getContext('2d');
 let drawing = false;
 let currentTool = null;
 
 // Canvas dimensions
 const canvasWidth = drawCanvas.width;
 const canvasHeight = drawCanvas.height;
+
+// Shirt canvas dimensions
+const shirtCanvasWidth = shirtCanvas.width;
+const shirtCanvasHeight = shirtCanvas.height;
+
+// Function to transfer design from drawCanvas to shirtCanvas
+function transferDesignToShirt() {
+  // Get design from drawCanvas
+  const designData = drawCanvas.toDataURL();
+  const img = new Image();
+  img.onload = () => {
+    // Clear shirtCanvas and draw the design
+    shirtCtx.clearRect(0, 0, shirtCanvasWidth, shirtCanvasHeight);
+    // Scale design to fit shirtCanvas while preserving aspect ratio
+    const aspectRatio = canvasWidth / canvasHeight;
+    let newWidth = shirtCanvasWidth;
+    let newHeight = newWidth / aspectRatio;
+    if (newHeight > shirtCanvasHeight) {
+      newHeight = shirtCanvasHeight;
+      newWidth = newHeight * aspectRatio;
+    }
+    const x = (shirtCanvasWidth - newWidth) / 2;
+    const y = (shirtCanvasHeight - newHeight) / 2;
+    shirtCtx.drawImage(img, x, y, newWidth, newHeight);
+    // Save state of drawCanvas (not shirtCanvas, as it's a preview)
+    saveCanvasState(drawCanvas, 'Transfer Design to Shirt', null);
+  };
+  img.src = designData;
+}
 
 const colorPicker = document.createElement('input');
 colorPicker.type = 'color';
@@ -79,7 +110,6 @@ drawCanvas.addEventListener('drop', (e) => {
   const file = e.dataTransfer.files[0];
   if (!file) return;
 
-  // Check file type (SVG, PNG, GIF, JPG)
   const validTypes = ['image/svg+xml', 'image/png', 'image/gif', 'image/jpeg'];
   if (!validTypes.includes(file.type)) {
     alert('Please drop an SVG, PNG, GIF, or JPG file.');
@@ -96,7 +126,6 @@ drawCanvas.addEventListener('drop', (e) => {
       let newWidth = img.width;
       let newHeight = img.height;
 
-      // Check if image is larger than canvas
       if (img.width > canvasWidth || img.height > canvasHeight) {
         const aspectRatio = img.width / img.height;
         if (img.width > img.height) {
@@ -110,7 +139,6 @@ drawCanvas.addEventListener('drop', (e) => {
         y = (canvasHeight - newHeight) / 2;
       }
 
-      // Draw image on canvas and save state
       ctx.drawImage(img, x, y, newWidth, newHeight);
       saveCanvasState(drawCanvas, 'Add Image', null);
     };
@@ -135,9 +163,10 @@ sizeSlider.addEventListener('input', () => {
 
 // Tool selection with cursor handling
 document.querySelectorAll('.tool-icon').forEach(el => {
-  el.addEventListener('click', () => {
-    const toolName = el.dataset.tool;
-    if (toolName && tools[toolName]) {
+  const toolName = el.dataset.tool;
+  const effect = el.dataset.effect;
+  if (toolName && tools[toolName]) {
+    el.addEventListener('click', () => {
       document.querySelectorAll('.tool-icon').forEach(icon => {
         icon.classList.remove('selected');
       });
@@ -153,8 +182,13 @@ document.querySelectorAll('.tool-icon').forEach(el => {
 
       const cursorColor = size >= 128 ? '#FF0000' : '#000000';
       drawCanvas.style.cursor = toolName === 'text' ? generateTextCursor(size, cursorColor) : generateDrawingCursor(size, cursorColor);
-    }
-  });
+    });
+  } else if (effect) {
+    // Handle shirt effect buttons (Spray, Roll, Mixer, Shred)
+    el.addEventListener('click', () => {
+      transferDesignToShirt();
+    });
+  }
 });
 
 // Clear canvas
@@ -221,13 +255,11 @@ window.addEventListener('popstate', (e) => {
     const currentIndex = getCurrentHistoryIndex();
 
     if (targetIndex < currentIndex) {
-      // Going back (undo)
       const steps = currentIndex - targetIndex;
       for (let i = 0; i < steps; i++) {
         undo(ctx, canvasWidth, canvasHeight);
       }
     } else if (targetIndex > currentIndex) {
-      // Going forward (redo)
       const steps = targetIndex - currentIndex;
       for (let i = 0; i < steps; i++) {
         redo(ctx, canvasWidth, canvasHeight);
