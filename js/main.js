@@ -21,13 +21,10 @@ const shirtCanvasHeight = shirtCanvas.height;
 
 // Function to transfer design from drawCanvas to shirtCanvas
 function transferDesignToShirt() {
-  // Get design from drawCanvas
   const designData = drawCanvas.toDataURL();
   const img = new Image();
   img.onload = () => {
-    // Clear shirtCanvas and draw the design
     shirtCtx.clearRect(0, 0, shirtCanvasWidth, shirtCanvasHeight);
-    // Scale design to fit shirtCanvas while preserving aspect ratio
     const aspectRatio = canvasWidth / canvasHeight;
     let newWidth = shirtCanvasWidth;
     let newHeight = newWidth / aspectRatio;
@@ -38,10 +35,27 @@ function transferDesignToShirt() {
     const x = (shirtCanvasWidth - newWidth) / 2;
     const y = (shirtCanvasHeight - newHeight) / 2;
     shirtCtx.drawImage(img, x, y, newWidth, newHeight);
-    // Save state of drawCanvas (not shirtCanvas, as it's a preview)
     saveCanvasState(drawCanvas, 'Transfer Design to Shirt', null);
   };
   img.src = designData;
+}
+
+// Function to save design as PNG
+function saveDesign() {
+  const dataURL = drawCanvas.toDataURL('image/png');
+  const link = document.createElement('a');
+  link.href = dataURL;
+  link.download = 'tshirt-design.png';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  saveCanvasState(drawCanvas, 'Save Design', null);
+}
+
+// Function to load design from file
+function loadDesign() {
+  const loadInput = document.getElementById('loadDesignInput');
+  loadInput.click();
 }
 
 const colorPicker = document.createElement('input');
@@ -147,6 +161,39 @@ drawCanvas.addEventListener('drop', (e) => {
   reader.readAsDataURL(file);
 });
 
+// Load design from file
+document.getElementById('loadDesignInput').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const validTypes = ['image/png'];
+  if (!validTypes.includes(file.type)) {
+    alert('Please load a PNG file saved from this editor.');
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    const img = new Image();
+    img.onload = () => {
+      ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+      ctx.drawImage(img, 0, 0, canvasWidth, canvasHeight);
+      saveCanvasState(drawCanvas, 'Load Design', null);
+    };
+    img.src = event.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+// Save and Load design buttons
+document.getElementById('saveDesignButton').addEventListener('click', () => {
+  saveDesign();
+});
+
+document.getElementById('loadDesignButton').addEventListener('click', () => {
+  loadDesign();
+});
+
 // Update tool size on slider change
 const sizeSlider = document.getElementById('sizeSlider');
 const sizeValue = document.getElementById('sizeValue');
@@ -184,7 +231,6 @@ document.querySelectorAll('.tool-icon').forEach(el => {
       drawCanvas.style.cursor = toolName === 'text' ? generateTextCursor(size, cursorColor) : generateDrawingCursor(size, cursorColor);
     });
   } else if (effect) {
-    // Handle shirt effect buttons (Spray, Roll, Mixer, Shred)
     el.addEventListener('click', () => {
       transferDesignToShirt();
     });

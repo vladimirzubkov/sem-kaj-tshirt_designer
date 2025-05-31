@@ -50,6 +50,10 @@ Vytvořit webovou stránku pro online návrh trička s možností:
   - Návrh je škálován a centrován na tričku (rozměry 213x284 px).
   - Přenos je spuštěn tlačítky "Spray", "Roll", "Mixer", "Shred" (v současnosti všechny provádějí stejný základní přenos bez efektů).
   - Akce přenosu je uložena do historie, což umožňuje vrácení pomocí Undo (Ctrl+Z).
+- **Uložení a načítání návrhu**:
+  - Implementováno ukládání návrhu do PNG souboru pomocí tlačítka "Save Design".
+  - Implementováno načítání návrhu z PNG souboru pomocí tlačítka "Load Design".
+  - Akce uložení a načítání jsou integrovány do historie, což umožňuje vrácení (Undo) a opakování (Redo).
 - **Struktura kódu**:
   - **JavaScript**: Rozdělen do čtyř modulů:
     - `tools.js` obsahuje třídy nástrojů (Tool, Pencil, Brush, Eraser, Water, TextTool).
@@ -59,5 +63,4 @@ Vytvořit webovou stránku pro online návrh trička s možností:
   - **CSS**: Všechny styly jsou vyňaty z `index.html` do samostatného souboru `styles/style.css` pro lepší organizaci a údržbu. Soubor je připojen v `index.html` pomocí `<link rel="stylesheet">`.
 
 ## Plánované funkce
-- Uložení a načítání návrhu.
 - Export do PDF a odeslání e-mailem.
