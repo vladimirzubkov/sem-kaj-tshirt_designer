@@ -21,11 +21,26 @@
       <canvas id="drawCanvas" width="500" height="500"></canvas>
     </div>
     <div class="tools-bar">
-      <div class="tool-icon" data-tool="pencil">✏️</div>
-      <div class="tool-icon" data-tool="brush">🖌️</div>
-      <div class="tool-icon" data-tool="text">T</div>
-      <div class="tool-icon" data-tool="water">💧</div>
-      <div class="tool-icon" data-tool="eraser">🧽</div>
+      <div class="tool-item">
+        <div class="tool-icon" data-tool="pencil">✏️</div>
+        <span class="tool-label">Pencil</span>
+      </div>
+      <div class="tool-item">
+        <div class="tool-icon" data-tool="brush">🖌️</div>
+        <span class="tool-label">Brush</span>
+      </div>
+      <div class="tool-item">
+        <div class="tool-icon" data-tool="text">T</div>
+        <span class="tool-label">Text</span>
+      </div>
+      <div class="tool-item">
+        <div class="tool-icon" data-tool="water">💧</div>
+        <span class="tool-label">Water</span>
+      </div>
+      <div class="tool-item">
+        <div class="tool-icon" data-tool="eraser">🧽</div>
+        <span class="tool-label">Eraser</span>
+      </div>
       <div class="size-control">
         <span id="sizeValue" class="size-value">10</span>
         <input type="range" id="sizeSlider" min="1" max="300" value="10" title="Tool Size">
