@@ -33,12 +33,22 @@ colorPicker.addEventListener('input', () => {
   }
 });
 
+// Function to position size value above slider thumb
+function positionSizeValue(size) {
+  const percentage = (size - sizeSlider.min) / (sizeSlider.max - sizeSlider.min);
+  const thumbWidth = 16; // Approximate thumb width
+  const trackWidth = sizeSlider.offsetWidth - thumbWidth;
+  const leftPosition = percentage * trackWidth + thumbWidth / 2 + 1; // Shift 1px to the right
+  sizeValue.style.left = `${leftPosition}px`;
+}
+
 // Update tool size on slider change
 const sizeSlider = document.getElementById('sizeSlider');
 const sizeValue = document.getElementById('sizeValue');
 sizeSlider.addEventListener('input', () => {
   const size = parseInt(sizeSlider.value);
   sizeValue.textContent = size;
+  positionSizeValue(size);
   if (currentTool) {
     currentTool.setSize(size);
   }
@@ -54,8 +64,10 @@ document.querySelectorAll('.tool-icon').forEach(el => {
       if (currentTool && currentTool !== tools.eraser && currentTool !== tools.water) {
         currentTool.setColor(colorPicker.value);
       }
-      currentTool.setSize(parseInt(sizeSlider.value));
-      sizeValue.textContent = sizeSlider.value;
+      const size = parseInt(sizeSlider.value);
+      currentTool.setSize(size);
+      sizeValue.textContent = size;
+      positionSizeValue(size);
     }
   });
 });
@@ -84,5 +96,10 @@ canvas.addEventListener('mouseleave', (e) => {
   drawing = false;
   currentTool?.onMouseUp(e);
 });
+
+// Initialize size value position
+const initialSize = parseInt(sizeSlider.value);
+sizeValue.textContent = initialSize;
+positionSizeValue(initialSize);
 
 currentTool = tools.pencil;
