@@ -11,9 +11,70 @@ let currentTool = null;
 const canvasWidth = drawCanvas.width;
 const canvasHeight = drawCanvas.height;
 
+// History for undo/redo
+let historyStates = [];
+let redoStates = [];
+
+// Save canvas state to history with tool information
+function saveCanvasState(action, toolName) {
+  const state = drawCanvas.toDataURL();
+  historyStates.push({ state, action, toolName });
+  redoStates = []; // Clear redo stack on new action
+  // Add to browser history with descriptive message
+  const historyMessage = toolName ? `${action} with ${toolName}` : action;
+  window.history.pushState({ stateIndex: historyStates.length - 1 }, historyMessage, `#${historyMessage.replace(/\s+/g, '-')}`);
+  // Update document title to reflect the action and tool
+  document.title = `T-Shirt Editor | ${historyMessage}`;
+  console.log(`Saved state: ${historyMessage}, History length: ${historyStates.length}, Redo length: ${redoStates.length}`);
+}
+
+// Restore canvas state
+function restoreCanvasState(state) {
+  const img = new Image();
+  img.onload = () => {
+    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+    ctx.drawImage(img, 0, 0);
+    console.log('Restored canvas state');
+  };
+  img.onerror = () => {
+    console.error('Failed to restore canvas state');
+  };
+  img.src = state;
+}
+
+// Undo action
+function undo() {
+  if (historyStates.length <= 1) {
+    console.log('Cannot undo: no more states to revert to');
+    return; // Keep at least one state
+  }
+  const lastState = historyStates.pop();
+  redoStates.push(lastState);
+  const previousState = historyStates[historyStates.length - 1];
+  restoreCanvasState(previousState.state);
+  // Update document title to reflect the undone state
+  const historyMessage = previousState.toolName ? `${previousState.action} with ${previousState.toolName}` : previousState.action;
+  document.title = `T-Shirt Editor | ${historyMessage}`;
+  console.log(`Undo: History length: ${historyStates.length}, Redo length: ${redoStates.length}`);
+}
+
+// Redo action
+function redo() {
+  if (redoStates.length === 0) {
+    console.log('Cannot redo: no states to redo');
+    return;
+  }
+  const nextState = redoStates.pop();
+  historyStates.push(nextState);
+  restoreCanvasState(nextState.state);
+  // Update document title to reflect the redone state
+  const historyMessage = nextState.toolName ? `${nextState.action} with ${nextState.toolName}` : nextState.action;
+  document.title = `T-Shirt Editor | ${historyMessage}`;
+  console.log(`Redo: History length: ${historyStates.length}, Redo length: ${redoStates.length}`);
+}
+
 // Function to generate a custom cursor SVG for drawing tools (circle)
 function generateDrawingCursor(size, color = '#000000') {
-  // Limit cursor size to 128px (browser restriction), but scale visually
   const maxCursorSize = 128;
   const scale = size > maxCursorSize ? maxCursorSize / size : 1;
   const cursorSize = Math.min(size, maxCursorSize);
@@ -28,24 +89,19 @@ function generateDrawingCursor(size, color = '#000000') {
 
 // Function to generate a custom cursor SVG for TextTool (vertical line with serifs)
 function generateTextCursor(size, color = '#000000') {
-  // Adjust cursor height to match text height (font-size * 0.75 for sans-serif)
   const maxCursorSize = 128;
   const scale = size > maxCursorSize ? maxCursorSize / size : 1;
   const cursorHeight = Math.min(size * 0.75, maxCursorSize);
   const width = 10 * scale;
   const height = cursorHeight;
-  const serifLength = Math.min(size * 0.15, maxCursorSize * 0.15); // Proportional serif length
+  const serifLength = Math.min(size * 0.15, maxCursorSize * 0.15);
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
-      <!-- Vertical line -->
       <line x1="${width / 2}" y1="0" x2="${width / 2}" y2="${height}" stroke="${color}" stroke-width="2"/>
-      <!-- Top serif -->
       <line x1="${width / 2 - serifLength}" y1="0" x2="${width / 2 + serifLength}" y2="0" stroke="${color}" stroke-width="2"/>
-      <!-- Bottom serif -->
       <line x1="${width / 2 - serifLength}" y1="${height}" x2="${width / 2 + serifLength}" y2="${height}" stroke="${color}" stroke-width="2"/>
     </svg>
   `;
-  // Align cursor so the bottom edge matches the text baseline
   return `url('data:image/svg+xml;utf8,${encodeURIComponent(svg)}') ${width / 2} ${height}, auto`;
 }
 
@@ -134,7 +190,6 @@ drawCanvas.addEventListener('drop', (e) => {
 
       // Check if image is larger than canvas
       if (img.width > canvasWidth || img.height > canvasHeight) {
-        // Determine scaling factor based on larger dimension
         const aspectRatio = img.width / img.height;
         if (img.width > img.height) {
           newWidth = canvasWidth;
@@ -143,13 +198,13 @@ drawCanvas.addEventListener('drop', (e) => {
           newHeight = canvasHeight;
           newWidth = newHeight * aspectRatio;
         }
-        // Center the image
         x = (canvasWidth - newWidth) / 2;
         y = (canvasHeight - newHeight) / 2;
       }
 
-      // Draw image on canvas
+      // Draw image on canvas and save state
       ctx.drawImage(img, x, y, newWidth, newHeight);
+      saveCanvasState('Add Image', null);
     };
     img.src = event.target.result;
   };
@@ -165,9 +220,7 @@ sizeSlider.addEventListener('input', () => {
   positionSizeValue(size);
   if (currentTool) {
     currentTool.setSize(size);
-    // Determine cursor color based on size
     const cursorColor = size >= 128 ? '#FF0000' : '#000000';
-    // Update cursor based on tool
     drawCanvas.style.cursor = currentTool === tools.text ? generateTextCursor(size, cursorColor) : generateDrawingCursor(size, cursorColor);
   }
 });
@@ -190,9 +243,7 @@ document.querySelectorAll('.tool-icon').forEach(el => {
       sizeValue.textContent = size;
       positionSizeValue(size);
 
-      // Determine cursor color based on size
       const cursorColor = size >= 128 ? '#FF0000' : '#000000';
-      // Set cursor style based on tool
       drawCanvas.style.cursor = toolName === 'text' ? generateTextCursor(size, cursorColor) : generateDrawingCursor(size, cursorColor);
     }
   });
@@ -201,6 +252,7 @@ document.querySelectorAll('.tool-icon').forEach(el => {
 // Clear canvas
 document.getElementById('clearButton').addEventListener('click', () => {
   ctx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+  saveCanvasState('Clear Canvas', null);
 });
 
 // Canvas events
@@ -213,7 +265,6 @@ drawCanvas.addEventListener('mousemove', (e) => {
   if (drawing) {
     currentTool?.onMouseMove(e);
   }
-  // Restore custom cursor on mousemove if the tool is active
   if (currentTool) {
     const size = parseInt(sizeSlider.value);
     const cursorColor = size >= 128 ? '#FF0000' : '#000000';
@@ -222,14 +273,60 @@ drawCanvas.addEventListener('mousemove', (e) => {
 });
 
 drawCanvas.addEventListener('mouseup', (e) => {
-  drawing = false;
-  currentTool?.onMouseUp(e);
+  if (drawing) {
+    drawing = false;
+    currentTool?.onMouseUp(e);
+    if (currentTool) {
+      const action = currentTool === tools.text ? 'Add Text' : 'Draw';
+      saveCanvasState(action, currentTool.constructor.name);
+    }
+  }
 });
 
 drawCanvas.addEventListener('mouseleave', (e) => {
-  drawing = false;
-  currentTool?.onMouseUp(e);
+  if (drawing) {
+    drawing = false;
+    currentTool?.onMouseUp(e);
+    if (currentTool) {
+      const action = currentTool === tools.text ? 'Add Text' : 'Draw';
+      saveCanvasState(action, currentTool.constructor.name);
+    }
+  }
   drawCanvas.style.cursor = currentTool === tools.text ? 'text' : 'default';
+});
+
+// Keyboard shortcuts for undo/redo
+document.addEventListener('keydown', (e) => {
+  if (e.ctrlKey && e.key === 'z') {
+    e.preventDefault();
+    undo();
+  } else if (e.ctrlKey && e.key === 'y') {
+    e.preventDefault();
+    redo();
+  }
+}, { capture: true });
+
+// Browser history navigation
+window.addEventListener('popstate', (e) => {
+  if (e.state && e.state.stateIndex !== undefined) {
+    const targetIndex = e.state.stateIndex;
+    const currentIndex = historyStates.length - 1;
+
+    if (targetIndex < currentIndex) {
+      const steps = currentIndex - targetIndex;
+      for (let i = 0; i < steps; i++) {
+        undo();
+      }
+    } else if (targetIndex > currentIndex) {
+      const steps = targetIndex - currentIndex;
+      for (let i = 0; i < steps; i++) {
+        redo();
+      }
+    }
+    console.log(`Popstate: Target index: ${targetIndex}, Current index: ${currentIndex}`);
+  } else {
+    console.log('Popstate: No state to restore');
+  }
 });
 
 // Initialize size value position
@@ -241,3 +338,6 @@ positionSizeValue(initialSize);
 document.querySelector('.tool-icon[data-tool="pencil"]').classList.add('selected');
 currentTool = tools.pencil;
 drawCanvas.style.cursor = generateDrawingCursor(initialSize);
+
+// Save initial canvas state
+saveCanvasState('Initial State', null);
