@@ -25,10 +25,11 @@ header {
   border-bottom: 1px solid #ccc;
 }
 
+/* Main layout grid for panels */
 main {
   flex: 1;
   display: grid;
-  grid-template-columns: 3fr 1fr;
+  grid-template-columns: 2.8fr 1.2fr;
   gap: 1px;
 }
 
@@ -62,6 +63,7 @@ canvas.droppable.dragover {
   background: #e6f0ff;
 }
 
+/* Toolbar for drawing tools and effects */
 .tools-bar {
   display: flex;
   flex-wrap: wrap;
@@ -92,15 +94,29 @@ canvas.droppable.dragover {
   margin-top: auto;
 }
 
-.tool-icon.selected {
+/* Selected style for drawing tools only */
+.panel-b .tools-bar .tool-icon.selected {
   width: 60px;
   height: 60px;
+  border: 2px solid orange;
+}
+
+/* Selected style for style and size buttons */
+.style-button.selected,
+.size-button.selected {
   border: 2px solid orange;
 }
 
 /* Increase size of "𝐓" for TextTool */
 .tool-icon[data-tool="text"] {
   font-size: 1.5em;
+}
+
+/* Effect buttons in .tools-bar (Stamp, Spray, Roll, Mixer, Shred) */
+.effect-buttons .tool-icon {
+  width: 5vw;
+  height: 30px;
+  min-width: 75px;
 }
 
 .tool-label {
@@ -182,11 +198,114 @@ canvas.droppable.dragover {
   background: #fafafa;
 }
 
-.shirt-options, .action-buttons {
+.shirt-options {
   display: flex;
   flex-wrap: wrap;
+  gap: 20px;
+}
+
+.style-size-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 80%;
+  margin: 0 auto;
+}
+
+.style-buttons {
+  display: flex;
+  justify-content: space-evenly;
+  gap: 10px;
+  padding: 0 5px;
+}
+
+.style-button {
+  min-width: fit-content;
+  padding: 0 10px;
+}
+
+.size-buttons {
+  display: flex;
+  justify-content: space-evenly;
   gap: 10px;
 }
+
+.size-button {
+  flex: 1;
+  min-width: 0;
+  width: 25px;
+  height: 25px;
+  text-align: center;
+}
+
+#color-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 80%;
+  margin: 0 auto;
+}
+
+.shirt-color-row, .background-color-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  justify-content: space-evenly;
+}
+
+.color-label {
+  font-size: 0.8em;
+  color: #666;
+}
+
+.color-circle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid #aaa;
+  cursor: pointer;
+}
+
+.color-circle.selected {
+  border: 2px solid orange;
+}
+
+.color-circle[data-background-color="transparent"] {
+  background: linear-gradient(45deg, transparent 47%, #ccc 47%, #ccc 53%, transparent 53%),
+  linear-gradient(-45deg, transparent 47%, #ccc 47%, #ccc 53%, transparent 53%);
+}
+
+.color-picker {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  cursor: pointer;
+}
+
+.new-shirt-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+#project-controls {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 15px;
+  justify-content: center;
+  padding: 10px 0;
+}
+
+#project-controls .button {
+  width: 100%; /* Match single-column width on desktop */
+  max-width: 200px; /* Same as single-column max-width */
+  min-width: 120px; /* Increased by 15px to trigger earlier wrapping */
+  text-align: center;
+  height: 30px;
+  border-color: red;
+}
+
 
 .shirt-preview {
   text-align: center;
@@ -219,6 +338,12 @@ canvas.droppable.dragover {
   border: 1px solid #000;
   background: #eee;
   cursor: pointer;
+  white-space: nowrap;
+}
+
+.button[title="Remember and\nSave Design"] {
+  white-space: pre-line;
+  line-height: 1.2;
 }
 
 footer {
@@ -232,9 +357,121 @@ footer {
   width: 100%;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1000px) {
+  #project-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+    padding: 10px;
+  }
+
+  /* Order for two-column layout */
+  #project-controls #saveDesignButton {
+    order: 1; /* Save Project */
+    flex: 1 1 45%;
+  }
+
+  #project-controls #sendEmailButton {
+    order: 2; /* Order T-Shirts */
+    flex: 1 1 45%;
+  }
+
+  #project-controls #loadDesignButton {
+    order: 3; /* Load Project */
+    flex: 1 1 45%;
+  }
+
+  #project-controls #downloadPDFButton {
+    order: 4; /* Download PDF */
+    flex: 1 1 45%;
+  }
+
+  #project-controls .button {
+    min-width: 95px;
+    max-width: none;
+    box-sizing: border-box;
+  }
+}
+
+@media (max-width: 820px) {
+  #project-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+    padding: 10px;
+  }
+
+  /* Order for two-column layout */
+  #project-controls #saveDesignButton {
+    order: 2; /* Save Project */
+  }
+
+  #project-controls #sendEmailButton {
+    order: 1; /* Order T-Shirts */
+  }
+
+  #project-controls #loadDesignButton {
+    order: 3; /* Load Project */
+  }
+
+  #project-controls #downloadPDFButton {
+    order: 4; /* Download PDF */
+  }
+
+  #project-controls .button {
+    min-width: 95px;
+    max-width: none;
+    box-sizing: border-box;
+  }
+}
+
+@media (max-width: 500px) {
   main {
     grid-template-columns: 1fr;
+  }
+
+  .panel-b {
+    order: 1;
+  }
+
+  .panel-c {
+    order: 2;
+  }
+
+  .shirt-options {
+    flex-direction: column;
+  }
+
+  #color-options {
+    margin-top: 10px;
+  }
+
+  #project-controls {
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: column;
+    gap: 15px;
+    padding: 10px;
+    align-items: center;
+  }
+
+  /* Order for single-column layout */
+  #project-controls #sendEmailButton {
+    order: 1; /* Order T-Shirts */
+  }
+
+  #project-controls #saveDesignButton {
+    order: 2; /* Save Project */
+  }
+
+  #project-controls #loadDesignButton {
+    order: 3; /* Load Project */
+  }
+
+  #project-controls #downloadPDFButton {
+    order: 4; /* Download PDF */
   }
 }
 
@@ -244,7 +481,7 @@ footer {
   height: 5px;
   background: #ddd;
   margin-top: 5px;
-  visibility: visible; /* Ensure visibility */
+  visibility: visible;
   position: relative;
 }
 
@@ -253,5 +490,5 @@ footer {
   background: #00f;
   width: 0%;
   transition: width 0.1s linear;
-  visibility: visible; /* Ensure visibility */
+  visibility: visible;
 }

@@ -1,10 +1,13 @@
 # T-Shirt Designer: Semestrální práce pro B0B39KAJ
 
 ## Téma
+
 Návrh grafiky pro trička online.
 
 ## Popis nápadu projektu
+
 Vytvořit webovou stránku pro online návrh trička s možností:
+
 - Nahrávání SVG a rastrových obrázků.
 - Základní kreslení.
 - Vkládání textu.
@@ -12,12 +15,14 @@ Vytvořit webovou stránku pro online návrh trička s možností:
 - Odeslání nebo stažení výsledku.
 
 ## Rozhraní
+
 - Plátno vlevo, 3D model trička vpravo, menu s nástroji dole.
 - Nástroje: Text, výběr barvy, štětec, tužka, guma, voda.
 - Proces: Kreslíme na plátno, poté přeneseme na tričko pomocí nástrojů (rozprašovač, válec, šejkr, šreddr).
 - Výstup: Stáhnout PDF nebo odeslat e-mailem.
 
 ## Implementované funkce
+
 - **Výběr barvy**: Uživatel může vybrat barvu prostřednictvím `<input type="color">`, která se dynamicky aplikuje na nástroje tužka, štětec a text. Barva je aktualizována v reálném čase při změně výběru barvy nebo přepnutí nástroje. Nástroje guma a voda mají pevně dané chování a nejsou ovlivněny výběrem barvy.
 - **Čištění plátna**: Tlačítko "Clear" umožňuje uživateli vymazat veškerý obsah plátna, resetujíc jeho původní stav.
 - **Výběr nástrojů**: Nástroje (tužka, štětec, text, guma, voda) jsou identifikovány pomocí atributů `data-tool` na prvcích rozhraní, což zajišťuje spolehlivé a škálovatelné přepínání nástrojů.
@@ -78,5 +83,51 @@ Vytvořit webovou stránku pro online návrh trička s možností:
   - **CSS**: Všechny styly jsou vyňaty z `index.html` do samostatného souboru `styles/style.css` pro lepší organizaci a údržbu. Soubor je připojen v `index.html` pomocí `<link rel="stylesheet">`.
 
 ## Plánované funkce
+
 - Vylepšení zobrazení trička pomocí skutečného 3D modelu (např. s použitím Three.js).
 - Rozšíření správy návrhů o podporu výběru fasónů triček (Male, Female, Kid), velikostí (XXL, XL, L, M, S) a barev.
+
+## Hodnocení implementace
+
+Projekt splňuje většinu povinných a část nepovinných požadavků dle kritérií hodnocení:
+
+### Povinné požadavky (11/11 bodů)
+
+- **Dokumentace (1/1)**: Kompletní popis v `README.md`, komentáře v kódu (`main.js`, `tools.js`, apod.).
+- **HTML5 (2/2)**:
+  - **Validita HTML5 (1/1)**: Kód `index.html` byl ověřen přes https://validator.w3.org a je validní.
+  - **Sémantické značky (1/1)**: Použity tagy `header`, `main`, `footer`, `nav`, `section`.
+- **CSS (3/3)**:
+  - **Pokročilé selektory (1/1)**: Pseudotřídy (`.tool-icon.selected`), kombinátory (`.panel-b .tools-bar .tool-icon.selected`).
+  - **Přechody/animace (2/2)**: CSS přechody pro `.tool-icon` (`transition: all 0.2s ease`) a progress bar (`transition: width 0.1s linear`).
+- **JavaScript (5/5)**:
+  - **OOP přístup (2/2)**: Třídy s dědičností (`Tool`, `Pencil`, apod.), moduly jako jmenné prostory.
+  - **Pokročilé JS API (3/3)**: Drag & Drop (`canvasManager.js`), File API (`projectManager.js`), History API (`historyManager.js`), Canvas API.
+
+### Nepovinné požadavky (11.5+?/25 bodů)
+
+- **HTML5 (5/8)**:
+  - **Podpora prohlížečů (2/2)**: Kód využívá standardní API (Canvas, Drag & Drop), předpokládá se kompatibilita s Chrome, Firefox, Edge, Opera.
+  - **Grafika (2/2)**: Canvas plně implementován, SVG částečně (zpracování jako obrázek).
+  - **Média (0/1)**: Zvuky nejsou implementovány, pouze placeholdery v `effectManager.js`.
+  - **Formuláře (1/2)**: Použity `<input type="color">`, `<input type="range">` s validací typů souborů.
+  - **Offline aplikace (0/1)**: Neimplementováno.
+- **CSS (3.5/5)**:
+  - **Vendor prefix (0/1)**: Nepotřebné díky široké podpoře vlastností.
+  - **Transformace 2D/3D (0.5/2)**: Pouze `translateX` pro `.size-value`.
+  - **Media queries (2/2)**: Adaptivní design pro rozlišení 1000px, 820px, 500px.
+- **JavaScript (3/7)**:
+  - **Frameworky (0/1)**: Nepoužity.
+  - **History API (2/2)**: Plně implementováno v `historyManager.js`.
+  - **Media API (0/1)**: Zvuky neimplementovány.
+  - **Práce s SVG přes JS (1/2)**: SVG zpracováváno jako obrázek, bez DOM manipulace.
+  - **Offline aplikace (0/1)**: Neimplementováno.
+- **Ostatní (?/5)**:
+  - **Kompletnost řešení (?/3)**: Většina funkcí implementována, chybí 3D model a zvuky.
+  - **Estetické zpracování (?/2)**: Funkční UI s zvýrazněním nástrojů, kurzory, adaptivností, ale bez výrazného designu.
+
+### Celkové hodnocení
+
+- **Povinné požadavky**: 11/11 bodů.
+- **Nepovinné požadavky**: 11.5+?/25 bodů.
+- **Celkem**: 22.5+?/36 bodů.

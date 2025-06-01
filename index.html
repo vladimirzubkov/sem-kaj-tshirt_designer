@@ -5,12 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>T-Shirt Editor</title>
   <link rel="stylesheet" href="styles/style.css">
-  <!-- Load jsPDF from CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 <header class="debug-border">
-  <div><strong>T-Shirt Editor</strong> | <a href="#">About</a></div>
+  <div><strong>T-Shirt Editor</strong> | <a href="#">Settings</a> | <a href="#">About</a></div>
   <button class="button">English</button>
 </header>
 
@@ -62,19 +61,44 @@
         </div>
         <span class="control-label">Color</span>
       </div>
-      <button class="button">Complete</button>
+      <button class="button">Remember and<br>Save Design</button>
       <button class="button" id="clearButton">Clear</button>
     </div>
   </div>
 
   <div class="panel-c debug-border">
     <div class="shirt-options debug-border">
-      <div class="tool-icon">Male</div>
-      <div class="tool-icon">Female</div>
-      <div class="tool-icon">Kid</div>
-      <div class="tool-icon">O</div>
-      <div class="tool-icon">B</div>
-      <div class="tool-icon">C</div>
+      <div class="style-size-options debug-border">
+        <div class="style-row style-buttons">
+          <div class="tool-icon style-button selected" data-style="male">Male</div>
+          <div class="tool-icon style-button" data-style="female">Female</div>
+          <div class="tool-icon style-button" data-style="kid">Kid</div>
+        </div>
+        <div class="size-row size-buttons">
+          <div class="tool-icon size-button" data-size="xxl">XXL</div>
+          <div class="tool-icon size-button" data-size="xl">XL</div>
+          <div class="tool-icon size-button selected" data-size="l">L</div>
+          <div class="tool-icon size-button" data-size="m">M</div>
+          <div class="tool-icon size-button" data-size="s">S</div>
+        </div>
+      </div>
+      <div class="color-options debug-border" id="color-options">
+        <div class="shirt-color-row">
+          <span class="color-label">Shirt Color:</span>
+          <div class="color-circle selected" data-shirt-color="white" style="background-color: #ffffff;"></div>
+          <div class="color-circle" data-shirt-color="beige" style="background-color: #f5f5dc;"></div>
+          <div class="color-circle" data-shirt-color="green" style="background-color: #008000;"></div>
+          <div class="color-circle" data-shirt-color="blue" style="background-color: #add8e6;"></div>
+        </div>
+        <div class="background-color-row">
+          <span class="color-label">Background:</span>
+          <div class="color-circle selected" data-background-color="transparent"></div>
+          <div class="color-circle" data-background-color="white" style="background-color: #ffffff;"></div>
+          <input type="color" class="color-picker" id="backgroundColorPicker" title="Custom Background Color">
+        </div>
+      </div>
+    </div>
+    <div class="new-shirt-container debug-border">
       <button class="button" id="newShirtButton">New Shirt</button>
     </div>
     <div class="shirt-preview">
@@ -83,7 +107,7 @@
         <canvas id="shirtCanvas" width="213" height="284" class="shirt-design"></canvas>
       </div>
     </div>
-    <div class="tools-bar debug-border">
+    <div class="tools-bar debug-border effect-buttons">
       <div class="tool-icon" data-effect="stamp">Stamp</div>
       <div class="tool-icon" data-effect="spray">Spray</div>
       <div class="tool-icon" data-effect="roll">Roll</div>
@@ -93,12 +117,12 @@
         <div id="effectProgress" class="progress-bar"></div>
       </div>
     </div>
-    <div class="action-buttons debug-border">
-      <button class="button" id="saveDesignButton">Save Design</button>
-      <button class="button" id="loadDesignButton">Load Design</button>
+    <div class="action-buttons debug-border" id="project-controls">
+      <button class="button" id="saveDesignButton">Save Project</button>
+      <button class="button" id="loadDesignButton">Load Project</button>
       <input type="file" id="loadDesignInput" accept="image/png" style="display: none;">
       <button class="button" id="downloadPDFButton">Download PDF</button>
-      <button class="button" id="sendEmailButton">Send Email</button>
+      <button class="button" id="sendEmailButton">Order T-Shirts</button>
     </div>
   </div>
 </main>
