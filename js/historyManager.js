@@ -5,9 +5,10 @@ let historyStates = [];
 let redoStates = [];
 
 // Save canvas state to history with tool information
-export function saveCanvasState(canvas, action, toolName) {
-  const state = canvas.toDataURL();
-  historyStates.push({ state, action, toolName });
+export function saveCanvasState(drawCanvas, shirtCanvas, action, toolName) {
+  const drawState = drawCanvas.toDataURL();
+  const shirtState = shirtCanvas.toDataURL();
+  historyStates.push({ drawState, shirtState, action, toolName });
   redoStates = []; // Clear redo stack on new action
   // Add to browser history with descriptive message
   const historyMessage = toolName ? `${action} with ${toolName}` : action;
@@ -18,61 +19,76 @@ export function saveCanvasState(canvas, action, toolName) {
 }
 
 // Restore canvas state
-function restoreCanvasState(ctx, canvasWidth, canvasHeight, state) {
-  const img = new Image();
-  img.onload = () => {
-    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-    ctx.drawImage(img, 0, 0);
-    console.log('Restored canvas state');
+function restoreCanvasState(drawCtx, drawCanvasWidth, drawCanvasHeight, shirtCtx, shirtCanvasWidth, shirtCanvasHeight, state) {
+  const drawImg = new Image();
+  const shirtImg = new Image();
+  
+  let drawLoaded = false;
+  let shirtLoaded = false;
+
+  const checkBothLoaded = () => {
+    if (drawLoaded && shirtLoaded) {
+      console.log('Restored canvas state for both drawCanvas and shirtCanvas');
+    }
   };
-  img.onerror = () => {
-    console.error('Failed to restore canvas state');
+
+  drawImg.onload = () => {
+    drawCtx.clearRect(0, 0, drawCanvasWidth, drawCanvasHeight);
+    drawCtx.drawImage(drawImg, 0, 0);
+    drawLoaded = true;
+    checkBothLoaded();
   };
-  img.src = state;
+  drawImg.onerror = () => {
+    console.error('Failed to restore drawCanvas state');
+  };
+  drawImg.src = state.drawState;
+
+  shirtImg.onload = () => {
+    shirtCtx.clearRect(0, 0, shirtCanvasWidth, shirtCanvasHeight);
+    shirtCtx.drawImage(shirtImg, 0, 0);
+    shirtLoaded = true;
+    checkBothLoaded();
+  };
+  shirtImg.onerror = () => {
+    console.error('Failed to restore shirtCanvas state');
+  };
+  shirtImg.src = state.shirtState;
 }
 
 // Undo action
-export function undo(ctx, canvasWidth, canvasHeight) {
-  if (historyStates.length <= 1) {
-    console.log('Cannot undo: no more states to revert to');
-    return; // Keep at least one state
+export function undo(drawCtx, drawCanvasWidth, drawCanvasHeight, shirtCtx, shirtCanvasWidth, shirtCanvasHeight) {
+  if (historyStates.length > 1) {
+    const lastState = historyStates.pop();
+    redoStates.push(lastState);
+    const stateToRestore = historyStates[historyStates.length - 1];
+    restoreCanvasState(drawCtx, drawCanvasWidth, drawCanvasHeight, shirtCtx, shirtCanvasWidth, shirtCanvasHeight, stateToRestore);
+  } else {
+    console.log('Nothing to undo');
   }
-  const lastState = historyStates.pop();
-  redoStates.push(lastState);
-  const previousState = historyStates[historyStates.length - 1];
-  restoreCanvasState(ctx, canvasWidth, canvasHeight, previousState.state);
-  // Update document title to reflect the undone state
-  const historyMessage = previousState.toolName ? `${previousState.action} with ${previousState.toolName}` : previousState.action;
-  document.title = `T-Shirt Editor | ${historyMessage}`;
-  console.log(`Undo: History length: ${historyStates.length}, Redo length: ${redoStates.length}`);
 }
 
 // Redo action
-export function redo(ctx, canvasWidth, canvasHeight) {
-  if (redoStates.length === 0) {
-    console.log('Cannot redo: no states to redo');
-    return;
+export function redo(drawCtx, drawCanvasWidth, drawCanvasHeight, shirtCtx, shirtCanvasWidth, shirtCanvasHeight) {
+  if (redoStates.length > 0) {
+    const stateToRestore = redoStates.pop();
+    historyStates.push(stateToRestore);
+    restoreCanvasState(drawCtx, drawCanvasWidth, drawCanvasHeight, shirtCtx, shirtCanvasWidth, shirtCanvasHeight, stateToRestore);
+  } else {
+    console.log('Nothing to redo');
   }
-  const nextState = redoStates.pop();
-  historyStates.push(nextState);
-  restoreCanvasState(ctx, canvasWidth, canvasHeight, nextState.state);
-  // Update document title to reflect the redone state
-  const historyMessage = nextState.toolName ? `${nextState.action} with ${nextState.toolName}` : nextState.action;
-  document.title = `T-Shirt Editor | ${historyMessage}`;
-  console.log(`Redo: History length: ${historyStates.length}, Redo length: ${redoStates.length}`);
 }
 
-// Get current history index for popstate handling
+// Get current history index
 export function getCurrentHistoryIndex() {
   return historyStates.length - 1;
 }
 
-// Get history states length for popstate handling
+// Get history states length
 export function getHistoryStatesLength() {
   return historyStates.length;
 }
 
-// Get redo states length for popstate handling
+// Get redo states length
 export function getRedoStatesLength() {
   return redoStates.length;
 }

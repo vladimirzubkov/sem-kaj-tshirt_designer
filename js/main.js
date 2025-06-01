@@ -3,48 +3,82 @@
 import { Pencil, Brush, Eraser, Water, TextTool } from './tools.js';
 import { generateDrawingCursor, generateTextCursor } from './cursorManager.js';
 import { saveCanvasState, undo, redo, getCurrentHistoryIndex, getHistoryStatesLength, getRedoStatesLength } from './historyManager.js';
+import { effectHandlers } from './effectManager.js';
+import { showProgress, hideProgress } from './progressManager.js';
 
 // Access jsPDF from CDN
 const { jsPDF } = window.jspdf;
 
 const drawCanvas = document.getElementById('drawCanvas');
 const shirtCanvas = document.getElementById('shirtCanvas');
+const progressBar = document.getElementById('effectProgress');
 const ctx = drawCanvas.getContext('2d');
 const shirtCtx = shirtCanvas.getContext('2d');
 let drawing = false;
 let currentTool = null;
+let isEffectActive = false;
+let effectStartTime = 0;
+let currentEffect = null; // Track the current effect for saving to history
 
 // Canvas dimensions
-const canvasWidth = drawCanvas.width;
-const canvasHeight = drawCanvas.height;
+const canvasWidth = drawCanvas.width;  // 375
+const canvasHeight = drawCanvas.height; // 500
 
 // Shirt canvas dimensions
-const shirtCanvasWidth = shirtCanvas.width;
-const shirtCanvasHeight = shirtCanvas.height;
+const shirtCanvasWidth = shirtCanvas.width;   // 213
+const shirtCanvasHeight = shirtCanvas.height; // 284
 
-// Function to transfer design from drawCanvas to shirtCanvas
-function transferDesignToShirt() {
-  const designData = drawCanvas.toDataURL();
-  const img = new Image();
-  img.onload = () => {
-    shirtCtx.clearRect(0, 0, shirtCanvasWidth, shirtCanvasHeight);
-    const aspectRatio = canvasWidth / canvasHeight;
-    let newWidth = shirtCanvasWidth;
-    let newHeight = newWidth / aspectRatio;
-    if (newHeight > shirtCanvasHeight) {
-      newHeight = shirtCanvasHeight;
-      newWidth = newHeight * aspectRatio;
+// Check visibility of shirtCanvas
+console.log(`[${new Date().toISOString()}] shirtCanvas visibility: visibility=${shirtCanvas.style.visibility}, display=${window.getComputedStyle(shirtCanvas).display}, zIndex=${window.getComputedStyle(shirtCanvas).zIndex}`);
+
+// Function to transfer design from drawCanvas to shirtCanvas with effect
+function transferDesignToShirt(effect) {
+  if (isEffectActive) {
+    console.log(`[${new Date().toISOString()}] Effect ${effect} blocked: another effect is active.`);
+    return;
+  }
+
+  console.log(`[${new Date().toISOString()}] Starting effect: ${effect}`);
+  isEffectActive = true;
+  currentEffect = effect; // Store the current effect
+  effectStartTime = performance.now();
+  const maxDuration = (effect === 'stamp') ? 500 : (effect === 'roll') ? 2000 : (effect === 'shred') ? 7000 : (effect === 'mixer') ? 5000 : 20000; // 0.5s for stamp, 2s for roll, 7s for shred, 5s for mixer, 20s for spray
+
+  // Apply the effect once and let the effect handle its own timing
+  effectHandlers[effect](drawCanvas, shirtCtx, 0, maxDuration, (finalProgress) => {
+    console.log(`[${new Date().toISOString()}] Effect ${effect} progress: ${finalProgress * 100}%`);
+    showProgress(progressBar, finalProgress);
+    if (finalProgress === 1 || !isEffectActive) {
+      console.log(`[${new Date().toISOString()}] Effect ${effect} completed with progress: ${finalProgress}`);
+      isEffectActive = false;
+      hideProgress(progressBar);
+      // Save the final state
+      saveCanvasState(drawCanvas, shirtCanvas, `Transfer Design to Shirt (${effect.charAt(0).toUpperCase() + effect.slice(1)})`, null);
     }
-    const x = (shirtCanvasWidth - newWidth) / 2;
-    const y = (shirtCanvasHeight - newHeight) / 2;
-    shirtCtx.drawImage(img, x, y, newWidth, newHeight);
-    saveCanvasState(drawCanvas, 'Transfer Design to Shirt', null);
-  };
-  img.src = designData;
+  }, () => isEffectActive);
+}
+
+// Function to stop applying effect
+function stopEffect() {
+  console.log(`[${new Date().toISOString()}] Stopping effect application`);
+  if (isEffectActive && currentEffect) {
+    // Save the final state before stopping
+    saveCanvasState(drawCanvas, shirtCanvas, `Transfer Design to Shirt (${currentEffect.charAt(0).toUpperCase() + currentEffect.slice(1)})`, null);
+  }
+  isEffectActive = false;
+  currentEffect = null;
+}
+
+// Function to reset shirt (clear shirtCanvas)
+function resetShirt() {
+  console.log(`[${new Date().toISOString()}] Resetting shirt`);
+  shirtCtx.clearRect(0, 0, shirtCanvasWidth, shirtCanvasHeight);
+  saveCanvasState(drawCanvas, shirtCanvas, 'Reset Shirt', null);
 }
 
 // Function to save design as PNG
 function saveDesign() {
+  console.log(`[${new Date().toISOString()}] Saving design`);
   const dataURL = drawCanvas.toDataURL('image/png');
   const link = document.createElement('a');
   link.href = dataURL;
@@ -52,51 +86,50 @@ function saveDesign() {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
-  saveCanvasState(drawCanvas, 'Save Design', null);
+  saveCanvasState(drawCanvas, shirtCanvas, 'Save Design', null);
 }
 
 // Function to load design from file
 function loadDesign() {
+  console.log(`[${new Date().toISOString()}] Loading design`);
   const loadInput = document.getElementById('loadDesignInput');
   loadInput.click();
 }
 
-// Function to export design to PDF
+// Function to export design to PDF (from shirtCanvas)
 function exportToPDF() {
+  console.log(`[${new Date().toISOString()}] Exporting to PDF`);
   const doc = new jsPDF({
     orientation: 'portrait',
     unit: 'px',
-    format: [canvasWidth, canvasHeight + 50] // Add space for title
+    format: [shirtCanvasWidth, shirtCanvasHeight + 50]
   });
 
-  // Add title
   doc.setFontSize(16);
   doc.text('T-Shirt Design', 20, 30);
 
-  // Add design from drawCanvas
-  const designData = drawCanvas.toDataURL('image/png');
-  doc.addImage(designData, 'PNG', 0, 50, canvasWidth, canvasHeight);
+  const designData = shirtCanvas.toDataURL('image/png'); // Use shirtCanvas (result after effects)
+  doc.addImage(designData, 'PNG', 0, 50, shirtCanvasWidth, shirtCanvasHeight);
 
-  // Save the PDF
   doc.save('tshirt-design.pdf');
-  saveCanvasState(drawCanvas, 'Export to PDF', null);
+  saveCanvasState(drawCanvas, shirtCanvas, 'Export to PDF', null);
 }
 
-// Function to "send" PDF via email (stub)
+// Function to "send" PDF via email (stub, from shirtCanvas)
 function sendEmail() {
+  console.log(`[${new Date().toISOString()}] Sending email (stub)`);
   const doc = new jsPDF({
     orientation: 'portrait',
     unit: 'px',
-    format: [canvasWidth, canvasHeight + 50]
+    format: [shirtCanvasWidth, shirtCanvasHeight + 50]
   });
 
   doc.setFontSize(16);
   doc.text('T-Shirt Design', 20, 30);
 
-  const designData = drawCanvas.toDataURL('image/png');
-  doc.addImage(designData, 'PNG', 0, 50, canvasWidth, canvasHeight);
+  const designData = shirtCanvas.toDataURL('image/png'); // Use shirtCanvas (result after effects)
+  doc.addImage(designData, 'PNG', 0, 50, shirtCanvasWidth, shirtCanvasHeight);
 
-  // Simulate email sending (stub)
   const dataURL = doc.output('datauristring');
   const link = document.createElement('a');
   link.href = dataURL;
@@ -106,7 +139,7 @@ function sendEmail() {
   document.body.removeChild(link);
 
   alert('PDF has been "sent" via email. In a real application, this would send the PDF to an email server. For now, it has been downloaded.');
-  saveCanvasState(drawCanvas, 'Send Email', null);
+  saveCanvasState(drawCanvas, shirtCanvas, 'Send Email', null);
 }
 
 const colorPicker = document.createElement('input');
@@ -155,28 +188,36 @@ function positionSizeValue(size) {
 // Drag-and-drop handling
 drawCanvas.addEventListener('dragover', (e) => {
   e.preventDefault();
+  console.log(`[${new Date().toISOString()}] Drag over canvas`);
   drawCanvas.classList.add('dragover');
 });
 
 drawCanvas.addEventListener('dragenter', (e) => {
   e.preventDefault();
+  console.log(`[${new Date().toISOString()}] Drag enter canvas`);
   drawCanvas.classList.add('dragover');
 });
 
 drawCanvas.addEventListener('dragleave', (e) => {
   e.preventDefault();
+  console.log(`[${new Date().toISOString()}] Drag leave canvas`);
   drawCanvas.classList.remove('dragover');
 });
 
 drawCanvas.addEventListener('drop', (e) => {
   e.preventDefault();
+  console.log(`[${new Date().toISOString()}] Drop on canvas`);
   drawCanvas.classList.remove('dragover');
 
   const file = e.dataTransfer.files[0];
-  if (!file) return;
+  if (!file) {
+    console.log(`[${new Date().toISOString()}] No file dropped`);
+    return;
+  }
 
   const validTypes = ['image/svg+xml', 'image/png', 'image/gif', 'image/jpeg'];
   if (!validTypes.includes(file.type)) {
+    console.log(`[${new Date().toISOString()}] Invalid file type: ${file.type}`);
     alert('Please drop an SVG, PNG, GIF, or JPG file.');
     return;
   }
@@ -204,8 +245,9 @@ drawCanvas.addEventListener('drop', (e) => {
         y = (canvasHeight - newHeight) / 2;
       }
 
+      console.log(`[${new Date().toISOString()}] Drawing image at x: ${x}, y: ${y}, width: ${newWidth}, height: ${newHeight}`);
       ctx.drawImage(img, x, y, newWidth, newHeight);
-      saveCanvasState(drawCanvas, 'Add Image', null);
+      saveCanvasState(drawCanvas, shirtCanvas, 'Add Image', null);
     };
     img.src = event.target.result;
   };
@@ -215,10 +257,14 @@ drawCanvas.addEventListener('drop', (e) => {
 // Load design from file
 document.getElementById('loadDesignInput').addEventListener('change', (e) => {
   const file = e.target.files[0];
-  if (!file) return;
+  if (!file) {
+    console.log(`[${new Date().toISOString()}] No file selected for loading`);
+    return;
+  }
 
   const validTypes = ['image/png'];
   if (!validTypes.includes(file.type)) {
+    console.log(`[${new Date().toISOString()}] Invalid file type for loading: ${file.type}`);
     alert('Please load a PNG file saved from this editor.');
     return;
   }
@@ -227,9 +273,10 @@ document.getElementById('loadDesignInput').addEventListener('change', (e) => {
   reader.onload = (event) => {
     const img = new Image();
     img.onload = () => {
+      console.log(`[${new Date().toISOString()}] Loading image onto canvas`);
       ctx.clearRect(0, 0, canvasWidth, canvasHeight);
       ctx.drawImage(img, 0, 0, canvasWidth, canvasHeight);
-      saveCanvasState(drawCanvas, 'Load Design', null);
+      saveCanvasState(drawCanvas, shirtCanvas, 'Load Design', null);
     };
     img.src = event.target.result;
   };
@@ -254,6 +301,11 @@ document.getElementById('sendEmailButton').addEventListener('click', () => {
   sendEmail();
 });
 
+// New Shirt button
+document.getElementById('newShirtButton').addEventListener('click', () => {
+  resetShirt();
+});
+
 // Update tool size on slider change
 const sizeSlider = document.getElementById('sizeSlider');
 const sizeValue = document.getElementById('sizeValue');
@@ -274,6 +326,7 @@ document.querySelectorAll('.tool-icon').forEach(el => {
   const effect = el.dataset.effect;
   if (toolName && tools[toolName]) {
     el.addEventListener('click', () => {
+      console.log(`[${new Date().toISOString()}] Selected tool: ${toolName}`);
       document.querySelectorAll('.tool-icon').forEach(icon => {
         icon.classList.remove('selected');
       });
@@ -291,21 +344,32 @@ document.querySelectorAll('.tool-icon').forEach(el => {
       drawCanvas.style.cursor = toolName === 'text' ? generateTextCursor(size, cursorColor) : generateDrawingCursor(size, cursorColor);
     });
   } else if (effect) {
-    el.addEventListener('click', () => {
-      transferDesignToShirt();
+    el.addEventListener('mousedown', () => {
+      console.log(`[${new Date().toISOString()}] Button pressed for effect: ${effect}`);
+      transferDesignToShirt(effect);
+    });
+    el.addEventListener('mouseup', () => {
+      console.log(`[${new Date().toISOString()}] Button released for effect: ${effect}`);
+      stopEffect();
+    });
+    el.addEventListener('mouseleave', () => {
+      console.log(`[${new Date().toISOString()}] Mouse left button for effect: ${effect}`);
+      stopEffect();
     });
   }
 });
 
 // Clear canvas
 document.getElementById('clearButton').addEventListener('click', () => {
+  console.log(`[${new Date().toISOString()}] Clearing canvas`);
   ctx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
-  saveCanvasState(drawCanvas, 'Clear Canvas', null);
+  saveCanvasState(drawCanvas, shirtCanvas, 'Clear Canvas', null);
 });
 
 // Canvas events
 drawCanvas.addEventListener('mousedown', (e) => {
   drawing = true;
+  console.log(`[${new Date().toISOString()}] Mouse down on canvas at x: ${e.offsetX}, y: ${e.offsetY}`);
   currentTool?.onMouseDown(e);
 });
 
@@ -323,10 +387,11 @@ drawCanvas.addEventListener('mousemove', (e) => {
 drawCanvas.addEventListener('mouseup', (e) => {
   if (drawing) {
     drawing = false;
+    console.log(`[${new Date().toISOString()}] Mouse up on canvas at x: ${e.offsetX}, y: ${e.offsetY}`);
     currentTool?.onMouseUp(e);
     if (currentTool) {
       const action = currentTool === tools.text ? 'Add Text' : 'Draw';
-      saveCanvasState(drawCanvas, action, currentTool.constructor.name);
+      saveCanvasState(drawCanvas, shirtCanvas, action, currentTool.constructor.name);
     }
   }
 });
@@ -334,10 +399,11 @@ drawCanvas.addEventListener('mouseup', (e) => {
 drawCanvas.addEventListener('mouseleave', (e) => {
   if (drawing) {
     drawing = false;
+    console.log(`[${new Date().toISOString()}] Mouse left canvas`);
     currentTool?.onMouseUp(e);
     if (currentTool) {
       const action = currentTool === tools.text ? 'Add Text' : 'Draw';
-      saveCanvasState(drawCanvas, action, currentTool.constructor.name);
+      saveCanvasState(drawCanvas, shirtCanvas, action, currentTool.constructor.name);
     }
   }
   drawCanvas.style.cursor = currentTool === tools.text ? 'text' : 'default';
@@ -347,10 +413,12 @@ drawCanvas.addEventListener('mouseleave', (e) => {
 document.addEventListener('keydown', (e) => {
   if (e.ctrlKey && e.key === 'z') {
     e.preventDefault();
-    undo(ctx, canvasWidth, canvasHeight);
+    console.log(`[${new Date().toISOString()}] Undo triggered`);
+    undo(ctx, canvasWidth, canvasHeight, shirtCtx, shirtCanvasWidth, shirtCanvasHeight);
   } else if (e.ctrlKey && e.key === 'y') {
     e.preventDefault();
-    redo(ctx, canvasWidth, canvasHeight);
+    console.log(`[${new Date().toISOString()}] Redo triggered`);
+    redo(ctx, canvasWidth, canvasHeight, shirtCtx, shirtCanvasWidth, shirtCanvasHeight);
   }
 }, { capture: true });
 
@@ -363,17 +431,19 @@ window.addEventListener('popstate', (e) => {
     if (targetIndex < currentIndex) {
       const steps = currentIndex - targetIndex;
       for (let i = 0; i < steps; i++) {
-        undo(ctx, canvasWidth, canvasHeight);
+        console.log(`[${new Date().toISOString()}] Popstate undo step ${i + 1}/${steps}`);
+        undo(ctx, canvasWidth, canvasHeight, shirtCtx, shirtCanvasWidth, shirtCanvasHeight);
       }
     } else if (targetIndex > currentIndex) {
       const steps = targetIndex - currentIndex;
       for (let i = 0; i < steps; i++) {
-        redo(ctx, canvasWidth, canvasHeight);
+        console.log(`[${new Date().toISOString()}] Popstate redo step ${i + 1}/${steps}`);
+        redo(ctx, canvasWidth, canvasHeight, shirtCtx, shirtCanvasWidth, shirtCanvasHeight);
       }
     }
-    console.log(`Popstate: Target index: ${targetIndex}, Current index: ${currentIndex}`);
+    console.log(`[${new Date().toISOString()}] Popstate: Target index: ${targetIndex}, Current index: ${currentIndex}`);
   } else {
-    console.log('Popstate: No state to restore');
+    console.log(`[${new Date().toISOString()}] Popstate: No state to restore`);
   }
 });
 
@@ -388,4 +458,4 @@ currentTool = tools.pencil;
 drawCanvas.style.cursor = generateDrawingCursor(initialSize);
 
 // Save initial canvas state
-saveCanvasState(drawCanvas, 'Initial State', null);
+saveCanvasState(drawCanvas, shirtCanvas, 'Initial State', null);

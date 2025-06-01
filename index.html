@@ -20,7 +20,7 @@
       Canvas: Draw here using tools below or drag’n’drop an image (SVG, PNG, GIF, JPG supported).
     </div>
     <div class="canvas-area debug-border">
-      <canvas id="drawCanvas" width="500" height="500" class="droppable"></canvas>
+      <canvas id="drawCanvas" width="375" height="500" class="droppable"></canvas>
     </div>
     <div class="tools-bar debug-border">
       <div class="tool-item debug-border">
@@ -75,7 +75,7 @@
       <div class="tool-icon">O</div>
       <div class="tool-icon">B</div>
       <div class="tool-icon">C</div>
-      <button class="button">New Shirt</button>
+      <button class="button" id="newShirtButton">New Shirt</button>
     </div>
     <div class="shirt-preview">
       <div class="shirt-container">
@@ -84,10 +84,14 @@
       </div>
     </div>
     <div class="tools-bar debug-border">
+      <div class="tool-icon" data-effect="stamp">Stamp</div>
       <div class="tool-icon" data-effect="spray">Spray</div>
       <div class="tool-icon" data-effect="roll">Roll</div>
       <div class="tool-icon" data-effect="mixer">Mixer</div>
       <div class="tool-icon" data-effect="shred">Shred</div>
+      <div class="progress-container">
+        <div id="effectProgress" class="progress-bar"></div>
+      </div>
     </div>
     <div class="action-buttons debug-border">
       <button class="button" id="saveDesignButton">Save Design</button>

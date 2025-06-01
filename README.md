@@ -14,7 +14,7 @@ Vytvořit webovou stránku pro online návrh trička s možností:
 ## Rozhraní
 - Plátno vlevo, 3D model trička vpravo, menu s nástroji dole.
 - Nástroje: Text, výběr barvy, štětec, tužka, guma, voda.
-- Proces: Kreslíme na plátno, poté přeneseme na tričko pomocí nástrojů (válec, rozprašovač, šejkr, šreddr).
+- Proces: Kreslíme na plátno, poté přeneseme na tričko pomocí nástrojů (rozprašovač, válec, šejkr, šreddr).
 - Výstup: Stáhnout PDF nebo odeslat e-mailem.
 
 ## Implementované funkce
@@ -48,7 +48,12 @@ Vytvořit webovou stránku pro online návrh trička s možností:
 - **Přenos návrhu na 3D model trička**:
   - Implementován přenos návrhu z plátna na zobrazení trička v pravé části rozhraní.
   - Návrh je škálován a centrován na tričku (rozměry 213x284 px).
-  - Přenos je spuštěn tlačítky "Spray", "Roll", "Mixer", "Shred" (v současnosti všechny provádějí stejný základní přenos bez efektů).
+  - Přenos je spuštěn tlačítky "Stamp", "Spray", "Roll", "Mixer", "Shred":
+    - **Stamp**: Přímo přenese návrh z plátna na tričko, přidává jej na stávající obsah trička.
+    - **Spray**: Postupně přidává návrh na tričko formou náhodných kapek (25 kapek každých 0,1 sekundy, poloměr 1–5 px), dokud není tlačítko uvolněno nebo nedosáhne maxima (5000 kapek za 20 sekund). Kapky jsou přidávány pouze na neprůhledné části původního návrhu.
+    - **Roll**: Přidává dvě vrstvy návrhu na tričko s náhodným zkreslením (2% výšky plátna), každá s průhledností 50%. První vrstva je aplikována okamžitě, druhá po 1 sekundě, pokud je tlačítko stále stisknuto. Zkreslení je generováno na základě mřížky 10x10.
+    - **Mixer**: Přidává až 5 vrstev deformací (merge, twistCW, twistCCW, inflate, deflate) na tričko, jednu vrstvu za sekundu, dokud není tlačítko uvolněno.
+    - **Shred**: Postupně přidává návrh na tričko formou až 7 kroků "rozřezávání", jeden krok za sekundu, dokud není tlačítko uvolněno. Každý krok zvyšuje počet fragmentů a přidává rotaci a deformaci tvaru.
   - Akce přenosu je uložena do historie, což umožňuje vrácení pomocí Undo (Ctrl+Z).
 - **Uložení a načítání návrhu**:
   - Implementováno ukládání návrhu do PNG souboru pomocí tlačítka "Save Design".
@@ -60,13 +65,15 @@ Vytvořit webovou stránku pro online návrh trička s možností:
   - Implementována simulace odeslání PDF e-mailem pomocí tlačítka "Send Email" (v současnosti zobrazí zprávu o "odeslání" a umožní stáhnout PDF, protože není k dispozici serverní část).
   - Akce exportu a odeslání jsou integrovány do historie (Undo/Redo).
 - **Struktura kódu**:
-  - **JavaScript**: Rozdělen do čtyř modulů:
+  - **JavaScript**: Rozdělen do sedmi modulů:
     - `tools.js` obsahuje třídy nástrojů (Tool, Pencil, Brush, Eraser, Water, TextTool).
     - `cursorManager.js` obsahuje logiku pro generování vlastních kurzorů (kruh pro kreslení, svislá čára s výstupky pro text).
     - `historyManager.js` obsahuje logiku pro správu historie akcí (uložení stavu plátna, Undo, Redo, synchronizace s historií prohlížeče).
+    - `effectManager.js` obsahuje logiku pro efekty při přenosu návrhu na tričko (Stamp, Spray, Roll, Mixer, Shred).
+    - `progressManager.js` obsahuje logiku pro zobrazení průběhu efektů (progress bar).
+    - `stampEffect.js`, `sprayEffect.js`, `rollEffect.js`, `mixerEffect.js`, `shredderEffect.js` obsahují specifickou logiku pro jednotlivé efekty.
     - `main.js` obsahuje hlavní logiku aplikace (inicializace, zpracování událostí) a importuje funkce z ostatních modulů.
   - **CSS**: Všechny styly jsou vyňaty z `index.html` do samostatného souboru `styles/style.css` pro lepší organizaci a údržbu. Soubor je připojen v `index.html` pomocí `<link rel="stylesheet">`.
 
 ## Plánované funkce
-- Přidání efektů pro tlačítka "Spray", "Roll", "Mixer", "Shred" při přenosu návrhu na tričko.
-- Vylepšení zobrazení trička pomocí skutečné 3D modelu (např. s použitím Three.js).
+- Vylepšení zobrazení trička pomocí skutečného 3D modelu (např. s použitím Three.js).
