@@ -55,6 +55,7 @@ Vytvořit webovou stránku pro online návrh trička s možností:
     - **Mixer**: Přidává až 5 vrstev deformací (merge, twistCW, twistCCW, inflate, deflate) na tričko, jednu vrstvu za sekundu, dokud není tlačítko uvolněno.
     - **Shred**: Postupně přidává návrh na tričko formou až 7 kroků "rozřezávání", jeden krok za sekundu, dokud není tlačítko uvolněno. Každý krok zvyšuje počet fragmentů a přidává rotaci a deformaci tvaru.
   - Akce přenosu je uložena do historie, což umožňuje vrácení pomocí Undo (Ctrl+Z).
+  - Pouze finální výsledek aplikace efektu je uložen do historie, nikoli jednotlivé kroky efektů.
 - **Uložení a načítání návrhu**:
   - Implementováno ukládání návrhu do PNG souboru pomocí tlačítka "Save Design".
   - Implementováno načítání návrhu z PNG souboru pomocí tlačítka "Load Design".
@@ -65,15 +66,17 @@ Vytvořit webovou stránku pro online návrh trička s možností:
   - Implementována simulace odeslání PDF e-mailem pomocí tlačítka "Send Email" (v současnosti zobrazí zprávu o "odeslání" a umožní stáhnout PDF, protože není k dispozici serverní část).
   - Akce exportu a odeslání jsou integrovány do historie (Undo/Redo).
 - **Struktura kódu**:
-  - **JavaScript**: Rozdělen do sedmi modulů:
+  - **JavaScript**: Rozdělen do osmi modulů:
     - `tools.js` obsahuje třídy nástrojů (Tool, Pencil, Brush, Eraser, Water, TextTool).
     - `cursorManager.js` obsahuje logiku pro generování vlastních kurzorů (kruh pro kreslení, svislá čára s výstupky pro text).
     - `historyManager.js` obsahuje logiku pro správu historie akcí (uložení stavu plátna, Undo, Redo, synchronizace s historií prohlížeče).
     - `effectManager.js` obsahuje logiku pro efekty při přenosu návrhu na tričko (Stamp, Spray, Roll, Mixer, Shred).
     - `progressManager.js` obsahuje logiku pro zobrazení průběhu efektů (progress bar).
+    - `projectManager.js` obsahuje logiku pro ukládání a načítání návrhu (PNG, JSON), export do PDF a simulaci odeslání e-mailem.
     - `stampEffect.js`, `sprayEffect.js`, `rollEffect.js`, `mixerEffect.js`, `shredderEffect.js` obsahují specifickou logiku pro jednotlivé efekty.
     - `main.js` obsahuje hlavní logiku aplikace (inicializace, zpracování událostí) a importuje funkce z ostatních modulů.
   - **CSS**: Všechny styly jsou vyňaty z `index.html` do samostatného souboru `styles/style.css` pro lepší organizaci a údržbu. Soubor je připojen v `index.html` pomocí `<link rel="stylesheet">`.
 
 ## Plánované funkce
 - Vylepšení zobrazení trička pomocí skutečného 3D modelu (např. s použitím Three.js).
+- Rozšíření správy návrhů o podporu výběru fasónů triček (Male, Female, Kid), velikostí (XXL, XL, L, M, S) a barev.

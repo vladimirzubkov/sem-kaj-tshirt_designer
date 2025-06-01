@@ -92,3 +92,9 @@ export function getHistoryStatesLength() {
 export function getRedoStatesLength() {
   return redoStates.length;
 }
+
+// Initialize history events (placeholder)
+export function initHistoryEvents(drawCanvas, shirtCanvas) {
+  console.log(`[${new Date().toISOString()}] History events initialized for drawCanvas and shirtCanvas`);
+  // Placeholder for future history event initialization
+}

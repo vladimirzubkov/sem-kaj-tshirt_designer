@@ -2,9 +2,10 @@
 
 import { Pencil, Brush, Eraser, Water, TextTool } from './tools.js';
 import { generateDrawingCursor, generateTextCursor } from './cursorManager.js';
-import { saveCanvasState, undo, redo, getCurrentHistoryIndex, getHistoryStatesLength, getRedoStatesLength } from './historyManager.js';
+import { saveCanvasState, undo, redo, getCurrentHistoryIndex } from './historyManager.js';
 import { effectHandlers } from './effectManager.js';
 import { showProgress, hideProgress } from './progressManager.js';
+import { saveDesign, loadDesign, exportToPDF, sendEmail } from './projectManager.js';
 
 // Access jsPDF from CDN
 const { jsPDF } = window.jspdf;
@@ -74,72 +75,6 @@ function resetShirt() {
   console.log(`[${new Date().toISOString()}] Resetting shirt`);
   shirtCtx.clearRect(0, 0, shirtCanvasWidth, shirtCanvasHeight);
   saveCanvasState(drawCanvas, shirtCanvas, 'Reset Shirt', null);
-}
-
-// Function to save design as PNG
-function saveDesign() {
-  console.log(`[${new Date().toISOString()}] Saving design`);
-  const dataURL = drawCanvas.toDataURL('image/png');
-  const link = document.createElement('a');
-  link.href = dataURL;
-  link.download = 'tshirt-design.png';
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  saveCanvasState(drawCanvas, shirtCanvas, 'Save Design', null);
-}
-
-// Function to load design from file
-function loadDesign() {
-  console.log(`[${new Date().toISOString()}] Loading design`);
-  const loadInput = document.getElementById('loadDesignInput');
-  loadInput.click();
-}
-
-// Function to export design to PDF (from shirtCanvas)
-function exportToPDF() {
-  console.log(`[${new Date().toISOString()}] Exporting to PDF`);
-  const doc = new jsPDF({
-    orientation: 'portrait',
-    unit: 'px',
-    format: [shirtCanvasWidth, shirtCanvasHeight + 50]
-  });
-
-  doc.setFontSize(16);
-  doc.text('T-Shirt Design', 20, 30);
-
-  const designData = shirtCanvas.toDataURL('image/png'); // Use shirtCanvas (result after effects)
-  doc.addImage(designData, 'PNG', 0, 50, shirtCanvasWidth, shirtCanvasHeight);
-
-  doc.save('tshirt-design.pdf');
-  saveCanvasState(drawCanvas, shirtCanvas, 'Export to PDF', null);
-}
-
-// Function to "send" PDF via email (stub, from shirtCanvas)
-function sendEmail() {
-  console.log(`[${new Date().toISOString()}] Sending email (stub)`);
-  const doc = new jsPDF({
-    orientation: 'portrait',
-    unit: 'px',
-    format: [shirtCanvasWidth, shirtCanvasHeight + 50]
-  });
-
-  doc.setFontSize(16);
-  doc.text('T-Shirt Design', 20, 30);
-
-  const designData = shirtCanvas.toDataURL('image/png'); // Use shirtCanvas (result after effects)
-  doc.addImage(designData, 'PNG', 0, 50, shirtCanvasWidth, shirtCanvasHeight);
-
-  const dataURL = doc.output('datauristring');
-  const link = document.createElement('a');
-  link.href = dataURL;
-  link.download = 'tshirt-design-for-email.pdf';
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-
-  alert('PDF has been "sent" via email. In a real application, this would send the PDF to an email server. For now, it has been downloaded.');
-  saveCanvasState(drawCanvas, shirtCanvas, 'Send Email', null);
 }
 
 const colorPicker = document.createElement('input');
@@ -254,51 +189,22 @@ drawCanvas.addEventListener('drop', (e) => {
   reader.readAsDataURL(file);
 });
 
-// Load design from file
-document.getElementById('loadDesignInput').addEventListener('change', (e) => {
-  const file = e.target.files[0];
-  if (!file) {
-    console.log(`[${new Date().toISOString()}] No file selected for loading`);
-    return;
-  }
-
-  const validTypes = ['image/png'];
-  if (!validTypes.includes(file.type)) {
-    console.log(`[${new Date().toISOString()}] Invalid file type for loading: ${file.type}`);
-    alert('Please load a PNG file saved from this editor.');
-    return;
-  }
-
-  const reader = new FileReader();
-  reader.onload = (event) => {
-    const img = new Image();
-    img.onload = () => {
-      console.log(`[${new Date().toISOString()}] Loading image onto canvas`);
-      ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-      ctx.drawImage(img, 0, 0, canvasWidth, canvasHeight);
-      saveCanvasState(drawCanvas, shirtCanvas, 'Load Design', null);
-    };
-    img.src = event.target.result;
-  };
-  reader.readAsDataURL(file);
-});
-
 // Save and Load design buttons
 document.getElementById('saveDesignButton').addEventListener('click', () => {
-  saveDesign();
+  saveDesign(drawCanvas, shirtCanvas);
 });
 
 document.getElementById('loadDesignButton').addEventListener('click', () => {
-  loadDesign();
+  loadDesign(drawCanvas, shirtCanvas);
 });
 
 // PDF export and email buttons
 document.getElementById('downloadPDFButton').addEventListener('click', () => {
-  exportToPDF();
+  exportToPDF(drawCanvas, shirtCanvas);
 });
 
 document.getElementById('sendEmailButton').addEventListener('click', () => {
-  sendEmail();
+  sendEmail(drawCanvas, shirtCanvas);
 });
 
 // New Shirt button
