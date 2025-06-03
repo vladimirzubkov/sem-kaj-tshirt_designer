@@ -9,12 +9,15 @@ export function initCanvasEvents(drawCanvas, shirtCanvas, tools) {
   let lastY = 0;
 
   drawCanvas.addEventListener('mousedown', (e) => {
-    if (!tools.currentTool) return;
+    if (!tools.currentTool) {
+      logger.warn(`[${new Date().toISOString()}] No tool selected on mousedown`);
+      return;
+    }
     isDrawing = true;
     const rect = drawCanvas.getBoundingClientRect();
     lastX = e.clientX - rect.left;
     lastY = e.clientY - rect.top;
-    logger.debug(`[${new Date().toISOString()}] Mousedown at x: ${lastX}, y: ${lastY}`);
+    logger.debug(`[${new Date().toISOString()}] Mousedown at x: ${lastX}, y: ${lastY}, tool: ${tools.currentTool.constructor.name}`);
     tools.currentTool.onMouseDown(lastX, lastY);
   });
 
@@ -23,7 +26,7 @@ export function initCanvasEvents(drawCanvas, shirtCanvas, tools) {
     const rect = drawCanvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    logger.debug(`[${new Date().toISOString()}] Mousemove at x: ${x}, y: ${y}`);
+    logger.debug(`[${new Date().toISOString()}] Mousemove at x: ${x}, y: ${y}, tool: ${tools.currentTool.constructor.name}`);
     tools.currentTool.onMouseMove(x, y);
     lastX = x;
     lastY = y;
@@ -32,7 +35,7 @@ export function initCanvasEvents(drawCanvas, shirtCanvas, tools) {
   drawCanvas.addEventListener('mouseup', () => {
     if (isDrawing && tools.currentTool) {
       isDrawing = false;
-      logger.info(`[${new Date().toISOString()}] Mouseup, drawing ended`);
+      logger.info(`[${new Date().toISOString()}] Mouseup, drawing ended with ${tools.currentTool.constructor.name}`);
       tools.currentTool.onMouseUp();
       saveCanvasState(drawCanvas, shirtCanvas, `Draw with ${tools.currentTool.constructor.name.toLowerCase()}`, null);
     }
@@ -41,7 +44,7 @@ export function initCanvasEvents(drawCanvas, shirtCanvas, tools) {
   drawCanvas.addEventListener('mouseleave', () => {
     if (isDrawing && tools.currentTool) {
       isDrawing = false;
-      logger.info(`[${new Date().toISOString()}] Mouseleave, drawing ended`);
+      logger.info(`[${new Date().toISOString()}] Mouseleave, drawing ended with ${tools.currentTool.constructor.name}`);
       tools.currentTool.onMouseUp();
       saveCanvasState(drawCanvas, shirtCanvas, `Draw with ${tools.currentTool.constructor.name.toLowerCase()}`, null);
     }

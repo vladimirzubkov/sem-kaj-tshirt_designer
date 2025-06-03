@@ -2,7 +2,7 @@
 import { Pencil, Brush, Eraser, Water, TextTool } from './tools.js';
 import { saveCanvasState, undo, redo, getCurrentHistoryIndex } from './historyManager.js';
 import { showProgress, hideProgress } from './progressManager.js';
-import { saveDesign, loadDesign, exportToPDF, sendEmail } from './projectManager.js';
+import { saveProject, loadProject, exportToPDF, sendEmail } from './projectManager.js';
 import { initCanvasEvents } from './canvasManager.js';
 import { initUI } from './uiManager.js';
 import { getCurrentShirtCanvas } from './shirtCanvasManager.js';
@@ -34,14 +34,21 @@ toolClasses.forEach(ToolClass => {
 
 initUI(tools, drawCanvas, shirtCanvas);
 
-document.getElementById('saveDesignButton').addEventListener('click', () => {
-  const shirtCanvas = getCurrentShirtCanvas();
-  saveDesign(drawCanvas, shirtCanvas);
+// Keep saveDesignButton for future functionality
+// document.getElementById('saveDesignButton').addEventListener('click', () => {
+//   const shirtCanvas = getCurrentShirtCanvas();
+//   saveDesign(drawCanvas, shirtCanvas);
+// });
+
+document.getElementById('saveProjectButton').addEventListener('click', () => {
+  saveProject(drawCanvas);
 });
 
-document.getElementById('loadDesignButton').addEventListener('click', () => {
-  const shirtCanvas = getCurrentShirtCanvas();
-  loadDesign(drawCanvas, shirtCanvas);
+document.getElementById('loadProjectButton').addEventListener('click', () => {
+  loadProject(drawCanvas, () => {
+    // Callback to refresh UI after project load
+    initUI(tools, drawCanvas, getCurrentShirtCanvas());
+  });
 });
 
 document.getElementById('downloadPDFButton').addEventListener('click', () => {
