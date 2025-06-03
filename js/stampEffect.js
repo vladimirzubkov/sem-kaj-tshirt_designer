@@ -1,25 +1,49 @@
 // stampEffect.js
-export function applyStampEffect(ctx, canvas, shirtCanvas) {
-  // Copy full content to shirt canvas without clearing
-  const shirtCtx = shirtCanvas.getContext('2d');
-  
-  // Check if drawCanvas has content
-  const drawData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-  let drawNonZeroPixels = 0;
-  for (let i = 3; i < drawData.length; i += 4) {
-    if (drawData[i] !== 0) drawNonZeroPixels++;
-  }
-  console.log(`[${new Date().toISOString()}] Stamp: Non-zero pixels on drawCanvas: ${drawNonZeroPixels}`);
+import { createOptimizedContext, countNonZeroPixels } from './effectManager.js';
+import { logger } from './logger.js';
 
-  // Draw the image on top of the existing content
-  shirtCtx.drawImage(canvas, 0, 0, shirtCanvas.width, shirtCanvas.height);
-  console.log(`[${new Date().toISOString()}] Stamp effect applied: Added image to shirtCanvas`);
-
-  // Check if shirtCanvas has content after adding
-  const shirtData = shirtCtx.getImageData(0, 0, shirtCanvas.width, shirtCanvas.height).data;
-  let shirtNonZeroPixels = 0;
-  for (let i = 3; i < shirtData.length; i += 4) {
-    if (shirtData[i] !== 0) shirtNonZeroPixels++;
+/**
+ * Applies the stamp effect by copying the source canvas to the target context.
+ * @param {CanvasRenderingContext2D} targetContext - Target canvas context.
+ * @param {HTMLCanvasElement} sourceCanvas - Source canvas with the design.
+ * @param {HTMLCanvasElement} targetCanvas - Target canvas for the effect.
+ * @param {Function} callback - Callback to report progress.
+ */
+export async function applyStampEffect(targetContext, sourceCanvas, targetCanvas, callback) {
+  if (!sourceCanvas || !sourceCanvas.getContext) {
+    logger.error(`[${new Date().toISOString()}] Stamp: Invalid source canvas`);
+    return;
   }
-  console.log(`[${new Date().toISOString()}] Stamp: Non-zero pixels on shirtCanvas after adding: ${shirtNonZeroPixels}`);
+  if (!targetContext || !targetContext.canvas) {
+    logger.error(`[${new Date().toISOString()}] Stamp: Invalid target context`);
+    return;
+  }
+  if (!targetCanvas || !targetCanvas.getContext) {
+    logger.error(`[${new Date().toISOString()}] Stamp: Invalid target canvas`);
+    return;
+  }
+  if (typeof callback !== 'function') {
+    logger.warn(`[${new Date().toISOString()}] Stamp: Callback is not a function`);
+  }
+
+  const width = targetCanvas.width;
+  const height = targetCanvas.height;
+
+  // Count non-zero pixels on source canvas
+  const sourceCtx = createOptimizedContext(sourceCanvas);
+  const sourceNonZeroPixels = countNonZeroPixels(sourceCtx, sourceCanvas.width, sourceCanvas.height);
+  logger.info(`[${new Date().toISOString()}] Stamp: Non-zero pixels on drawCanvas: ${sourceNonZeroPixels}`);
+
+  // Apply stamp effect
+  targetContext.drawImage(sourceCanvas, 0, 0, width, height);
+  logger.info(`[${new Date().toISOString()}] Stamp effect applied: Added image to shirtCanvas`);
+
+  // Count non-zero pixels on target canvas
+  const targetNonZeroPixels = countNonZeroPixels(targetContext, targetCanvas.width, targetCanvas.height);
+  logger.info(`[${new Date().toISOString()}] Stamp: Non-zero pixels on shirtCanvas: ${targetNonZeroPixels}`);
+
+  // Update progress
+  if (typeof callback === 'function') {
+    callback(1);
+  }
 }

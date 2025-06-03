@@ -1,0 +1,21 @@
+/* base.css */
+
+/* Reset default styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Base typography */
+body {
+  font-family: sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Debug border for key containers */
+.debug-border {
+  border: 1px solid gray;
+}

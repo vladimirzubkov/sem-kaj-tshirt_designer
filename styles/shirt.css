@@ -1,0 +1,48 @@
+/* shirt.css */
+
+/* Shirt preview container */
+.shirt-preview {
+  text-align: center;
+}
+
+/* Shirt container */
+.shirt-container {
+  position: relative;
+  width: 65%;
+  height: 300px;
+  margin: 0 auto;
+  background: #ffffff; /* Default shirt color */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Shirt base image */
+.shirt-base {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Shirt design canvas */
+.shirt-design {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  background: transparent; /* Default background color */
+  width: 213px;
+  height: 284px;
+}
+
+/* Canvas styles */
+canvas {
+  border: 1px dashed #aaa;
+  background: transparent;
+}

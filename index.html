@@ -3,134 +3,145 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>T-Shirt Editor</title>
-  <link rel="stylesheet" href="styles/style.css">
+  <title>T-Shirt Designer</title>
+  <link rel="stylesheet" href="styles/base.css">
+  <link rel="stylesheet" href="styles/layout.css">
+  <link rel="stylesheet" href="styles/components.css">
+  <link rel="stylesheet" href="styles/shirt.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 <header class="debug-border">
-  <div><strong>T-Shirt Editor</strong> | <a href="#">Settings</a> | <a href="#">About</a></div>
-  <button class="button">English</button>
+  <nav>T-Shirt Editor | Settings | About</nav>
+  <div>English</div>
 </header>
 
-<main class="debug-border">
-  <div class="panel-b debug-border">
+<main>
+  <section class="panel-b debug-border">
     <div class="instruction">
       Canvas: Draw here using tools below or drag’n’drop an image (SVG, PNG, GIF, JPG supported).
     </div>
     <div class="canvas-area debug-border">
-      <canvas id="drawCanvas" width="375" height="500" class="droppable"></canvas>
+      <canvas id="drawCanvas" width="375" height="500"></canvas>
     </div>
     <div class="tools-bar debug-border">
-      <div class="tool-item debug-border">
+      <div class="tool-item">
         <div class="tool-icon" data-tool="pencil">✏️</div>
-        <span class="tool-label" data-tool-label="pencil"></span>
+        <div class="tool-label" data-tool-label="pencil">Pencil</div>
       </div>
-      <div class="tool-item debug-border">
+      <div class="tool-item">
         <div class="tool-icon" data-tool="brush">🖌️</div>
-        <span class="tool-label" data-tool-label="brush"></span>
+        <div class="tool-label" data-tool-label="brush">Brush</div>
       </div>
-      <div class="tool-item debug-border">
+      <div class="tool-item">
         <div class="tool-icon" data-tool="text">𝐓</div>
-        <span class="tool-label" data-tool-label="text"></span>
+        <div class="tool-label" data-tool-label="text">Text</div>
       </div>
-      <div class="tool-item debug-border">
+      <div class="tool-item">
         <div class="tool-icon" data-tool="water">💧</div>
-        <span class="tool-label" data-tool-label="water"></span>
+        <div class="tool-label" data-tool-label="water">Water</div>
       </div>
-      <div class="tool-item debug-border">
+      <div class="tool-item">
         <div class="tool-icon" data-tool="eraser">🧽</div>
-        <span class="tool-label" data-tool-label="eraser"></span>
+        <div class="tool-label" data-tool-label="eraser">Eraser</div>
       </div>
-      <div class="size-control debug-border">
+      <div class="size-control">
         <div class="control-element">
-          <span id="sizeValue" class="size-value">10</span>
-          <input type="range" id="sizeSlider" min="1" max="300" value="10" title="Tool Size">
+          <input type="range" id="sizeSlider" min="1" max="300" value="10">
+          <div class="size-value" id="sizeValue">10</div>
           <div class="size-labels">
             <span>1px</span>
             <span>300px</span>
           </div>
         </div>
-        <span class="control-label">Brush Size</span>
+        <div class="control-label">Brush Size</div>
       </div>
-      <div class="color-picker-container debug-border">
-        <div class="control-element">
-          <div class="color-picker-wrapper">
-            <!-- Color picker will be inserted here -->
-          </div>
+      <div class="color-picker-container">
+        <div class="color-picker-wrapper"></div>
+        <div class="control-label">Color</div>
+      </div>
+      <div class="save-clear-buttons">
+        <div class="tool-item">
+          <button class="button" title="Remember and Save Design" id="saveDesignButton">Remember and Save Design</button>
         </div>
-        <span class="control-label">Color</span>
+        <div class="tool-item">
+          <button class="button" id="clearButton">Clear</button>
+        </div>
       </div>
-      <button class="button">Remember and<br>Save Design</button>
-      <button class="button" id="clearButton">Clear</button>
     </div>
-  </div>
+  </section>
 
-  <div class="panel-c debug-border">
+  <section class="panel-c debug-border">
     <div class="shirt-options debug-border">
       <div class="style-size-options debug-border">
-        <div class="style-row style-buttons">
-          <div class="tool-icon style-button selected" data-style="male">Male</div>
-          <div class="tool-icon style-button" data-style="female">Female</div>
-          <div class="tool-icon style-button" data-style="kid">Kid</div>
+        <div class="style-buttons">
+          <button class="style-button selected" data-style="man">Man</button>
+          <button class="style-button" data-style="woman">Woman</button>
+          <button class="style-button" data-style="kid">Kid</button>
         </div>
-        <div class="size-row size-buttons">
-          <div class="tool-icon size-button" data-size="xxl">XXL</div>
-          <div class="tool-icon size-button" data-size="xl">XL</div>
-          <div class="tool-icon size-button selected" data-size="l">L</div>
-          <div class="tool-icon size-button" data-size="m">M</div>
-          <div class="tool-icon size-button" data-size="s">S</div>
+        <div class="size-buttons">
+          <button class="size-button" data-size="xxl">XXL</button>
+          <button class="size-button" data-size="xl">XL</button>
+          <button class="size-button selected" data-size="l">L</button>
+          <button class="size-button" data-size="m">M</button>
+          <button class="size-button" data-size="s">S</button>
         </div>
       </div>
-      <div class="color-options debug-border" id="color-options">
-        <div class="shirt-color-row">
+      <div id="color-options">
+        <div class="shirt-color-row debug-border">
           <span class="color-label">Shirt Color:</span>
-          <div class="color-circle selected" data-shirt-color="white" style="background-color: #ffffff;"></div>
-          <div class="color-circle" data-shirt-color="beige" style="background-color: #f5f5dc;"></div>
-          <div class="color-circle" data-shirt-color="green" style="background-color: #008000;"></div>
-          <div class="color-circle" data-shirt-color="blue" style="background-color: #add8e6;"></div>
         </div>
-        <div class="background-color-row">
+        <div class="background-color-row debug-border">
           <span class="color-label">Background:</span>
-          <div class="color-circle selected" data-background-color="transparent"></div>
-          <div class="color-circle" data-background-color="white" style="background-color: #ffffff;"></div>
-          <input type="color" class="color-picker" id="backgroundColorPicker" title="Custom Background Color">
+          <div class="color-circle" data-background-color="transparent"></div>
+          <div class="color-circle" data-background-color="white"></div>
+          <div class="color-circle" data-background-color="gray"></div>
+          <div class="color-circle" data-background-color="custom"></div>
         </div>
       </div>
     </div>
-    <div class="new-shirt-container debug-border">
+    <div class="new-shirt-container">
       <button class="button" id="newShirtButton">New Shirt</button>
     </div>
     <div class="shirt-preview">
-      <div class="shirt-container">
-        <img src="assets/tshirt-placeholder.png" alt="T-shirt preview" width="213" class="shirt-base">
-        <canvas id="shirtCanvas" width="213" height="284" class="shirt-design"></canvas>
+      <div class="shirt-container debug-border">
+        <img class="shirt-base" src="assets/tshirt-placeholder-man.png" alt="Shirt base" data-style="man">
+        <canvas class="shirt-design" id="shirtCanvas" width="213" height="284"></canvas>
       </div>
     </div>
-    <div class="tools-bar debug-border effect-buttons">
-      <div class="tool-icon" data-effect="stamp">Stamp</div>
-      <div class="tool-icon" data-effect="spray">Spray</div>
-      <div class="tool-icon" data-effect="roll">Roll</div>
-      <div class="tool-icon" data-effect="mixer">Mixer</div>
-      <div class="tool-icon" data-effect="shred">Shred</div>
-      <div class="progress-container">
-        <div id="effectProgress" class="progress-bar"></div>
+    <div class="progress-container">
+      <div class="progress-bar" id="effectProgress"></div>
+    </div>
+    <div class="effect-buttons debug-border">
+      <div class="tool-item">
+        <div class="tool-icon" data-effect="stamp">Stamp</div>
+      </div>
+      <div class="tool-item">
+        <div class="tool-icon" data-effect="spray">Spray</div>
+      </div>
+      <div class="tool-item">
+        <div class="tool-icon" data-effect="roll">Roll</div>
+      </div>
+      <div class="tool-item">
+        <div class="tool-icon" data-effect="mixer">Mixer</div>
+      </div>
+      <div class="tool-item">
+        <div class="tool-icon" data-effect="shred">Shred</div>
       </div>
     </div>
-    <div class="action-buttons debug-border" id="project-controls">
-      <button class="button" id="saveDesignButton">Save Project</button>
+    <div id="project-controls" class="debug-border">
+      <button class="button" id="saveProjectButton">Save Project</button>
       <button class="button" id="loadDesignButton">Load Project</button>
-      <input type="file" id="loadDesignInput" accept="image/png" style="display: none;">
       <button class="button" id="downloadPDFButton">Download PDF</button>
       <button class="button" id="sendEmailButton">Order T-Shirts</button>
     </div>
-  </div>
+  </section>
 </main>
 
 <footer class="debug-border">
-  COPYRIGHT © 2025 T-SHIRT DESIGNER
+  <div>COPYRIGHT © 2025 T-SHIRT DESIGNER</div>
 </footer>
 
-<script src="js/main.js" type="module"></script>
+<script type="module" src="js/main.js"></script>
 </body>
 </html>

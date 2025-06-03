@@ -1,4 +1,8 @@
 // shredderEffect.js
+import { createOptimizedContext, countNonZeroPixels, isCanvasEmpty } from './effectManager.js';
+import { logger } from './logger.js';
+import { canvasPool } from './canvasPool.js';
+
 export async function applyShredderEffect(sourceCanvas, targetContext, duration, maxDuration, callback, isEffectActive) {
   const startTime = performance.now();
   const width = targetContext.canvas.width;  // 213
@@ -7,30 +11,22 @@ export async function applyShredderEffect(sourceCanvas, targetContext, duration,
   const maxOffset = height / 3; // 1/3 of height (284 / 3 ≈ 94px)
   const maxSteps = 7; // 7 steps over 7 seconds
 
-  // Check if sourceCanvas has content
-  const sourceCtx = sourceCanvas.getContext('2d');
-  const sourceData = sourceCtx.getImageData(0, 0, sourceCanvas.width, sourceCanvas.height).data;
-  let sourceNonZeroPixels = 0;
-  for (let i = 3; i < sourceData.length; i += 4) {
-    if (sourceData[i] !== 0) sourceNonZeroPixels++;
-  }
-  console.log(`[${new Date().toISOString()}] Shredder: Non-zero pixels on sourceCanvas: ${sourceNonZeroPixels}`);
+  // Create temporary canvas for source
+  const tempSourceCanvas = canvasPool.getTempCanvas(sourceCanvas.width, sourceCanvas.height);
+  if (!tempSourceCanvas) return;
+  const tempSourceCtx = createOptimizedContext(tempSourceCanvas);
+  tempSourceCtx.drawImage(sourceCanvas, 0, 0);
+
+  const sourceNonZeroPixels = countNonZeroPixels(tempSourceCtx, sourceCanvas.width, sourceCanvas.height);
+  logger.info(`[${new Date().toISOString()}] Shredder: Non-zero pixels on sourceCanvas: ${sourceNonZeroPixels}`);
 
   // Check if shirtCanvas is empty; if so, copy the source image
-  const shirtData = targetContext.getImageData(0, 0, width, height).data;
-  let isEmpty = true;
-  for (let i = 3; i < shirtData.length; i += 4) {
-    if (shirtData[i] !== 0) {
-      isEmpty = false;
-      break;
-    }
-  }
-  if (isEmpty) {
-    console.log(`[${new Date().toISOString()}] Shredder: shirtCanvas is empty, copying source image`);
+  if (isCanvasEmpty(targetContext, width, height)) {
+    logger.info(`[${new Date().toISOString()}] Shredder: shirtCanvas is empty, copying source image`);
     targetContext.drawImage(sourceCanvas, 0, 0, width, height);
   }
 
-  console.log(`[${new Date().toISOString()}] Shredder effect started`);
+  logger.info(`[${new Date().toISOString()}] Shredder effect started`);
 
   // Initial pieces: 5x5 grid
   if (pieces.length === 0) {
@@ -45,19 +41,19 @@ export async function applyShredderEffect(sourceCanvas, targetContext, duration,
           height: pieceHeight,
           offsetX: 0,
           offsetY: 0,
-          rotation: 0, // Initial rotation
-          shapeDistortion: [] // To store random shape distortions for each vertex
+          rotation: 0,
+          shapeDistortion: []
         });
       }
     }
   }
 
-  // Apply 7 shredding steps, one per second, while the button is pressed
+  // Apply 7 shredding steps
   for (let step = 0; step < maxSteps; step++) {
-    console.log(`[${new Date().toISOString()}] Shredder step ${step + 1}: Subdividing pieces`);
-    const currentOffset = maxOffset * (step + 1) / maxSteps; // Gradual increase in offset
+    logger.info(`[${new Date().toISOString()}] Shredder step ${step + 1}: Subdividing pieces`);
+    const currentOffset = maxOffset * (step + 1) / maxSteps;
     const newPieces = [];
-    const subShredX = Math.ceil((step + 5) / 5); // From 5 to 7 subdivisions
+    const subShredX = Math.ceil((step + 5) / 5);
     const subShredY = Math.ceil((step + 5) / 5);
 
     // Subdivide each piece
@@ -69,14 +65,12 @@ export async function applyShredderEffect(sourceCanvas, targetContext, duration,
         for (let sx = 0; sx < subShredX; sx++) {
           const newOffsetX = piece.offsetX + (Math.random() - 0.5) * currentOffset;
           const newOffsetY = piece.offsetY + (Math.random() - 0.5) * currentOffset;
-          const rotation = (Math.random() * 10 + 5) * (Math.random() > 0.5 ? 1 : -1); // Random rotation between -15 and 15 degrees
-
-          // Add random shape distortion to each vertex of the piece
+          const rotation = (Math.random() * 10 + 5) * (Math.random() > 0.5 ? 1 : -1);
           const shapeDistortion = [
-            { dx: (Math.random() - 0.5) * subWidth * 0.2, dy: (Math.random() - 0.5) * subHeight * 0.2 }, // Top-left
-            { dx: (Math.random() - 0.5) * subWidth * 0.2, dy: (Math.random() - 0.5) * subHeight * 0.2 }, // Top-right
-            { dx: (Math.random() - 0.5) * subWidth * 0.2, dy: (Math.random() - 0.5) * subHeight * 0.2 }, // Bottom-right
-            { dx: (Math.random() - 0.5) * subWidth * 0.2, dy: (Math.random() - 0.5) * subHeight * 0.2 }  // Bottom-left
+            { dx: (Math.random() - 0.5) * subWidth * 0.2, dy: (Math.random() - 0.5) * subHeight * 0.2 },
+            { dx: (Math.random() - 0.5) * subWidth * 0.2, dy: (Math.random() - 0.5) * subHeight * 0.2 },
+            { dx: (Math.random() - 0.5) * subWidth * 0.2, dy: (Math.random() - 0.5) * subHeight * 0.2 },
+            { dx: (Math.random() - 0.5) * subWidth * 0.2, dy: (Math.random() - 0.5) * subHeight * 0.2 }
           ];
 
           newPieces.push({
@@ -95,72 +89,89 @@ export async function applyShredderEffect(sourceCanvas, targetContext, duration,
 
     pieces = newPieces;
 
-    // Draw the accumulated pieces with shape distortion
-    const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = width;
-    tempCanvas.height = height;
-    const tempCtx = tempCanvas.getContext('2d');
+    // Draw the accumulated pieces
+    const tempCanvas = canvasPool.getTempCanvas();
+    if (!tempCanvas) {
+      canvasPool.releaseTempCanvas(tempSourceCanvas);
+      return;
+    }
+    const tempCtx = createOptimizedContext(tempCanvas);
     tempCtx.drawImage(targetContext.canvas, 0, 0);
 
+    targetContext.clearRect(0, 0, width, height);
     pieces.forEach(piece => {
       targetContext.save();
       targetContext.translate(
-        piece.srcX + piece.offsetX + piece.width / 2,
-        piece.srcY + piece.offsetY + piece.height / 2
+          piece.srcX + piece.width / 2 + piece.offsetX,
+          piece.srcY + piece.height / 2 + piece.offsetY
       );
       targetContext.rotate(piece.rotation * Math.PI / 180);
 
-      // Apply shape distortion by drawing a distorted quad
       targetContext.beginPath();
       targetContext.moveTo(
-        (-piece.width / 2) + piece.shapeDistortion[0].dx,
-        (-piece.height / 2) + piece.shapeDistortion[0].dy
+          -piece.width / 2 + piece.shapeDistortion[0].dx,
+          -piece.height / 2 + piece.shapeDistortion[0].dy
       );
       targetContext.lineTo(
-        (piece.width / 2) + piece.shapeDistortion[1].dx,
-        (-piece.height / 2) + piece.shapeDistortion[1].dy
+          piece.width / 2 + piece.shapeDistortion[1].dx,
+          -piece.height / 2 + piece.shapeDistortion[1].dy
       );
       targetContext.lineTo(
-        (piece.width / 2) + piece.shapeDistortion[2].dx,
-        (piece.height / 2) + piece.shapeDistortion[2].dy
+          piece.width / 2 + piece.shapeDistortion[2].dx,
+          piece.height / 2 + piece.shapeDistortion[2].dy
       );
       targetContext.lineTo(
-        (-piece.width / 2) + piece.shapeDistortion[3].dx,
-        (piece.height / 2) + piece.shapeDistortion[3].dy
+          -piece.width / 2 + piece.shapeDistortion[3].dx,
+          piece.height / 2 + piece.shapeDistortion[3].dy
       );
       targetContext.closePath();
       targetContext.clip();
 
       targetContext.drawImage(
-        tempCanvas,
-        piece.srcX, piece.srcY, piece.width, piece.height,
-        -piece.width / 2, -piece.height / 2, piece.width, piece.height
+          tempCanvas,
+          piece.srcX, piece.srcY, piece.width, piece.height,
+          -piece.width / 2, -piece.height / 2, piece.width, piece.height
       );
 
       targetContext.restore();
     });
 
+    // Verify content after drawing
+    const tempData = targetContext.getImageData(0, 0, width, height).data;
+    let tempNonZeroPixels = 0;
+    for (let i = 3; i < tempData.length; i += 4) {
+      if (tempData[i] !== 0) tempNonZeroPixels++;
+    }
+    if (tempNonZeroPixels === 0 && step > 0) {
+      logger.warn(`[${new Date().toISOString()}] Shredder: No pixels after step ${step + 1}, restoring previous state`);
+      targetContext.drawImage(tempCanvas, 0, 0);
+    }
+
     // Update progress bar
     const progress = (step + 1) / maxSteps;
-    console.log(`[${new Date().toISOString()}] Shredder progress: ${progress * 100}%`);
+    logger.info(`[${new Date().toISOString()}] Shredder progress: ${progress * 100}%`);
     callback(progress);
 
-    // Log the canvas content after applying the step
-    const canvasData = targetContext.getImageData(0, 0, width, height).data;
-    let nonZeroPixels = 0;
-    for (let i = 3; i < canvasData.length; i += 4) {
-      if (canvasData[i] !== 0) nonZeroPixels++;
+    // Log shirtCanvas content
+    const nonZeroPixels = countNonZeroPixels(targetContext, width, height);
+    logger.info(`[${new Date().toISOString()}] Shredder: Non-zero pixels on shirtCanvas after step ${step + 1}: ${nonZeroPixels}`);
+
+    // Signal completion on the final step
+    if (step === maxSteps - 1) {
+      callback(1);
     }
-    console.log(`[${new Date().toISOString()}] Shredder: Non-zero pixels on shirtCanvas after step ${step + 1}: ${nonZeroPixels}`);
 
-    // Wait 1 second before the next step, unless it's the first step
-    if (step === 0) continue;
+    canvasPool.releaseTempCanvas(tempCanvas);
 
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    if (!isEffectActive()) {
-      console.log(`[${new Date().toISOString()}] Shredder effect stopped at step ${step + 1}`);
-      break;
+    // Wait 1 second before the next step
+    if (step < maxSteps - 1) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (!isEffectActive()) {
+        logger.info(`[${new Date().toISOString()}] Shredder effect stopped at step ${step + 1}`);
+        break;
+      }
     }
   }
+
+  canvasPool.releaseTempCanvas(tempSourceCanvas);
 }

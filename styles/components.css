@@ -1,67 +1,4 @@
-/* styles/style.css */
-
-/* Debug borders for significant containers */
-.debug-border {
-  border: 1px solid gray;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  font-family: sans-serif;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 20px;
-  border-bottom: 1px solid #ccc;
-}
-
-/* Main layout grid for panels */
-main {
-  flex: 1;
-  display: grid;
-  grid-template-columns: 2.8fr 1.2fr;
-  gap: 1px;
-}
-
-.panel-b {
-  display: flex;
-  flex-direction: column;
-  border-right: 1px solid #ccc;
-}
-
-.instruction {
-  padding: 10px;
-  border-bottom: 1px solid #ccc;
-  background: #f5f5f5;
-}
-
-.canvas-area {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: #f9f9f9;
-}
-
-canvas {
-  border: 1px dashed #aaa;
-  background: white;
-}
-
-canvas.droppable.dragover {
-  border: 2px solid #00f;
-  background: #e6f0ff;
-}
+/* components.css */
 
 /* Toolbar for drawing tools and effects */
 .tools-bar {
@@ -73,14 +10,42 @@ canvas.droppable.dragover {
   border-top: 1px solid #ccc;
 }
 
+/* Effect buttons container */
+.effect-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px;
+}
+
+/* Save and Clear buttons container */
+.save-clear-buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #ccc;
+}
+
+/* Styles for buttons in save-clear-buttons */
+.save-clear-buttons .button {
+  max-width: 120px;
+  height: 50px;
+  min-width: 50px;
+}
+
+/* Tool item */
 .tool-item {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  height: 76px;
+  height: auto; /* Adjusted to fit content */
 }
 
+/* Tool icon */
 .tool-icon {
   width: 50px;
   height: 50px;
@@ -94,16 +59,10 @@ canvas.droppable.dragover {
   margin-top: auto;
 }
 
-/* Selected style for drawing tools only */
+/* Selected style for drawing tools */
 .panel-b .tools-bar .tool-icon.selected {
   width: 60px;
   height: 60px;
-  border: 2px solid orange;
-}
-
-/* Selected style for style and size buttons */
-.style-button.selected,
-.size-button.selected {
   border: 2px solid orange;
 }
 
@@ -112,19 +71,21 @@ canvas.droppable.dragover {
   font-size: 1.5em;
 }
 
-/* Effect buttons in .tools-bar (Stamp, Spray, Roll, Mixer, Shred) */
+/* Effect buttons */
 .effect-buttons .tool-icon {
   width: 5vw;
   height: 30px;
   min-width: 75px;
 }
 
+/* Tool label */
 .tool-label {
   font-size: 0.7em;
   color: #666;
   text-align: center;
 }
 
+/* Color picker container */
 .color-picker-container {
   display: flex;
   flex-direction: column;
@@ -133,6 +94,7 @@ canvas.droppable.dragover {
   height: 76px;
 }
 
+/* Color picker wrapper */
 .color-picker-wrapper {
   display: flex;
   align-items: center;
@@ -141,6 +103,21 @@ canvas.droppable.dragover {
   padding-top: 2px;
 }
 
+/* Background color picker */
+.background-color-picker {
+  width: 28px;
+  height: 28px;
+  padding: 2px;
+  cursor: pointer;
+  border: 2px solid #ff4500; /* Distinctive orange dashed border */
+  transition: border-color 0.2s ease;
+}
+
+.background-color-picker:hover {
+  border-color: #ffa500; /* Brighter orange on hover */
+}
+
+/* Control element */
 .control-element {
   display: flex;
   flex-direction: column;
@@ -151,16 +128,19 @@ canvas.droppable.dragover {
   position: relative;
 }
 
+/* Size control adjustment */
 .size-control .control-element {
   margin-top: 28px;
 }
 
+/* Control label */
 .control-label {
   font-size: 0.7em;
   color: #666;
   text-align: center;
 }
 
+/* Size control */
 .size-control {
   display: flex;
   flex-direction: column;
@@ -169,6 +149,7 @@ canvas.droppable.dragover {
   height: 76px;
 }
 
+/* Size value display */
 .size-value {
   font-size: 0.8em;
   color: #666;
@@ -177,10 +158,13 @@ canvas.droppable.dragover {
   transform: translateX(-50%);
 }
 
+/* Size slider */
 #sizeSlider {
+  margin-top: 5px;
   width: 100px;
 }
 
+/* Size labels */
 .size-labels {
   display: flex;
   justify-content: space-between;
@@ -190,20 +174,23 @@ canvas.droppable.dragover {
   margin-top: -4px;
 }
 
-.panel-c {
-  display: flex;
-  flex-direction: column;
-  padding: 10px;
-  gap: 10px;
-  background: #fafafa;
+/* General button styles */
+.button {
+  padding: 5px 10px;
+  border: 1px solid #000;
+  background: #eee;
+  cursor: pointer;
+  text-align: center;
 }
 
+/* Shirt options */
 .shirt-options {
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
 }
 
+/* Style and size options */
 .style-size-options {
   display: flex;
   flex-direction: column;
@@ -212,6 +199,7 @@ canvas.droppable.dragover {
   margin: 0 auto;
 }
 
+/* Style buttons */
 .style-buttons {
   display: flex;
   justify-content: space-evenly;
@@ -221,9 +209,16 @@ canvas.droppable.dragover {
 
 .style-button {
   min-width: fit-content;
-  padding: 0 10px;
+  height: 40px;
+  padding: 0 20px;
+  font-size: 1.2em;
 }
 
+.style-button.selected {
+  border: 2px solid orange;
+}
+
+/* Size buttons */
 .size-buttons {
   display: flex;
   justify-content: space-evenly;
@@ -238,6 +233,11 @@ canvas.droppable.dragover {
   text-align: center;
 }
 
+.size-button.selected {
+  border: 2px solid orange;
+}
+
+/* Color options */
 #color-options {
   display: flex;
   flex-direction: column;
@@ -246,18 +246,22 @@ canvas.droppable.dragover {
   margin: 0 auto;
 }
 
-.shirt-color-row, .background-color-row {
+/* Color rows */
+.shirt-color-row,
+.background-color-row {
   display: flex;
   align-items: center;
   gap: 5px;
   justify-content: space-evenly;
 }
 
+/* Color label */
 .color-label {
   font-size: 0.8em;
   color: #666;
 }
 
+/* Color circle */
 .color-circle {
   width: 28px;
   height: 28px;
@@ -275,6 +279,7 @@ canvas.droppable.dragover {
   linear-gradient(-45deg, transparent 47%, #ccc 47%, #ccc 53%, transparent 53%);
 }
 
+/* Color picker */
 .color-picker {
   width: 28px;
   height: 28px;
@@ -283,12 +288,14 @@ canvas.droppable.dragover {
   cursor: pointer;
 }
 
+/* New shirt container */
 .new-shirt-container {
   display: flex;
   justify-content: flex-end;
   margin-top: 10px;
 }
 
+/* Project controls */
 #project-controls {
   display: flex;
   flex-wrap: nowrap;
@@ -298,65 +305,33 @@ canvas.droppable.dragover {
 }
 
 #project-controls .button {
-  width: 100%; /* Match single-column width on desktop */
-  max-width: 200px; /* Same as single-column max-width */
-  min-width: 120px; /* Increased by 15px to trigger earlier wrapping */
+  width: 100%;
+  max-width: 200px;
+  min-width: 120px;
   text-align: center;
   height: 30px;
   border-color: red;
 }
 
-
-.shirt-preview {
-  text-align: center;
-}
-
-.shirt-container {
-  position: relative;
-  width: 213px;
-  height: 284px;
-  display: inline-block;
-}
-
-.shirt-base {
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 1;
-}
-
-.shirt-design {
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 2;
-  background: transparent;
-}
-
-.button {
-  padding: 5px 10px;
-  border: 1px solid #000;
-  background: #eee;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.button[title="Remember and\nSave Design"] {
-  white-space: pre-line;
-  line-height: 1.2;
-}
-
-footer {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  padding: 10px;
-  font-size: 0.9em;
-  border-top: 1px solid #ccc;
+/* Progress bar */
+.progress-container {
   width: 100%;
+  height: 5px;
+  background: #ddd;
+  margin-top: 5px;
+  visibility: visible;
+  position: relative;
 }
 
+.progress-bar {
+  height: 100%;
+  background: #00f;
+  width: 0;
+  transition: width 0.1s linear;
+  visibility: visible;
+}
+
+/* Responsive components */
 @media (max-width: 1000px) {
   #project-controls {
     display: flex;
@@ -366,24 +341,23 @@ footer {
     padding: 10px;
   }
 
-  /* Order for two-column layout */
   #project-controls #saveDesignButton {
-    order: 1; /* Save Project */
+    order: 1;
     flex: 1 1 45%;
   }
 
   #project-controls #sendEmailButton {
-    order: 2; /* Order T-Shirts */
+    order: 2;
     flex: 1 1 45%;
   }
 
   #project-controls #loadDesignButton {
-    order: 3; /* Load Project */
+    order: 3;
     flex: 1 1 45%;
   }
 
   #project-controls #downloadPDFButton {
-    order: 4; /* Download PDF */
+    order: 4;
     flex: 1 1 45%;
   }
 
@@ -403,21 +377,20 @@ footer {
     padding: 10px;
   }
 
-  /* Order for two-column layout */
   #project-controls #saveDesignButton {
-    order: 2; /* Save Project */
+    order: 2;
   }
 
   #project-controls #sendEmailButton {
-    order: 1; /* Order T-Shirts */
+    order: 1;
   }
 
   #project-controls #loadDesignButton {
-    order: 3; /* Load Project */
+    order: 3;
   }
 
   #project-controls #downloadPDFButton {
-    order: 4; /* Download PDF */
+    order: 4;
   }
 
   #project-controls .button {
@@ -428,18 +401,6 @@ footer {
 }
 
 @media (max-width: 500px) {
-  main {
-    grid-template-columns: 1fr;
-  }
-
-  .panel-b {
-    order: 1;
-  }
-
-  .panel-c {
-    order: 2;
-  }
-
   .shirt-options {
     flex-direction: column;
   }
@@ -457,38 +418,19 @@ footer {
     align-items: center;
   }
 
-  /* Order for single-column layout */
   #project-controls #sendEmailButton {
-    order: 1; /* Order T-Shirts */
+    order: 1;
   }
 
   #project-controls #saveDesignButton {
-    order: 2; /* Save Project */
+    order: 2;
   }
 
   #project-controls #loadDesignButton {
-    order: 3; /* Load Project */
+    order: 3;
   }
 
   #project-controls #downloadPDFButton {
-    order: 4; /* Download PDF */
+    order: 4;
   }
-}
-
-/* Progress bar styles */
-.progress-container {
-  width: 100%;
-  height: 5px;
-  background: #ddd;
-  margin-top: 5px;
-  visibility: visible;
-  position: relative;
-}
-
-.progress-bar {
-  height: 100%;
-  background: #00f;
-  width: 0%;
-  transition: width 0.1s linear;
-  visibility: visible;
 }

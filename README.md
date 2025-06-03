@@ -16,118 +16,164 @@ Vytvořit webovou stránku pro online návrh trička s možností:
 
 ## Rozhraní
 
-- Plátno vlevo, 3D model trička vpravo, menu s nástroji dole.
+- Plátno vlevo, zobrazení trička vpravo, menu s nástroji dole.
 - Nástroje: Text, výběr barvy, štětec, tužka, guma, voda.
-- Proces: Kreslíme na plátno, poté přeneseme na tričko pomocí nástrojů (rozprašovač, válec, šejkr, šreddr).
+- Proces: Kreslíme na plátno, poté přeneseme na tričko pomocí efektů (razítko, rozprašovač, válec, míchačka, šreder).
 - Výstup: Stáhnout PDF nebo odeslat e-mailem.
 
 ## Implementované funkce
 
-- **Výběr barvy**: Uživatel může vybrat barvu prostřednictvím `<input type="color">`, která se dynamicky aplikuje na nástroje tužka, štětec a text. Barva je aktualizována v reálném čase při změně výběru barvy nebo přepnutí nástroje. Nástroje guma a voda mají pevně dané chování a nejsou ovlivněny výběrem barvy.
-- **Čištění plátna**: Tlačítko "Clear" umožňuje uživateli vymazat veškerý obsah plátna, resetujíc jeho původní stav.
-- **Výběr nástrojů**: Nástroje (tužka, štětec, text, guma, voda) jsou identifikovány pomocí atributů `data-tool` na prvcích rozhraní, což zajišťuje spolehlivé a škálovatelné přepínání nástrojů.
-- **Výběr velikosti nástrojů**: Uživatel může nastavit velikost nástrojů (tužka, štětec, guma, text, voda) pomocí posuvníku (`<input type="range">`) s rozsahem 1–300 px a výchozí hodnotou 10 px. Velikost se dynamicky aplikuje na šířku čáry (tužka, štětec, guma), velikost písma (text) nebo poloměr rozmazání (voda) podle typu nástroje. Aktuální velikost je zobrazena nad posuvníkem a přesně sleduje pozici jeho "thumb" (ukazatele), včetně inicializace. Pod posuvníkem jsou uvedeny hodnoty "1px" a "300px" pro lepší orientaci.
-- **Popisky nástrojů**: Pod každým nástrojem (tužka, štětec, text, voda, guma) je zobrazen popisek ("Pencil", "Brush", "Text", "Water", "Eraser"), který zvyšuje srozumitelnost rozhraní. Popisky jsou generovány dynamicky z názvů nástrojů definovaných v `tools.js`.
+- **Výběr barvy**:
+  - Uživatel může vybrat barvu prostřednictvím `<input type="color">` pro kreslení, která se dynamicky aplikuje na nástroje tužka, štětec a text. Barva je aktualizována v reálném čase při změně výběru nebo přepnutí nástroje. Nástroje guma a voda nejsou ovlivněny výběrem barvy.
+  - Samostatný `<input type="color">` pro výběr barvy pozadí trička (transparentní, bílá, šedá, vlastní). Výchozí barva vlastního pozadí je `#E22222`, s možností uložení vybrané barvy pro každý fasón (mužský, ženský, dětský).
+  - Výběr barvy trička a pozadí je implementován pomocí dynamicky generovaných kruhových prvků (`.color-circle`) s interaktivními klikacími událostmi, které aktualizují barvu v reálném čase.
+
+- **Čištění plátna**: Tlačítko "Clear" vymaže obsah plátna a resetuje jeho původní stav, s uložením akce do historie.
+
+- **Výběr nástrojů**: Nástroje (tužka, štětec, text, guma, voda) jsou identifikovány pomocí atributů `data-tool`, což zajišťuje spolehlivé přepínání. Aktuální nástroj je zvýrazněn zvětšenou ikonou a oranžovým rámečkem.
+
+- **Výběr velikosti nástrojů**:
+  - Posuvník (`<input type="range">`) s rozsahem 1–300 px (výchozí 10 px) nastavuje velikost nástrojů. Velikost se aplikuje na šířku čáry (tužka, štětec, guma), velikost písma (text) nebo poloměr rozmazání (voda).
+  - Aktuální velikost je zobrazena nad posuvníkem, přesně sleduje pozici ukazatele, s inicializací a popisky "1px" a "300px".
+
+- **Popisky nástrojů**: Popisky ("Pencil", "Brush", "Text", "Water", "Eraser") pod nástroji jsou generovány dynamicky z `tools.js`, zvyšují srozumitelnost rozhraní.
+
 - **Vylepšené uživatelské rozhraní**:
-  - Aktuálně vybraný nástroj je vizuálně zvýrazněn zvětšením ikony a oranžovým rámečkem.
-  - Ikona nástroje Text byla změněna na výraznější symbol "𝐓".
-  - Přidány popisky "Color" a "Brush Size" pod výběr barvy a posuvník velikosti, které jsou zarovnány na úroveň popisků nástrojů.
-  - Všechny kontejnery (nástroje, výběr barvy, posuvník velikosti) mají jednotnou výšku 76px.
-  - Prvky ovládání (posuvník, výběr barvy) a popisky byly odděleny do samostatných kontejnerů (.control-element, .control-label), což umožňuje jejich nezávislé nastavení přes CSS.
-  - Text nad posuvníkem velikosti ("size-value") je nyní umístěn relativně k posuvníku, nikoli k vnějšímu kontejneru, což zajišťuje konzistentní pozici při změnách rozložení.
+  - Ikona nástroje Text je výrazný symbol "𝐓".
+  - Popisky "Color" a "Brush Size" jsou zarovnány s popisky nástrojů, všechny kontejnery mají jednotnou výšku 76px.
+  - Prvky ovládání (posuvník, výběr barvy) jsou v samostatných kontejnerech (`.control-element`, `.control-label`) pro flexibilní stylování.
+  - Tlačítka efektů (razítko, rozprašovač, válec, míchačka, šreder) jsou horizontálně centrovaná, tlačítka "Save" a "Clear" jsou vertikálně zarovnaná v horizontálním řádku s textovým zalomením.
+  - Kontejner trička (`.shirt-container`) má šířku 65% rodiče, výšku 300px, je centrovaný s flex zobrazením.
+  - Color picker pro pozadí má výrazný oranžový puntíkovaný rámeček (2px dashed #ff4500) s efektem při najetí (#ffa500).
+
 - **Zobrazení kurzoru nástrojů**:
-  - Pro nástroje kreslení (tužka, štětec, guma, voda) je kurzor zobrazen jako kruh, jehož velikost odpovídá nastavené velikosti nástroje.
-  - Pro nástroj Text je kurzor zobrazen jako svislá čára s výstupky (serifs) nahoře a dole, přičemž jeho velikost odpovídá velikosti textu.
-  - Kurzor se dynamicky mění při změně velikosti nástroje a zůstává viditelný i po opuštění a návratu na plátno.
-  - Při dosažení velikosti 128 pixelů a více se kurzor zbarví červeně, jinak je černý.
+  - Kreslicí nástroje mají kruhový kurzor odpovídající velikosti nástroje, textový nástroj má svislou čáru s výstupky.
+  - Kurzor je červený při velikosti 128 px a více, jinak černý, aktualizuje se dynamicky při změně velikosti.
+
 - **Nahrávání obrázků na plátno**:
-  - Implementována funkce drag-and-drop pro nahrávání obrázků (SVG, PNG, GIF, JPG) na plátno.
-  - Obrázky menší než plátno (500x500 px) se zobrazují v místě přetažení s původní velikostí.
-  - Obrázky větší než plátno se škálují tak, aby větší strana (šířka nebo výška) odpovídala velikosti plátna, a jsou centrovány.
-  - Při přetahování je plátno vizuálně zvýrazněno (modrý rámeček a světle modré pozadí).
+  - Drag-and-drop pro SVG, PNG, GIF, JPG obrázky. Menší obrázky se zobrazují v místě přetažení, větší se škálují a centrovány.
+  - Plátno je při přetahování zvýrazněno modrým rámečkem a světle modrým pozadím.
+
 - **Historie akcí (Undo/Redo)**:
-  - Implementována historie akcí s podporou vrácení (Undo) a opakování (Redo) pomocí kláves Ctrl+Z a Ctrl+Y.
-  - Historie je synchronizována s historií prohlížeče, což umožňuje použití tlačítek "Zpět" a "Vpřed" v prohlížeči.
-  - Každá akce (kreslení, přidání textu, přidání obrázku, vyčištění plátna) je uložena do historie.
-  - Zprávy v historii zahrnují použitý nástroj (např. "Draw with Pencil", "Add Text with TextTool") a jsou viditelné v záhlaví stránky a URL fragmentu.
-- **Přenos návrhu na 3D model trička**:
-  - Implementován přenos návrhu z plátna na zobrazení trička v pravé části rozhraní.
-  - Návrh je škálován a centrován na tričku (rozměry 213x284 px).
-  - Přenos je spuštěn tlačítky "Stamp", "Spray", "Roll", "Mixer", "Shred":
-    - **Stamp**: Přímo přenese návrh z plátna na tričko, přidává jej na stávající obsah trička.
-    - **Spray**: Postupně přidává návrh na tričko formou náhodných kapek (25 kapek každých 0,1 sekundy, poloměr 1–5 px), dokud není tlačítko uvolněno nebo nedosáhne maxima (5000 kapek za 20 sekund). Kapky jsou přidávány pouze na neprůhledné části původního návrhu.
-    - **Roll**: Přidává dvě vrstvy návrhu na tričko s náhodným zkreslením (2% výšky plátna), každá s průhledností 50%. První vrstva je aplikována okamžitě, druhá po 1 sekundě, pokud je tlačítko stále stisknuto. Zkreslení je generováno na základě mřížky 10x10.
-    - **Mixer**: Přidává až 5 vrstev deformací (merge, twistCW, twistCCW, inflate, deflate) na tričko, jednu vrstvu za sekundu, dokud není tlačítko uvolněno.
-    - **Shred**: Postupně přidává návrh na tričko formou až 7 kroků "rozřezávání", jeden krok za sekundu, dokud není tlačítko uvolněno. Každý krok zvyšuje počet fragmentů a přidává rotaci a deformaci tvaru.
-  - Akce přenosu je uložena do historie, což umožňuje vrácení pomocí Undo (Ctrl+Z).
-  - Pouze finální výsledek aplikace efektu je uložen do historie, nikoli jednotlivé kroky efektů.
+  - Podpora Undo (Ctrl+Z) a Redo (Ctrl+Y), synchronizovaná s historií prohlížeče.
+  - Akce (kreslení, text, obrázky, čištění, přenos na tričko) jsou ukládány s popisy (např. "Draw with Pencil", "Transfer Design to Shirt").
+  - Historie je optimalizována proti duplicitním stavům (100ms časový filtr) a rychlým efektům (1s filtr).
+
+- **Výběr fasónu a barev trička**:
+  - Podpora výběru fasónu (mužský, ženský, dětský) s dynamickým přepínáním v `shirtCanvasManager.js`.
+  - Výběr barev trička podle fasónu definovaných v `shirtColors.js`, s automatickou inicializací při načtení stránky.
+  - Výběr barvy pozadí (transparentní, bílá, šedá, vlastní) s persistentním ukládáním vlastní barvy (`customBackgroundColor`) pro každý fasón.
+
+- **Přenos návrhu na tričko**:
+  - Přenos návrhu z plátna (500x500 px) na tričko (213x284 px) pomocí efektů:
+    - **Razítko**: Přímý přenos návrhu, přidává na stávající obsah.
+    - **Rozprašovač**: Přidává 25 kapek každých 0,1 s (poloměr 1–5 px) na neprůhledné části, max. 5000 kapek za 20 s.
+    - **Válec**: Dvě vrstvy s 50% průhledností a 2% zkreslením (mřížka 10x10), druhá po 1 s.
+    - **Míchačka**: Až 5 deformací (merge, twistCW, twistCCW, inflate, deflate, gridWarp) po 1 s, s přerušením.
+    - **Šreder**: Až 7 kroků rozřezávání (5x5 až 7x7 fragmentů) po 1 s, s rotací a deformací.
+  - Efekty jsou ukládány do historie pouze po dokončení nebo přerušení (kromě razítka).
+  - Optimalizováno pomocí `canvasPool.js` pro opětovné použití pláten.
+
 - **Uložení a načítání návrhu**:
-  - Implementováno ukládání návrhu do PNG souboru pomocí tlačítka "Save Design".
-  - Implementováno načítání návrhu z PNG souboru pomocí tlačítka "Load Design".
-  - Akce uložení a načítání jsou integrovány do historie, což umožňuje vrácení (Undo) a opakování (Redo).
+  - Ukládání do PNG přes tlačítko "Save Design", načítání z PNG přes "Load Design".
+  - Akce jsou integrovány do historie pro Undo/Redo.
+
 - **Export do PDF a odeslání e-mailem**:
-  - Implementován export návrhu do PDF pomocí knihovny `jsPDF` a tlačítka "Download PDF".
-  - PDF obsahuje název ("T-Shirt Design") a návrh z plátna.
-  - Implementována simulace odeslání PDF e-mailem pomocí tlačítka "Send Email" (v současnosti zobrazí zprávu o "odeslání" a umožní stáhnout PDF, protože není k dispozici serverní část).
-  - Akce exportu a odeslání jsou integrovány do historie (Undo/Redo).
+  - Export návrhu do PDF přes `jsPDF` s titulkem "T-Shirt Design".
+  - Simulace odeslání e-mailem (stahování PDF s upozorněním), integrovaná do historie.
+
 - **Struktura kódu**:
-  - **JavaScript**: Rozdělen do osmi modulů:
-    - `tools.js` obsahuje třídy nástrojů (Tool, Pencil, Brush, Eraser, Water, TextTool).
-    - `cursorManager.js` obsahuje logiku pro generování vlastních kurzorů (kruh pro kreslení, svislá čára s výstupky pro text).
-    - `historyManager.js` obsahuje logiku pro správu historie akcí (uložení stavu plátna, Undo, Redo, synchronizace s historií prohlížeče).
-    - `effectManager.js` obsahuje logiku pro efekty při přenosu návrhu na tričko (Stamp, Spray, Roll, Mixer, Shred).
-    - `progressManager.js` obsahuje logiku pro zobrazení průběhu efektů (progress bar).
-    - `projectManager.js` obsahuje logiku pro ukládání a načítání návrhu (PNG, JSON), export do PDF a simulaci odeslání e-mailem.
-    - `stampEffect.js`, `sprayEffect.js`, `rollEffect.js`, `mixerEffect.js`, `shredderEffect.js` obsahují specifickou logiku pro jednotlivé efekty.
-    - `main.js` obsahuje hlavní logiku aplikace (inicializace, zpracování událostí) a importuje funkce z ostatních modulů.
-  - **CSS**: Všechny styly jsou vyňaty z `index.html` do samostatného souboru `styles/style.css` pro lepší organizaci a údržbu. Soubor je připojen v `index.html` pomocí `<link rel="stylesheet">`.
+  - **JavaScript**: Rozděleno do modulů:
+    - `main.js`: Hlavní logika a inicializace.
+    - `tools.js`: Třídy nástrojů (`Tool`, `Pencil`, `Brush`, `Eraser`, `Water`, `TextTool`).
+    - `cursorManager.js`: Generování kurzorů.
+    - `historyManager.js`: Správa historie akcí.
+    - `effectManager.js`, `stampEffect.js`, `sprayEffect.js`, `rollEffect.js`, `mixerEffect.js`, `shredderEffect.js`: Logika efektů.
+    - `progressManager.js`: Zobrazení průběhu efektů.
+    - `projectManager.js`: Ukládání, načítání, export PDF, e-mail.
+    - `canvasManager.js`: Zpracování událostí plátna.
+    - `toolManager.js`, `colorManager.js`, `sizeManager.js`, `effectManagerUI.js`, `canvasPool.js`, `shirtCanvasManager.js`: Modulární UI logika.
+    - `logger.js`: Podmíněné logování.
+    - `shirtColors.js`: Definice barev triček.
+  - **CSS**: Rozděleno do `base.css`, `layout.css`, `components.css`, `shirt.css` pro lepší organizaci, připojeno přes `<link>` v `index.html`.
 
 ## Plánované funkce
 
-- Vylepšení zobrazení trička pomocí skutečného 3D modelu (např. s použitím Three.js).
-- Rozšíření správy návrhů o podporu výběru fasónů triček (Male, Female, Kid), velikostí (XXL, XL, L, M, S) a barev.
+- Implementace skutečného 3D modelu trička (např. pomocí Three.js).
+- Rozšíření výběru o velikosti triček (XXL, XL, L, M, S).
+- Přidání zvukových efektů pro efekty přenosu (razítko, rozprašovač, válec, míchačka, šreder).
+
+## Historie změn
+
+- **Počáteční ladění a optimalizace**:
+  - Centralizována správa událostí myši v `canvasManager.js`, přidáno logování pro nástroje a plátno.
+  - Nahrazeno `console.log` podmíněným logováním v `logger.js` s úrovněmi `debug`, `info`, `warn`, `error`.
+
+- **Modularizace a optimalizace kódu**:
+  - Vytvořena třída `DrawingTool` v `tools.js` pro snížení duplicity kódu.
+  - Sloučeny `exportManager.js` a `projectManager.js` do `projectManager.js` s vylepšeným exportem PDF.
+  - Přidány utility `createOptimizedContext`, `countNonZeroPixels`, `isCanvasEmpty` v `effectManager.js`.
+  - Rozdělena `uiManager.js` do modulů (`toolManager.js`, `colorManager.js`, apod.) pro lepší údržbu.
+
+- **Vylepšení plátna a efektů**:
+  - Nahrazeny přímé reference na `shirtCanvas` voláním `getCurrentShirtCanvas` z `shirtCanvasManager.js`.
+  - Přidán `canvasPool.js` pro opětovné použití pláten, optimalizující paměť.
+  - Zamezeno vícenásobným aplikacím efektů pomocí `isEffectActive` a asynchronního `transferDesignToShirt`.
+  - Přidán typ `gridWarp` do `mixerEffect.js`, zajištěna sekvenční aplikace deformací a ukládání při přerušení.
+  - Odebrány nepoužívané zvukové placeholdery z `effectManager.js`.
+
+- **Vylepšení barev a rozhraní**:
+  - Rozdělen `style.css` na `base.css`, `layout.css`, `components.css`, `shirt.css`, přidána třída `debug-border`.
+  - Implementován výběr barev trička a pozadí v `colorManager.js`, s persistentními barvami pro každý fasón.
+  - Opraveno počáteční zobrazení barev nahrazením `switchStyle('man')` voláním `updateShirtColorOptions('man')`.
+  - Nahrazen kruh pro vlastní barvu pozadí `<input type="color">` s výchozí barvou `#E22222` a oranžovým puntíkovaným rámečkem.
+  - Zamezeno ovlivňování pozadí color pickerem pro kreslení v `updateCustomColors`.
+  - Přejmenována tlačítka fasónů v `index.html` (Male → Man, Female → Woman).
+  - Upraveno rozložení tlačítek efektů (horizontální) a tlačítek Save/Clear (vertikální v horizontálním řádku).
+
+- **Opravy chyb a robustnost**:
+  - Odstraněny varování `willReadFrequently` použitím `createOptimizedContext` a dočasných pláten.
+  - Opraveno duplikování historie časovým filtrem (100ms) a omezením ukládání efektů (1s).
+  - Opraveny importy (`saveCanvasState`), syntaxe (`effectManagerUI.js`, `uiManager.js`) a reference (`canvasPool.js`).
 
 ## Hodnocení implementace
 
 Projekt splňuje většinu povinných a část nepovinných požadavků dle kritérií hodnocení:
 
 ### Povinné požadavky (11/11 bodů)
-
-- **Dokumentace (1/1)**: Kompletní popis v `README.md`, komentáře v kódu (`main.js`, `tools.js`, apod.).
+- **Dokumentace (1/1)**: Kompletní popis v `README.md`, komentáře v kódu.
 - **HTML5 (2/2)**:
-  - **Validita HTML5 (1/1)**: Kód `index.html` byl ověřen přes https://validator.w3.org a je validní.
-  - **Sémantické značky (1/1)**: Použity tagy `header`, `main`, `footer`, `nav`, `section`.
+  - **Validita HTML5 (1/1)**: Ověřeno přes https://validator.w3.org.
+  - **Sémantické značky (1/1)**: Použity `header`, `main`, `footer`, `nav`, `section`.
 - **CSS (3/3)**:
-  - **Pokročilé selektory (1/1)**: Pseudotřídy (`.tool-icon.selected`), kombinátory (`.panel-b .tools-bar .tool-icon.selected`).
-  - **Přechody/animace (2/2)**: CSS přechody pro `.tool-icon` (`transition: all 0.2s ease`) a progress bar (`transition: width 0.1s linear`).
+  - **Pokročilé selektory (1/1)**: Pseudotřídy (`.tool-icon.selected`), kombinátory.
+  - **Přechody/animace (2/2)**: Přechody pro `.tool-icon`, progress bar.
 - **JavaScript (5/5)**:
-  - **OOP přístup (2/2)**: Třídy s dědičností (`Tool`, `Pencil`, apod.), moduly jako jmenné prostory.
-  - **Pokročilé JS API (3/3)**: Drag & Drop (`canvasManager.js`), File API (`projectManager.js`), History API (`historyManager.js`), Canvas API.
+  - **OOP přístup (2/2)**: Třídy s dědičností, moduly.
+  - **Pokročilé JS API (3/3)**: Drag & Drop, File API, History API, Canvas API.
 
-### Nepovinné požadavky (11.5+?/25 bodů)
-
+### Nepovinné požadavky (12.5+?/25 bodů)
 - **HTML5 (5/8)**:
-  - **Podpora prohlížečů (2/2)**: Kód využívá standardní API (Canvas, Drag & Drop), předpokládá se kompatibilita s Chrome, Firefox, Edge, Opera.
-  - **Grafika (2/2)**: Canvas plně implementován, SVG částečně (zpracování jako obrázek).
-  - **Média (0/1)**: Zvuky nejsou implementovány, pouze placeholdery v `effectManager.js`.
-  - **Formuláře (1/2)**: Použity `<input type="color">`, `<input type="range">` s validací typů souborů.
+  - **Podpora prohlížečů (2/2)**: Kompatibilita s Chrome, Firefox, Edge, Opera.
+  - **Grafika (2/2)**: Canvas plně implementován, SVG jako obrázek.
+  - **Média (0/1)**: Zvuky neimplementovány.
+  - **Formuláře (1/2)**: `<input type="color">`, `<input type="range">` s validací.
   - **Offline aplikace (0/1)**: Neimplementováno.
 - **CSS (3.5/5)**:
-  - **Vendor prefix (0/1)**: Nepotřebné díky široké podpoře vlastností.
+  - **Vendor prefix (0/1)**: Nepotřebné.
   - **Transformace 2D/3D (0.5/2)**: Pouze `translateX` pro `.size-value`.
-  - **Media queries (2/2)**: Adaptivní design pro rozlišení 1000px, 820px, 500px.
-- **JavaScript (3/7)**:
+  - **Media queries (2/2)**: Adaptivní design pro 1000px, 820px, 500px.
+- **JavaScript (4/7)**:
   - **Frameworky (0/1)**: Nepoužity.
-  - **History API (2/2)**: Plně implementováno v `historyManager.js`.
+  - **History API (2/2)**: Plně implementováno.
   - **Media API (0/1)**: Zvuky neimplementovány.
-  - **Práce s SVG přes JS (1/2)**: SVG zpracováváno jako obrázek, bez DOM manipulace.
+  - **Práce s SVG přes JS (1/2)**: SVG jako obrázek.
   - **Offline aplikace (0/1)**: Neimplementováno.
-- **Ostatní (?/5)**:
+- **Ostatní (0+?/5)**:
   - **Kompletnost řešení (?/3)**: Většina funkcí implementována, chybí 3D model a zvuky.
-  - **Estetické zpracování (?/2)**: Funkční UI s zvýrazněním nástrojů, kurzory, adaptivností, ale bez výrazného designu.
+  - **Estetické zpracování (?/2)**: Funkční UI s kurzory, adaptivností, barevným výběrem.
 
 ### Celkové hodnocení
-
 - **Povinné požadavky**: 11/11 bodů.
-- **Nepovinné požadavky**: 11.5+?/25 bodů.
-- **Celkem**: 22.5+?/36 bodů.
+- **Nepovinné požadavky**: 12.5+?/25 bodů.
+- **Celkem**: 23.5+?/36 bodů.
