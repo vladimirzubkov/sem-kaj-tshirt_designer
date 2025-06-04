@@ -79,6 +79,7 @@ Vytvořit webovou stránku pro online návrh trička s možností:
   - JSON obsahuje design hlavního plátna (`drawCanvas`) a data začatých fasónů (velikost, barva trička, barva pozadí, vlastní barva pozadí, design trička). Prázdné fasóny se neukládají.
   - Při ukládání je možné zadat název souboru, při nevyplnění se použije formát `t-shirt-design-yymmdd-hh-mm.json`.
   - Akce uložení a načítání jsou integrovány do historie pro Undo/Redo.
+  - Ukládání designu jako PNG z plátna pro kreslení (`drawCanvas`) do localStorage pod klíčem `tshirtDesignPNG` přes tlačítko "Save Design". Při načtení stránky se PNG načítá zpět na plátno pro kreslení, což umožňuje pokračovat v úpravách.
 
 - **Export do PDF a odeslání e-mailem**:
   - **Export do PDF**: Tlačítko "Download PDF" exportuje návrhy všech neprázdných fasónů do PDF (A3 formát) přes `jsPDF`. Každý fasón má samostatnou stránku s textem (styl, velikost, barvy), náhledy barev, škálovaným obrazem trička, typografickými značkami a měřítkem.
@@ -142,6 +143,7 @@ Vytvořit webovou stránku pro online návrh trička s možností:
   - Prázdné fasóny se při ukládání ignorují, UI se po načtení automaticky aktualizuje voláním `initUI`.
   - Opraveno načítání JSON v `projectManager.js` zajištěním správného přepnutí fasónu (`switchStyle`) a aktualizací DOM pro zachování obnovených pláten.
   - Přidána podpora načítání SVG, PNG, GIF, JPG obrázků na hlavní plátno přes tlačítko "Load Project", s automatickým škálováním a centrováním.
+  - **Uložení PNG z plátna pro kreslení (4. června 2025)**: Tlačítko "Save Design" nyní ukládá obsah plátna pro kreslení (`drawCanvas`) jako PNG do localStorage pod klíčem `tshirtDesignPNG`. Při načtení stránky se uložený PNG načítá zpět na plátno pro kreslení, což umožňuje uživatelům pokračovat v úpravách designu.
 
 - **Export do PDF a forma objednávky**:
   - Vylepšen export PDF v `projectManager.js` pro vícestránkový výstup (jedna stránka na neprázdný fasón) ve formátu A3. Tlačítko "Download PDF" ukládá soubor `shirt-designs.pdf` s designy všech neprázdných fasónů.

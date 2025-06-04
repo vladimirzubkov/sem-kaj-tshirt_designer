@@ -2,7 +2,7 @@
 import { Pencil, Brush, Eraser, Water, TextTool } from './tools.js';
 import { saveCanvasState, undo, redo, getCurrentHistoryIndex } from './historyManager.js';
 import { showProgress, hideProgress } from './progressManager.js';
-import { saveProject, loadProject, exportToPDF } from './projectManager.js';
+import { saveProject, loadProject, exportToPDF, exportToPNG } from './projectManager.js';
 import { initCanvasEvents } from './canvasManager.js';
 import { initUI } from './uiManager.js';
 import { getCurrentShirtCanvas } from './shirtCanvasManager.js';
@@ -18,6 +18,26 @@ const ctx = drawCanvas.getContext('2d');
 const shirtCanvas = getCurrentShirtCanvas();
 logger.info(`[${new Date().toISOString()}] shirtCanvas visibility: visibility=${shirtCanvas.style.visibility}, display=${window.getComputedStyle(shirtCanvas).display}, zIndex=${window.getComputedStyle(shirtCanvas).zIndex}`);
 logger.info(`[${new Date().toISOString()}] drawCanvas visibility: visibility=${drawCanvas.style.visibility}, display=${window.getComputedStyle(drawCanvas).display}, zIndex=${window.getComputedStyle(drawCanvas).zIndex}`);
+
+// Load saved PNG from localStorage on page load
+function loadSavedPNG() {
+  const savedPNG = localStorage.getItem('tshirtDesignPNG');
+  if (savedPNG) {
+    const img = new Image();
+    img.onload = () => {
+      ctx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+      ctx.drawImage(img, 0, 0, drawCanvas.width, drawCanvas.height);
+      logger.info(`[${new Date().toISOString()}] Loaded saved PNG to drawCanvas from localStorage`);
+      saveCanvasState(drawCanvas, shirtCanvas, 'Load Saved PNG to Draw Canvas', null);
+    };
+    img.onerror = () => {
+      logger.error(`[${new Date().toISOString()}] Failed to load saved PNG from localStorage`);
+    };
+    img.src = savedPNG;
+  } else {
+    logger.debug(`[${new Date().toISOString()}] No saved PNG found in localStorage`);
+  }
+}
 
 function resetShirt() {
   logger.info(`[${new Date().toISOString()}] Resetting shirt`);
@@ -35,12 +55,11 @@ toolClasses.forEach(ToolClass => {
 
 initUI(tools, drawCanvas, shirtCanvas);
 initOrderForm();
+loadSavedPNG(); // Load saved PNG after initialization
 
-// Keep saveDesignButton for future functionality
-// document.getElementById('saveDesignButton').addEventListener('click', () => {
-//   const shirtCanvas = getCurrentShirtCanvas();
-//   saveDesign(drawCanvas, shirtCanvas);
-// });
+document.getElementById('saveDesignButton').addEventListener('click', () => {
+  exportToPNG(drawCanvas); // Export PNG from drawCanvas and save to localStorage
+});
 
 document.getElementById('saveProjectButton').addEventListener('click', () => {
   saveProject(drawCanvas);
@@ -63,8 +82,10 @@ document.getElementById('newShirtButton').addEventListener('click', () => {
 });
 
 document.getElementById('clearButton').addEventListener('click', () => {
-  logger.info(`[${new Date().toISOString()}] Clearing canvas`);
+  logger.info(`[${new Date().toISOString()}] Clearing canvas and localStorage`);
   ctx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+  localStorage.removeItem('tshirtDesignPNG');
+  logger.info(`[${new Date().toISOString()}] Removed tshirtDesignPNG from localStorage`);
   const shirtCanvas = getCurrentShirtCanvas();
   saveCanvasState(drawCanvas, shirtCanvas, 'Clear Canvas', null);
 });
@@ -101,7 +122,7 @@ window.addEventListener('popstate', (e) => {
     if (targetIndex < currentIndex) {
       const steps = currentIndex - targetIndex;
       for (let i = 0; i < steps; i++) {
-        logger.info(`[${new Date().toISOString()}] Popstate undo step ${i + 1}/${steps}`);
+        logger.info(`[${new Date().toISOString()}] Popstate undo steps ${i + 1}/${steps}`);
         undo(ctx, drawCanvas.width, drawCanvas.height, shirtCtx, shirtCanvas.width, shirtCanvas.height);
       }
     } else if (targetIndex > currentIndex) {

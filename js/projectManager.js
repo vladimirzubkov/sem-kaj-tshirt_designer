@@ -1,6 +1,6 @@
 /**
  * projectManager.js
- * Manages project saving, loading, PDF export, and email sending
+ * Manages project saving, loading, PDF export, PNG export, and email sending
  */
 
 import { logger } from './logger.js';
@@ -210,6 +210,33 @@ export function exportToPDF(drawCanvas, shirtCanvas, returnDataUrl = false, call
   } catch (error) {
     logger.error(`[${new Date().toISOString()}] Failed to export to PDF:`, error);
     if (callback) callback(null);
+  }
+}
+
+// Export design to PNG and save to localStorage
+export function exportToPNG(shirtCanvas) {
+  try {
+    const imgData = shirtCanvas.toDataURL('image/png');
+
+    // Check size of PNG data (approx. size in MB)
+    const dataSizeMB = (imgData.length * 3 / 4) / (1024 * 1024); // Base64 is ~4/3 of binary size
+    if (dataSizeMB > 5) {
+      logger.warn(`[${new Date().toISOString()}] PNG size (${dataSizeMB.toFixed(2)} MB) exceeds 5 MB limit, not saved to localStorage`);
+      alert('PNG size exceeds 5 MB limit and cannot be saved to localStorage.');
+    } else {
+      localStorage.setItem('tshirtDesignPNG', imgData);
+      logger.info(`[${new Date().toISOString()}] PNG saved to localStorage, size: ${dataSizeMB.toFixed(2)} MB`);
+    }
+
+    // Download PNG
+    const link = document.createElement('a');
+    link.href = imgData;
+    link.download = 'tshirt-design.png';
+    link.click();
+    logger.info(`[${new Date().toISOString()}] PNG exported as tshirt-design.png`);
+  } catch (error) {
+    logger.error(`[${new Date().toISOString()}] Failed to export PNG:`, error);
+    alert('Failed to export PNG.');
   }
 }
 
