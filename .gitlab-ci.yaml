@@ -1,13 +1,17 @@
+# .gitlab-ci.yml
 stages:
-     - deploy
+  - deploy
 
-   pages:
-     stage: deploy
-     script:
-       - mkdir -p public
-       - cp -r * public # Копируем все файлы в папку public
-     artifacts:
-       paths:
-         - public
-     rules:
-       - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH # Разворачиваем только для основной ветки (например, main)
+pages:
+  stage: deploy
+  image: alpine:latest
+  before_script:
+    - apk add rsync
+  script:
+    - mkdir -p public
+    - rsync -av --exclude='public' --exclude='.git' ./* public/
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
