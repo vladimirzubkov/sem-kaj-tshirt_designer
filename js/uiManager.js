@@ -12,7 +12,7 @@ export function initUI(tools, drawCanvas, shirtCanvas) {
 
   // Cache DOM elements for performance
   const domElements = {
-    colorPicker: document.createElement('input'),
+    colorPicker: document.querySelector('.color-picker-wrapper input[type="color"]'),
     sizeSlider: document.getElementById('sizeSlider'),
     sizeValue: document.getElementById('sizeValue'),
     styleButtons: document.querySelectorAll('.style-button'),
@@ -30,14 +30,17 @@ export function initUI(tools, drawCanvas, shirtCanvas) {
     return;
   }
 
+  // Create color picker if it doesn't exist
+  if (!domElements.colorPicker) {
+    domElements.colorPicker = document.createElement('input');
+    domElements.colorPicker.type = 'color';
+    domElements.colorPicker.value = '#000000';
+    domElements.colorPicker.title = 'Color';
+    colorPickerWrapper.appendChild(domElements.colorPicker);
+  }
+
   // Log initial color circles count
   logger.debug(`[${new Date().toISOString()}] Initial shirt color circles: ${domElements.shirtColorCircles.length}, background color circles: ${domElements.backgroundColorCircles.length}`);
-
-  // Configure color picker input
-  domElements.colorPicker.type = 'color';
-  domElements.colorPicker.value = '#000000';
-  domElements.colorPicker.title = 'Color';
-  colorPickerWrapper.appendChild(domElements.colorPicker);
 
   // Initialize core modules
   initToolManager(tools, drawCanvas, domElements);

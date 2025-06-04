@@ -4,9 +4,9 @@
 export const shirtColors = {
   man: [
     { name: 'white', value: '#ffffff' },
-    { name: 'black', value: '#1ce306' },
-    { name: 'red', value: '#0059ff' },
-    { name: 'gray', value: '#3c3c3c' }
+    { name: 'geen', value: '#1ce306' },
+    { name: 'blue', value: '#0059ff' },
+    { name: 'Pantone 446', value: '#494C49' }
   ],
   woman: [
     { name: 'white', value: '#ffffff' },

@@ -48,7 +48,7 @@ Vytvořit webovou stránku pro online návrh trička s možností:
 
 - **Zobrazení kurzoru nástrojů**:
   - Kreslicí nástroje mají kruhový kurzor odpovídající velikosti nástroje, textový nástroj má svislou čáru s výstupky.
-  - Kurzor je červený při velikosti 128 px a více, jinak чerný, aktualizuje se dynamicky při změně velikosti.
+  - Kurzor je červený při velikosti 128 px a více, jinak černý, aktualizuje se dynamicky při změně velikosti.
 
 - **Nahrávání obrázků na plátno**:
   - Drag-and-drop pro SVG, PNG, GIF, JPG obrázky. Menší obrázky se zobrazují v místě přetažení, větší se škálují a centrovány.
@@ -57,7 +57,7 @@ Vytvořit webovou stránku pro online návrh trička s možností:
 - **Historie akcí (Undo/Redo)**:
   - Podpora Undo (Ctrl+Z) a Redo (Ctrl+Y), synchronizovaná s historií prohlížeče.
   - Akce (kreslení, text, obrázky, čištění, přenos na tričko) jsou ukládány s popisy (napр. "Draw with Pencil", "Transfer Design to Shirt").
-  - Historie je optimalizována proti duplicitním stavůм (100ms časový filtr) a rychлým efektůм (1s filtr).
+  - Historie je optimalizována proti duplicitním stavům (100ms časový filtr) a rychлým efektům (1s filtr).
 
 - **Výběр fasónu a barev trička**:
   - Podpora výběру fasónу (mužský, ženský, dětský) s dynamickým přepínáním v `shirtCanvasManager.js`.
@@ -69,19 +69,36 @@ Vytvořit webovou stránku pro online návrh trička s možností:
     - **Razítko**: Přímý přenos návrhu, přidává na stávající obsah.
     - **Rozprašovač**: Přidává 25 kapek každých 0,1 s (poloměр 1–5 px) na neprůhledné části, max. 5000 kapек за 20 s.
     - **Válec**: Dvě vrstvy s 50% průhledností a 2% zkreslením (mřížка 10x10), druhá po 1 s.
-    - **Míchaчка**: Až 5 deformací (merge, twistCW, twistCCW, inflate, deflate, gridWarp) po 1 s, s přerušením.
+    - **Míchačka**: Až 5 deformací (merge, twistCW, twistCCW, inflate, deflate, gridWarp) po 1 s, s přerušením.
     - **Šreder**: Až 7 kroků rozřezávání (5x5 až 7x7 fragmentů) po 1 s, s rotací a deformací.
   - Efekty jsou ukládány do historie pouze po dokončení nebo přerušení (kromě razítka).
   - Optimalizováno pomocí `canvasPool.js` pro opětovné použитí pláten.
 
 - **Uložení a načítání návrhu**:
   - Ukládání projektu do JSON přes tlačítko "Save Project", načítání z JSON přes "Load Project".
-  - JSON obsahuje design hlavního plátна (`drawCanvas`) a data začatých fasónů (velikost, barva trička, barva pozadí, vlastní barva позаді, design trička). Prázdné fasónи se неукладають.
+  - JSON obsahuje design hlavního plátna (`drawCanvas`) a data začatých fasónů (velikost, barva trička, barva pozadí, vlastní barva позаді, design trička). Prázdné fasónи se неукладають.
   - Při ukládání je možné zadat název souboru, při nevyplnění se použije formát `t-shirt-design-yymmdd-hh-mm.json`.
   - Akce uložení a načítání jsou integrovány do historie pro Undo/Redo.
+  - **Technologie načítání projektu**:
+    - Načítání je iniciováno kliknutím na tlačítko "Load Project", které otevře dialog pro výběr JSON souboru. Funkce `loadProject` v `projectManager.js` vytvoří `<input type="file">` s filtrem `application/json` a načte obsah souboru pomocí `FileReader`.
+    - Po načtení je JSON parsován do objektu `projectData`, který obsahuje `drawCanvas` (Data URL obrazu hlavního plátna), `currentStyle` (aktuální fasón: mužský, ženský, dětský) a `styles` (data fasónů: velikost, barva trička, barva pozadí, vlastní barva pozadí, design trička).
+    - Funkce `restoreProject` obnovuje hlavní plátno (`drawCanvas`) načtením obrazu přes objekt `Image`, který je vykreslen po dokončení načítání (`img.onload`). Plátno je před tím vyčištěno (`clearRect`).
+    - Pro každý fasón v `projectData.styles` je vytvořen nebo aktualizován objekt v `shirtCanvases`. Pokud fasón neexistuje, je vytvořen nový pomocí `createShirtCanvas`. Nastavují se parametry: velikost, barva trička, barva pozadí, vlastní barva pozadí, a příznak `isEmpty` je nastaven na `false`.
+    - Design trička je obnoven načtením obrazu přes objekt `Image`, který je vykreslen na plátno trička (`shirtCanvas`) a uložen do `originalDesign`. Načítání je asynchronní, s použitím `Promise.all` pro zajištění, že všechny obrazy jsou načteny před aktualizací UI.
+    - Po obnovení pláten je aktuální fasón přepnut přes `switchStyle`, které aktualizuje zobrazení trička v DOM. Plátno aktuálního fasónu je přidáno do `.shirt-container`, pokud tam není, nebo nahradí stávající plátno.
+    - UI je aktualizováno voláním `updateShirtColorOptions`, `updateBackgroundColorOptions`, `selectShirtColor`, `selectBackgroundColor` a `applySizeScaling`, které obnoví barvy, velikosti a výběr fasónu podle načtených dat.
+    - Stav po načtení je uložen do historie (`saveCanvasState`) pro podporu Undo/Redo. Callback funkce (`initUI`) je volána pro kompletní aktualizaci rozhraní.
+    - Zpracování chyb (např. neplatný JSON nebo selhání načtení obrazu) je zajištěno try-catch bloky a `onerror` událostmi, s výpisem varování do konzole přes `logger.js`.
 
 - **Export do PDF a odeslání e-mailem**:
-  - Export návrhu do PDF přes `jsPDF` s titulkem "T-Shirt Design".
+  - Export návrhu do PDF přes `jsPDF` v `projectManager.js` s titulkem "T-Shirt Design" na formátu A3 (297x420 mm).
+  - Každý neprázdný fasón (mužský, ženský, dětský) je exportován na samostatnou stránku s následujícím rozložením:
+    - Centrovány text nahoře (20 mm od horního okraje): "Style: [fasón], Size: [velikost], Shirt Color: [barva trička], Background Color: [barva pozadí]", kde fasón, velikost, barva trička a barva pozadí jsou tučně (Helvetica, bold).
+    - Pravý okraj (180 mm od levého okraje, 30 mm od vrchu): dva obdélníky 20x10 mm s barvou trička a pozadí, s šedým rámečkem (#808080, 0.5 mm), 2 mm mezera mezi nimi. Transparentní pozadí je znázorněno šachovnicovým vzorem.
+    - Centrovány obraz trička: velikost 100x133 mm pro mužský fasón, škálováno podle stylu (ženský: 0.9, dětský: 0.7).
+    - L-образné typografické značky (5 mm) v rozích obrazu.
+    - Text měřítka pod obrazem: např. `Scale: 1:0.9` pro ženský fasón.
+  - Pokud nejsou žádné neprázdné fasóny, zobrazí se varování.
   - Simulace odeslání e-mailem (stahování PDF s upozorněním), integrovaná do historie.
 
 - **Struktura kódu**:
@@ -103,8 +120,8 @@ Vytvořit webovou stránku pro online návrh trička s možností:
 
 - Implementace skutečného 3D modelu trička (např. pomocí Three.js).
 - Přidání zvukových efektů pro efekty přenosу (razítko, rozprašovač, válec, míchačka, šreder).
-- Vylepšení správy barev triček v `shirtColors.js` pro opravu nesprávných barev.
-- Rozšíření funkcionality tlačítка "Remember and Save Design" pro další možnosti ukládání.
+- Vylepšení správy barev triček v `shirtColors.js` pro opravu nesprávných barev a zajištění nezávislosti ukládání na změny barev.
+- Rozšíření funkcionality tlačítka "Remember and Save Design" pro další možnosti ukládání.
 
 ## Historie změn
 
@@ -127,17 +144,27 @@ Vytvořit webovou stránku pro online návrh trička s možností:
 
 - **Vylepšení barev a rozhraní**:
   - Rozdělen `style.css` na `base.css`, `layout.css`, `components.css`, `shirt.css`, přidána třída `debug-border`.
-  - Implementován výběр barev trička a позаді в `colorManager.js`, s persistentními barvami pro každý fasón.
+  - Implementován výběр barev trička a позаді v `colorManager.js`, s persistentními barvami pro každý fasón.
   - Opraveno počáteční zobrazení barev nahrazením `switchStyle('man')` voláním `updateShirtColorOptions('man')`.
   - Nahrazen kruh pro vlastní barvu позаді `<input type="color">` s výchozí barvou `#E22222` a oranžovým puntíkovaným rámečkem.
+  - Zamezeno duplikaci `colorPicker` v `uiManager.js` při opakovaném volání `initUI` po načtení JSON.
   - Zamezeno ovlivňовání позаді color pickerem pro kreslení v `updateCustomColors`.
-  - Přejmenována tlačítка fasónů v `index.html` (Male → Man, Female → Woman).
+  - Přejmenována tlačítka fasónů v `index.html` (Male → Man, Female → Woman).
   - Upraveno rozložení tlačítek efektů (horizontální) a tlačítek Save/Clear (vertikální v horizontálním řádku).
 
 - **Uložení a načítání projektu**:
-  - Přidáno ukládání projektu do JSON přes tlačítко "Save Project" s volitelným názvem souboru nebo výchoзím formátem `t-shirt-design-yymmdd-hh-mm.json`.
-  - Implementováno načítání projektu z JSON přes tlačítko "Load Project", obnovující hlavní plátно, fasónи, velikosti, barvy a designy triček.
-  - Prázdné fasónи se při ukládání ignorují, UI se po načtení automaticky aktualizuje.
+  - Přidáno ukládání projektu do JSON přes tlačítko "Save Project" s volitelným názvem souboru nebo výchoзím formátem `t-shirt-design-yymmdd-hh-mm.json`.
+  - Implementováno načítání projektu z JSON přes tlačítko "Load Project", obnovující hlavní plátno, fasónи, velikosti, barvy a designy triček. Použito `Promise.all` pro asynchronní načítání všech pláten, zajišťující konzistentní obnovu UI.
+  - Prázdné fasónи se při ukládání ignorují, UI se po načtení automaticky aktualizuje voláním `initUI`.
+  - Opraveno načítání JSON v `projectManager.js` zajištěním správného přepnutí fasónu (`switchStyle`) a aktualizací DOM pro zachování obnovených pláten.
+  - Přidána podpora načítání SVG, PNG, GIF, JPG obrázků na hlavní plátno přes tlačítko "Load Project", s automatickým škálováním a centrováním.
+
+- **Export do PDF**:
+  - Vylepšen export PDF v `projectManager.js` pro vícestránkový výstup (jedna stránka na neprázdný fasón) ve formátu A3.
+  - Přidána centrována textová řádka s tučným písmem pro fasón, velikost, barvu trička a pozadí.
+  - Přidány obdélníky (20x10 mm) pro náhled barev trička a pozadí na pravém okraji (180 mm od levého okraje) s šedým rámečkem (#808080, 0.5 mm) a šachovnicovým vzorem pro transparentní pozadí.
+  - Obraz trička je škálován podle fasónu (mužský: 1, ženský: 0.9, dětský: 0.7), s typografickými značkami a textem měřítka.
+  - Opraveno kódování textu v PDF použitím fontu Helvetica s podporou UTF-8.
 
 - **Opravy chyb a robustnost**:
   - Odstraněny varování `willReadFrequently` použitím `createOptimizedContext` a dočasných pláten.
@@ -155,7 +182,7 @@ Projekt splňuje většinu povinných a část nepovinných požadavků dle krit
   - **Validita HTML5 (1/1)**: Ověřeno přes https://validator.w3.org.
   - **Sémantické značky**: Použity `header`, `main`, `footer`, `nav`, `section`.
 - **CSS (3/3)**:
-  - **Pokročké selektory**: Pseudotřídy (`.tool-icon.selected`), kombinátory.
+  - **Pokročilé selektory**: Pseudotřídy (`.tool-icon.selected`), kombinátory.
   - **Přechovy/animace**: Přechovy pro `.tool-icon`, progress bar.
 - **JavaScript (5/5)**:
   - **OOP přístup**: Třídy s dědičností, moduly.
