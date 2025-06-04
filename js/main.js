@@ -2,10 +2,11 @@
 import { Pencil, Brush, Eraser, Water, TextTool } from './tools.js';
 import { saveCanvasState, undo, redo, getCurrentHistoryIndex } from './historyManager.js';
 import { showProgress, hideProgress } from './progressManager.js';
-import { saveProject, loadProject, exportToPDF, sendEmail } from './projectManager.js';
+import { saveProject, loadProject, exportToPDF } from './projectManager.js';
 import { initCanvasEvents } from './canvasManager.js';
 import { initUI } from './uiManager.js';
 import { getCurrentShirtCanvas } from './shirtCanvasManager.js';
+import { initOrderForm, openOrderModal } from './orderForm.js';
 import { logger } from './logger.js';
 
 const { jsPDF } = window.jspdf;
@@ -33,6 +34,7 @@ toolClasses.forEach(ToolClass => {
 });
 
 initUI(tools, drawCanvas, shirtCanvas);
+initOrderForm();
 
 // Keep saveDesignButton for future functionality
 // document.getElementById('saveDesignButton').addEventListener('click', () => {
@@ -53,12 +55,7 @@ document.getElementById('loadProjectButton').addEventListener('click', () => {
 
 document.getElementById('downloadPDFButton').addEventListener('click', () => {
   const shirtCanvas = getCurrentShirtCanvas();
-  exportToPDF(drawCanvas, shirtCanvas);
-});
-
-document.getElementById('sendEmailButton').addEventListener('click', () => {
-  const shirtCanvas = getCurrentShirtCanvas();
-  sendEmail(drawCanvas, shirtCanvas);
+  exportToPDF(drawCanvas, shirtCanvas, false); // Save PDF
 });
 
 document.getElementById('newShirtButton').addEventListener('click', () => {
@@ -70,6 +67,11 @@ document.getElementById('clearButton').addEventListener('click', () => {
   ctx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
   const shirtCanvas = getCurrentShirtCanvas();
   saveCanvasState(drawCanvas, shirtCanvas, 'Clear Canvas', null);
+});
+
+document.getElementById('orderForm').addEventListener('click', () => {
+  logger.debug(`[${new Date().toISOString()}] Order form button clicked`);
+  openOrderModal();
 });
 
 document.addEventListener('keydown', (e) => {
