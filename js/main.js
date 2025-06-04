@@ -8,6 +8,7 @@ import { initUI } from './uiManager.js';
 import { getCurrentShirtCanvas } from './shirtCanvasManager.js';
 import { initOrderForm, openOrderModal } from './orderForm.js';
 import { initScreenNavigation } from './screenManager.js';
+import { initSoundManager, playSound } from './soundManager.js';
 import { logger } from './logger.js';
 
 const { jsPDF } = window.jspdf;
@@ -56,7 +57,8 @@ toolClasses.forEach(ToolClass => {
 
 initUI(tools, drawCanvas, shirtCanvas);
 initOrderForm();
-initScreenNavigation(); // Initialize screen navigation
+initScreenNavigation();
+initSoundManager();
 loadSavedPNG();
 
 document.getElementById('saveDesignButton').addEventListener('click', () => {
@@ -74,16 +76,20 @@ document.getElementById('loadProjectButton').addEventListener('click', () => {
 });
 
 document.getElementById('downloadPDFButton').addEventListener('click', () => {
+  playSound('stapler');
   const shirtCanvas = getCurrentShirtCanvas();
   exportToPDF(drawCanvas, shirtCanvas, false);
 });
 
 document.getElementById('newShirtButton').addEventListener('click', () => {
+  logger.info(`[${new Date().toISOString()}] New shirt button clicked`);
+  playSound('void');
   resetShirt();
 });
 
 document.getElementById('clearButton').addEventListener('click', () => {
   logger.info(`[${new Date().toISOString()}] Clearing canvas and localStorage`);
+  // Remove playSound('void')
   ctx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
   localStorage.removeItem('tshirtDesignPNG');
   logger.info(`[${new Date().toISOString()}] Removed tshirtDesignPNG from localStorage`);
@@ -93,6 +99,7 @@ document.getElementById('clearButton').addEventListener('click', () => {
 
 document.getElementById('orderForm').addEventListener('click', () => {
   logger.debug(`[${new Date().toISOString()}] Order form button clicked`);
+  playSound('cashier');
   openOrderModal();
 });
 

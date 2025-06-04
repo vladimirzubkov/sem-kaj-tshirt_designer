@@ -7,6 +7,7 @@ import { logger } from './logger.js';
 import { getAllShirtCanvases } from './shirtCanvasManager.js';
 import { isCanvasEmpty } from './effectManager.js';
 import { exportToPDF } from './projectManager.js';
+import { playSound } from './soundManager.js';
 
 // Initialize modal container
 export function initOrderForm() {
@@ -48,7 +49,10 @@ export function openOrderModal() {
         </div>
       </div>
     `;
-    modal.querySelector('.cancel-button').addEventListener('click', closeModal);
+    modal.querySelector('.cancel-button').addEventListener('click', () => {
+      playSound('huh'); // Play huh for Close
+      closeModal();
+    });
   } else {
     // Generate table rows for available styles
     const tableRows = availableStyles.map(style => `
@@ -136,18 +140,23 @@ export function openOrderModal() {
       }
 
       logger.info(`[${new Date().toISOString()}] Order submitted with data:`, JSON.stringify(orderData, null, 2));
-      console.log('Order data with PDFs:', orderData); // Simulate sending to server
+      console.log('Order data with PDFs:', orderData);
+      playSound('hooray');
       closeModal();
     });
 
     // Handle cancel button
-    modal.querySelector('.cancel-button').addEventListener('click', closeModal);
+    modal.querySelector('.cancel-button').addEventListener('click', () => {
+      playSound('booo'); // Play booo for Cancel
+      closeModal();
+    });
   }
 
   // Close modal when clicking outside
   modal.addEventListener('click', (e) => {
     if (e.target === modal) {
       logger.debug(`[${new Date().toISOString()}] Order modal closed by clicking outside`);
+      playSound('huh');
       closeModal();
     }
   });

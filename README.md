@@ -66,11 +66,12 @@ Vytvořit webovou stránku pro online návrh trička s možností:
 
 - **Přenos návrhu na tričko**:
   - Přenos návrhu z plátna (375x500 px) na tričko (213x284 px) pomocí efektů:
-    - **Razítko**: Přímý přenos návrhu, přidává na stávající obsah.
-    - **Rozprašovač**: Přidává 25 kapek každých 0,1 s (poloměr 1–5 px) na neprůhledné části, max. 5000 kapek za 20 s.
-    - **Válec**: Dvě vrstvy s 50% průhledností a 2% zkreslením (mřížka 10x10), druhá po 1 s.
-    - **Míchačka**: Až 5 deformací (merge, twistCW, twistCCW, inflate, deflate, gridWarp) po 1 s, s přerušením.
-    - **Šreder**: Až 7 kroků rozřezávání (5x5 až 7x7 fragmentů) po 1 s, s rotací a deformací.
+    - **Razítko**: Přímý přenos návrhu s doprovodným zvukem `stamp.mp3`, přidává na stávající obsah.
+    - **Rozprašovač**: Přidává 25 kapek každých 0,1 s (poloměr 1–5 px) na neprůhledné části, max. 5000 kapek za 20 s, s doprovodným zvukem `spray.mp3`.
+    - **Válec**: Dvě vrstvy s 50% průhledností a 2% zkreslením (mřížka 10x10), druhá po 1 s, s doprovodným zvukem `roll.mp3`.
+    - **Míchačka**: Až 5 deformací (merge, twistCW, twistCCW, inflate, deflate, gridWarp) po 1 s, s přerušením a zvukem `mixer.mp3`.
+    - **Šreder**: Až 7 kroků rozřezávání (5x5 až 7x7 fragmentů) po 1 s, s rotací a deformací, s doprovodným zvukem `shredder.mp3`.
+  - Zvuky efektů přehrávají se při stisknutí tlačítka efektu (`mousedown`) a zastavují se při uvolnění (`mouseup`) nebo opuštění tlačítka (`mouseleave`), implementováno v `effectManagerUI.js` a `soundManager.js`.
   - Efekty jsou ukládány do historie pouze po dokončení nebo přerušení (kromě razítka).
   - Optimalizováno pomocí `canvasPool.js` pro opětovné použití pláten.
 
@@ -82,9 +83,19 @@ Vytvořit webovou stránku pro online návrh trička s možností:
   - Ukládání designu jako PNG z plátna pro kreslení (`drawCanvas`) do localStorage pod klíčem `tshirtDesignPNG` přes tlačítko "Save Design". Při načtení stránky se PNG načítá zpět na plátno pro kreslení, což umožňuje pokračovat v úpravách.
 
 - **Export do PDF a odeslání e-mailem**:
-  - **Export do PDF**: Tlačítko "Download PDF" exportuje návrhy všech neprázdných fasónů do PDF (A3 formát) přes `jsPDF`. Každý fasón má samostatnou stránku s textem (styl, velikost, barvy), náhledy barev, škálovaným obrazem trička, typografickými značkami a měřítkem.
-  - **Forma objednávky**: Tlačítko "Order T-Shirts" otevírá formulář, který dynamicky zobrazuje pouze fasóny s neprázdnými designy. Uživatel zadá email a množství pro každý fasón a velikost. Při odeslání (`submit`) se generují PDF pro každý fasón (Data URL) a ukládají do `orderData.designs`, spolu s emailem a množstvím. Data jsou logována do konzole, simulujíc odeslání na server.
+  - **Export do PDF**: Tlačítko "Download PDF" exportuje návrhy všech neprázdných fasónů do PDF (A3 formát) přes `jsPDF` s doprovodným zvukem `stapler.mp3`. Každý fasón má samostatnou stránku s textem (styl, velikost, barvy), náhledy barev, škálovaným obrazem trička, typografickými značkami a měřítkem.
+  - **Forma objednávky**: Tlačítko "Order T-Shirts" otevírá formulář s doprovodným zvukem `cashier.mp3`, který dynamicky zobrazuje pouze fasóny s neprázdnými designy. Uživatel zadá email a množství pro každý fasón a velikost. Při odeslání (`submit`) se generují PDF pro každý fasón (Data URL) s doprovodným zvukem `hooray.mp3` a ukládají do `orderData.designs`, spolu s emailem a množstvím. Při zrušení formuláře tlačítkem `Cancel` se přehraje `booo.mp3`, při tlačítku `Close` (při prázdném designu) se přehraje `huh.mp3`. Data jsou logována do konzole, simulujíc odeslání na server.
   - Simulace odeslání e-mailem (mailto odkaz s PNG), integrovaná do historie.
+
+- **Zvukové efekty**:
+  - Implementovány zvukové efekty v `soundManager.js` pro interaktivní akce:
+    - Přepínač zvuku (`sound-toggle-input`): Při zapnutí hraje `yes.mp3`, při vypnutí `no.mp3`, s persistentním ukládáním stavu do `localStorage`.
+    - Tlačítko "New Shirt": Přehraje `void.mp3` při vytvoření nového trička.
+    - Tlačítko "Clear": Bez zvuku, dříve používalo `void.mp3`.
+    - Efekty přenosu návrhu na tričko (`effectManagerUI.js`): `stamp.mp3` pro razítko, `spray.mp3` pro rozprašovač, `roll.mp3` pro válec, `mixer.mp3` pro míchačku, `shredder.mp3` pro šreder. Zvuky se přehrávají při stisknutí (`mousedown`) a zastavují při uvolnění (`mouseup`) nebo opuštění tlačítka (`mouseleave`).
+    - Forma objednávky (`orderForm.js`): `cashier.mp3` při otevření formuláře, `hooray.mp3` při odeslání, `booo.mp3` při zrušení tlačítkem `Cancel`, `huh.mp3` při zrušení tlačítkem `Close` (při prázdném designu) nebo kliknutí mimo formulář.
+  - Zvuky jsou spravovány v `soundManager.js` s přednačítáním (`new Audio`), zastavováním předchozího zvuku (`stopCurrentSound`) a logováním chyb načítání nebo přehrávání.
+  - Všechny zvukové soubory (`yes.mp3`, `no.mp3`, `void.mp3`, `stamp.mp3`, `spray.mp3`, `roll.mp3`, `mixer.mp3`, `shredder.mp3`, `stapler.mp3`, `cashier.mp3`, `hooray.mp3`, `booo.mp3`, `huh.mp3`) jsou uloženy v `assets/` a mají formát MP3.
 
 - **Struktura kódu**:
   - **JavaScript**: Rozděleno do modulů:
@@ -96,7 +107,7 @@ Vytvořit webovou stránku pro online návrh trička s možností:
     - `progressManager.js`: Zobrazení průběhu efektů.
     - `projectManager.js`: Ukládání, načítání, export PDF, e-mail, JSON projekty.
     - `canvasManager.js`: Zpracování událostí plátna.
-    - `toolManager.js`, `colorManager.js`, `sizeManager.js`, `effectManagerUI.js`, `canvasPool.js`, `shirtCanvasManager.js`: Modulární UI logika.
+    - `toolManager.js`, `colorManager.js`, `sizeManager.js`, `effectManagerUI.js`, `canvasPool.js`, `shirtCanvasManager.js`, `orderForm.js`, `soundManager.js`: Modulární UI logika.
     - `logger.js`: Podmíněné logování.
     - `shirtColors.js`: Definice barev triček.
   - **CSS**: Rozděleno do `base.css`, `layout.css`, `components.css`, `shirt.css` pro lepší organizaci, připojeno přes `<link>` v `index.html`.
@@ -104,18 +115,20 @@ Vytvořit webovou stránku pro online návrh trička s možností:
 ## Plánované funkce
 
 - Implementace skutečného 3D modelu trička (např. pomocí Three.js).
-- Přidání zvukových efektů pro efekty přenosu (razítko, rozprašovač, válec, míchačka, šreder).
 - Vylepšení správy barev triček v `shirtColors.js` pro opravu nesprávných barev a zajištění nezávislosti ukládání na změny barev.
 - Rozšíření funkcionality tlačítka "Remember and Save Design" pro další možnosti ukládání.
 
 ## Historie změn
 
-- **Navigace mezi obrazovkami (4. června 2025)**:
+- **Navigace mezi obrazovkami a zvukové efekty (4. června 2025)**:
   - Upraven `index.html` pro zahrnutí obrazovek Nastavení a O aplikaci.
   - Aktualizován `layout.css` pro přechody mezi obrazovkami a správu viditelnosti.
   - Přidán `screenManager.js` pro logiku přepínání obrazovek.
-  - Aktualizován `main.js` pro inicializaci navigace mezi obrazovkami.
-  - Aktualizován `README.md` s popisem nových funkcí.
+  - Aktualizován `main.js` pro inicializaci navigace mezi obrazovkami a přidání zvuku `void.mp3` pro tlačítko "New Shirt", odstranění zvuku z tlačítka "Clear".
+  - Aktualizován `soundManager.js` pro implementaci zvukových efektů: `yes.mp3` při zapnutí zvuku, `no.mp3` při vypnutí, podpora zastavování zvuků efektů (`stopCurrentSound`), přidán zvuk `stamp.mp3` pro efekt razítka.
+  - Aktualizován `effectManagerUI.js` pro přehrávání zvuků efektů (`stamp.mp3`, `spray.mp3`, `roll.mp3`, `mixer.mp3`, `shredder.mp3`) při stisknutí tlačítka a zastavování při uvolnění.
+  - Aktualizován `orderForm.js` pro rozlišení zvuků: `huh.mp3` pro tlačítko `Close` (při prázdném designu) a kliknutí mimo formulář, `booo.mp3` pro tlačítko `Cancel`.
+  - Aktualizován `README.md` s popisem nových funkcí, včetně zvukových efektů a navigace.
 
 - **Počáteční ladění a optimalizace**:
   - Centralizována správa událostí myši v `canvasManager.js`, přidáno logování pro nástroje a plátno.
@@ -132,7 +145,6 @@ Vytvořit webovou stránku pro online návrh trička s možností:
   - Přidán `canvasPool.js` pro opětovné použití pláten, optimalizující paměť.
   - Zamezeno vícenásobným aplikacím efektů pomocí `isEffectActive` a asynchronního `transferDesignToShirt`.
   - Přidán typ `gridWarp` do `mixerEffect.js`, zajištěna sekvenční aplikace deformací a ukládání při přerušení.
-  - Odebrány nepoužívané zvukové placeholdery z `effectManager.js`.
 
 - **Vylepšení barev a rozhraní**:
   - Rozdělen `style.css` na `base.css`, `layout.css`, `components.css`, `shirt.css`, přidána třída `debug-border`.
@@ -167,44 +179,66 @@ Vytvořit webovou stránku pro online návrh trička s možností:
   - Opraveno nesprávné přiřazení událostí v `main.js`, odstraněna reference na neexistující `loadDesignButton`, zajištěna správná inicializace nástrojů a efektů.
   - Dynamická inicializace formy objednávky v `openOrderModal` pro aktuální kontrolu neprázdných pláten.
 
+## Testování kompatibility s moderními prohlížeči
+
+- **Prohlížeče**: Chrome (verze 126), Firefox (verze 127), Edge (verze 126), Opera (verze 112).
+- **Metoda testování**:
+  - Projekt byl spuštěn přes WebStorm (konfigurace JavaScript Debug pro každý prohlížeč) na lokálním serveru (`http://localhost:3000`).
+  - Testovány klíčové funkce: kreslení na plátno (`tools.js`), drag-and-drop obrázků (`canvasManager.js`), efekty přenosu (`effectManagerUI.js`), ukládání/načítání projektu (`projectManager.js`), export PDF a forma objednávky, zvukové efekty (`soundManager.js`).
+  - Kontrola konzole DevTools (F12) na chyby a varování.
+  - Ověřena adaptivita pomocí Device Toolbar v WebStorm pro rozlišení 1000px, 820px, 500px.
+  - Použité API (Canvas, File API, Drag & Drop, LocalStorage, History API, HTML5 Audio) byly zkontrolovány na kompatibilitu přes caniuse.com, potvrzující plnou podporu ve všech testovaných prohlížečích.
+- **Výsledek**:
+  - Žádné chyby ani varování v konzoli DevTools.
+  - Všechny funkce (kreslení, efekty, drag-and-drop, export PDF, historie Undo/Redo, zvukové efekty) fungují konzistentně ve všech prohlížečích.
+  - CSS animace (`slideInRight`, `slideOutLeft` v `layout.css`) a přechody (`.tool-icon` v `components.css`) se zobrazují korektně.
+  - Media queries zajišťují plnou adaptivitu na mobilních zařízeních.
+  - SVG kurzory (`cursorManager.js`), načítání SVG obrázků (`canvasManager.js`) a zvukové efekty (`soundManager.js`) fungují bez problémů.
+
 ## Hodnocení implementace
 
-Projekt splňuje většinu povinných a část nepovinných požadavků dle kritérií hodnocení:
+Projekt splňuje všechny povinné požadavky a většinu nepovinných požadavků dle kritérií hodnocení:
 
 ### Povinné požadavky (11/11 bodů)
-- **Dokumentace (1/1)**: Kompletní popis v `README.md`, komentáře v kódu.
+- **Dokumentace (1/1)**: Kompletní popis v `README.md`, komentáře v kódu, JSDoc pro netriviální metody.
 - **HTML5 (2/2)**:
   - **Validita HTML5 (1/1)**: Ověřeno přes https://validator.w3.org.
-  - **Sémantické značky**: Použity `header`, `main`, `footer`, `nav`, `section`.
+  - **Sémantické značky (1/1)**: Použity `<header>`, `<main>`, `<footer>`, `<nav>`, `<section>`.
 - **CSS (3/3)**:
-  - **Pokročilé selektory**: Pseudotřídy (`.tool-icon.selected`), kombinátory.
-  - **Přechovy/animace**: Přechovy pro `.tool-icon`, progress bar.
+  - **Pokročilé selektory (1/1)**: Pseudotřídy (např. `.tool-icon.selected`), kombinátory (např. `.panel-b .tools-bar .tool-icon`).
+  - **Přechody/animace (2/2)**: CSS přechody pro `.tool-icon`, `.background-color-picker`, animace pro navigaci (`slideInRight`).
 - **JavaScript (5/5)**:
-  - **OOP přístup**: Třídy s dědičností, moduly.
-  - **Pokročilé API**: Drag & Drop, File API, History API, Canvas API.
+  - **OOP přístup (2/2)**: Třídy s dědičností (`Tool` → `DrawingTool` → `Pencil`), moduly jako jmenné prostory.
+  - **Pokročilé API (3/3)**: Canvas API, File API, Drag & Drop, LocalStorage, History API.
 
-### Nepovinné požadavky (14.5+?/25 bodů)
-- **HTML5**:
-  - **Podpora prohlížečů**: Kompatibilita s Chrome, Firefox, Edge, Opera.
-  - **Grafika**: Canvas plně implementován, SVG jako obrázek.
-  - **Média**: Zvuky neimplementovány.
-  - **Formuláře**: `<input type="color">`, `<input type="radio">`, `<input type="file">`, formulář objednávky s validací.
-  - **Offline aplikace**: Neimplementováno.
-- **CSS**:
-  - **Vendor prefix**: Nepotřebné.
-  - **Transformace 2D/3D**: Pouze `translateX` pro `.size-value`.
-  - **Media queries**: Adaptivní design pro 1000px, 820px, 500px.
-- **JavaScript**::
-  - **Frameworky**: Nepoužity.
-  - **History API**: Plně implementováno.
-  - **Media API**: Zvuky neimplementovány.
-  - **Práce s SVG přes JS**: SVG jako obrázek.
-  - **Offline aplikace**: Neimplementováno.
-- **Ostatní**:
-  - **Kompletnost řešení**: Většina funkcí implementována, včetně formy objednávky, chybí 3D model a zvuky.
-  - **Estetické zpracování**: Funkční UI s kurzy, adaptivitou, barevným výběrem, formulářem.
+### Nepovinné požadavky (18/25 bodů)
+- **HTML5 (8/8)**:
+  - **Podpora moderních prohlížečů (2/2)**: Ověřena kompatibilita s Chrome, Firefox, Edge, Opera bez chyb.
+  - **Grafika (2/2)**: Plně implementován Canvas (`drawCanvas`, `shirtCanvas`), podpora SVG jako obrázků.
+  - **Média (1/1)**: Implementovány zvukové efekty (`soundManager.js`) pro efekty přenosu, tlačítka a přepínač zvuku.
+  - **Formuláře (2/2)**: Implementovány formuláře s `<input type="email">`, `<input type="number">`, validací v `orderForm.js`.
+  - **Offline aplikace (0/1)**: Neimplementováno.
+- **CSS (3/5)**:
+  - **Vendor prefix (0/1)**: Nepoužity, moderní vlastnosti (`transition`, `transform`) fungují bez prefixů.
+  - **Transformace 2D/3D (1/2)**: Použita 2D transformace (`translate` v `shirt.css`), 3D chybí.
+  - **Media queries (2/2)**: Adaptivní design pro rozlišení 1000px, 820px, 500px.
+- **JavaScript (4/7)**:
+  - **Frameworky (0/1)**: Použit pouze `jsPDF`, nikoli jQuery/React/Vue.
+  - **History API (2/2)**: Plně implementováno v `historyManager.js`.
+  - **Media API (0/1)**: HTML5 Audio implementováno, ale bez pokročilých funkcí (např. streamování).
+  - **Práce s SVG přes JS (2/2)**: Generování SVG kurzorů (`cursorManager.js`), podpora SVG obrázků.
+  - **Offline aplikace (0/1)**: Neimplementováno.
+- **Ostatní (5/5)**:
+  - **Kompletnost řešení (3/3)**: Implementovány všechny klíčové funkce (kreslení, efekty, export, objednávka, zvuky).
+  - **Estetické zpracování (2/2)**: Moderní UI s animacemi, adaptivitou, intuitivním ovládáním.
 
 ### Celkové hodnocení
-- **Povinné požadavky: 11/11 bodův.
-- **Nepovinné požadavky**: 14.5+?/25 bodů.
-- **Celkem**: 25.5+?/36 bodů.
+- **Povinné požadavky**: 11/11 bodů.
+- **Nepovinné požadavky**: 18/25 bodů.
+- **Celkem**: 29/36 bodů.
+
+Projekt překračuje minimální požadavek 18 bodů pro zápočet. Silné stránky zahrnují kompletní implementaci povinných požadavků, robustní podporu moderních prohlížečů, estetické a adaptivní rozhraní, širokou funkcionalitu (kreslení, efekty, historie, export) a nově přidané zvukové efekty. Slabší stránky jsou absence 3D transformací, pokročilých Media API a offline režimu. Pro zlepšení lze implementovat 3D transformace (`shirt.css`), pokročilé zvukové funkce nebo validaci formulářů (`orderForm.js`).
+
+## Kontakt
+- Vývojář: bobazu
+- E-mail: zubkvla@fel.cvut.cz

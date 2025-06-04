@@ -1,5 +1,6 @@
 // screenManager.js
 import { logger } from './logger.js';
+import { isSoundEnabled } from './soundManager.js';
 
 // Initialize screen navigation
 export function initScreenNavigation() {
@@ -33,30 +34,22 @@ export function initScreenNavigation() {
         logger.debug(`[${new Date().toISOString()}] Video readyState: ${video.readyState}`);
         video.loop = false; // Play only once
         video.currentTime = 0; // Reset to start
-        const playVideo = () => {
-          logger.debug(`[${new Date().toISOString()}] Attempting to play video`);
-          video.play()
-              .then(() => {
-                logger.info(`[${new Date().toISOString()}] Playing about background video`);
-              })
-              .catch(error => {
-                logger.error(`[${new Date().toISOString()}] Failed to play about video:`, error);
-              });
-        };
-        // Play immediately if ready, otherwise wait for canplay
-        if (video.readyState >= 2) { // HAVE_CURRENT_DATA or higher
-          playVideo();
-        } else {
-          video.addEventListener('canplay', playVideo, { once: true });
-          video.load(); // Force load if not started
-          logger.debug(`[${new Date().toISOString()}] Waiting for video canplay event`);
-        }
+        video.muted = !isSoundEnabled(); // Mute video if sound is disabled
+        logger.debug(`[${new Date().toISOString()}] Attempting to play video with sound ${isSoundEnabled() ? 'enabled' : 'disabled'}`);
+        video.play()
+          .then(() => {
+            logger.info(`[${new Date().toISOString()}] Playing about background video with sound ${isSoundEnabled() ? 'enabled' : 'disabled'}`);
+          })
+          .catch(error => {
+            logger.error(`[${new Date().toISOString()}] Failed to play about video:`, error);
+          });
       } else {
         if (!video.paused) {
           video.pause();
           video.currentTime = 0;
           logger.info(`[${new Date().toISOString()}] Paused about background video`);
         }
+        video.muted = false; // Reset muted state for next play
       }
     } else if (targetScreenId === 'about-screen') {
       logger.warn(`[${new Date().toISOString()}] About background video element not found`);

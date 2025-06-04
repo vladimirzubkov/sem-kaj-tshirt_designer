@@ -7,6 +7,7 @@ import { logger } from './logger.js';
 import { canvasPool } from './canvasPool.js';
 import { getCurrentShirtCanvas, getAllShirtCanvases, createShirtCanvas } from './shirtCanvasManager.js';
 import { sizeScales } from './sizeManager.js';
+import { playSound, stopCurrentSound } from './soundManager.js';
 
 let isEffectActive = false;
 let currentEffect = null;
@@ -18,14 +19,18 @@ export function initEffectManager(tools, drawCanvas, shirtCanvas) {
       logger.debug(`[${new Date().toISOString()}] Binding effect: ${effect}`);
       el.addEventListener('mousedown', () => {
         logger.info(`[${new Date().toISOString()}] Effect button mousedown: ${effect}`);
+        const soundName = effect === 'shred' ? 'shredder' : effect;
+        playSound(soundName);
         transferDesignToShirt(effect, drawCanvas, getCurrentShirtCanvas());
       });
       el.addEventListener('mouseup', () => {
         logger.info(`[${new Date().toISOString()}] Effect button mouseup: ${effect}`);
+        stopCurrentSound();
         stopEffect(drawCanvas, getCurrentShirtCanvas());
       });
       el.addEventListener('mouseleave', () => {
         logger.info(`[${new Date().toISOString()}] Effect button mouseleave: ${effect}`);
+        stopCurrentSound();
         stopEffect(drawCanvas, getCurrentShirtCanvas());
       });
     }

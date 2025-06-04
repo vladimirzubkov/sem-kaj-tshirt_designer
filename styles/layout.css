@@ -213,6 +213,54 @@ footer {
   color: #ffff00; /* Yellow */
 }
 
+/* Sound toggle container */
+.sound-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.sound-toggle h3 {
+  font-size: 1em;
+  color: #333;
+  margin: 0;
+}
+
+/* Sound toggle checkbox */
+#sound-toggle-input {
+  display: none;
+}
+
+#sound-toggle {
+  overflow: hidden;
+  width: 60px;
+  height: 30px;
+  border-radius: 30px;
+  background: lightblue;
+  position: relative;
+  display: block;
+  cursor: pointer;
+}
+
+#sound-toggle::before {
+  position: absolute;
+  content: "";
+  display: block;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: red;
+  left: 0;
+  transition: all 0.2s ease;
+}
+
+#sound-toggle-input:checked + #sound-toggle::before {
+  left: 100%;
+  transform: translateX(-100%);
+  background: green;
+}
+
 /* Responsive layout */
 @media (max-width: 500px) {
   #editor-screen {
