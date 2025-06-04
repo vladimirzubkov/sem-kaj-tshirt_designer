@@ -281,18 +281,10 @@
 
 /* Color picker */
 .color-picker {
-  width: 33px;
-  height: 30px;
-  padding: 0px;
-  border: 1px solid #aaa;
-  cursor: pointer;
-}
-
-#editor-screen div.color-picker-wrapper  input[type=color] {
-  width: 55px;
-  height: 45px;
-  padding: 2px;
-  border: 1px solid #aaa;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
   cursor: pointer;
 }
 

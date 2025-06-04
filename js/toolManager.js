@@ -23,14 +23,13 @@ export function initToolManager(tools, drawCanvas, domElements) {
 
   // Size slider change
   domElements.sizeSlider.addEventListener('input', () => {
-    const sliderValue = parseInt(domElements.sizeSlider.value);
-    const size = computeNonLinearSize(sliderValue);
+    const size = parseInt(domElements.sizeSlider.value);
     updateSize(tools, size, drawCanvas, tools.currentTool?.constructor.name.toLowerCase());
   });
 
   // Initialize size value
-  updateSize(tools, tools.pencil.size, drawCanvas, 'pencil'); // Use Pencil default size
-  selectTool(tools, 'pencil', drawCanvas); // Set Pencil as default tool
+  const initialSize = parseInt(domElements.sizeSlider.value);
+  updateSize(tools, initialSize, drawCanvas, 'pencil');
 }
 
 export function selectTool(tools, toolName, drawCanvas) {
@@ -39,55 +38,19 @@ export function selectTool(tools, toolName, drawCanvas) {
   const toolIcon = document.querySelector(`.tool-icon[data-tool="${toolName}"]`);
   if (toolIcon) toolIcon.classList.add('selected');
   tools.currentTool = tools[toolName];
-  if (tools.currentTool) {
+  if (tools.currentTool && tools.currentTool !== tools.eraser && tools.currentTool !== tools.water) {
     const colorPicker = document.querySelector('input[type="color"]');
-    if (toolName === 'brush') {
-      // Use default brush color #E21212
-      tools.currentTool.setColor('#E21212');
-      colorPicker.value = '#E21212';
-    } else if (toolName === 'pencil') {
-      // Use default pencil color #1C2526
-      tools.currentTool.setColor('#1C2526');
-      colorPicker.value = '#1C2526';
-    } else if (toolName === 'text') {
-      // Use default text color #000000
-      tools.currentTool.setColor('#000000');
-      colorPicker.value = '#000000';
-    } else if (tools.currentTool !== tools.eraser && tools.currentTool !== tools.water) {
-      tools.currentTool.setColor(colorPicker.value);
-    }
-    // Set tool-specific default size
-    const defaultSize = tools[toolName].size;
-    updateSize(tools, defaultSize, drawCanvas, toolName);
-    // Update slider to match default size
-    const sliderValue = computeSliderValue(defaultSize);
-    document.getElementById('sizeSlider').value = sliderValue;
-    positionSizeValue(sliderValue);
+    tools.currentTool.setColor(colorPicker.value);
   }
-}
-
-// Compute non-linear size based on slider value (0-100) using geometric progression
-function computeNonLinearSize(sliderValue) {
-  const q = 0.9999967; // Geometric progression ratio
-  const n = sliderValue; // Slider value as number of steps
-  if (n === 0) return 1; // Minimum size
-  const size = (1 - Math.pow(q, n)) / (1 - q); // Geometric series sum
-  return Math.round(size);
-}
-
-// Compute slider value for a given size (inverse of computeNonLinearSize)
-function computeSliderValue(size) {
-  const q = 0.9999967;
-  if (size <= 1) return 0;
-  // Solve: size = (1 - q^n) / (1 - q) => q^n = 1 - size * (1 - q)
-  const n = Math.log(1 - size * (1 - q)) / Math.log(q);
-  return Math.max(0, Math.min(100, Math.round(n)));
+  const sizeSlider = document.getElementById('sizeSlider');
+  const size = parseInt(sizeSlider.value);
+  updateSize(tools, size, drawCanvas, toolName);
 }
 
 function updateSize(tools, size, drawCanvas, toolName) {
   const sizeValue = document.getElementById('sizeValue');
   sizeValue.textContent = size;
-  positionSizeValue(computeSliderValue(size));
+  positionSizeValue(size);
   if (tools.currentTool) {
     tools.currentTool.setSize(size);
     logger.info(`[${new Date().toISOString()}] Size updated to ${size} for tool ${tools.currentTool.constructor.name}`);
@@ -97,10 +60,10 @@ function updateSize(tools, size, drawCanvas, toolName) {
   }
 }
 
-function positionSizeValue(sliderValue) {
+function positionSizeValue(size) {
   const sizeSlider = document.getElementById('sizeSlider');
   const sizeValue = document.getElementById('sizeValue');
-  const percentage = sliderValue / 100; // Linear percentage
+  const percentage = (size - sizeSlider.min) / (sizeSlider.max - sizeSlider.min);
   const thumbWidth = 16;
   const trackWidth = sizeSlider.offsetWidth - thumbWidth;
   const leftPosition = percentage * trackWidth + thumbWidth / 2 + 1;
