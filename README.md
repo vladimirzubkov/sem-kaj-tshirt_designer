@@ -27,6 +27,7 @@ Vytvořit webovou stránku pro online návrh trička s možností:
   - Uživatel může vybrat barvu prostřednictvím `<input type="color">` pro kreslení, která se dynamicky aplikuje na nástroje tužka, štětec a text. Barva je aktualizována v reálném čase při změně výběru nebo přepnutí nástroje. Nástroje guma a voda nejsou ovlivněny výběrem barvy.
   - Samostatný `<input type="color">` pro výběr barvy pozadí trička (transparentní, bílá, šedá, vlastní). Výchozí barva vlastního pozadí je `#E22222`, s možností uložení vybrané barvy pro každý fasón (mužský, ženský, dětský).
   - Výběr barvy trička a pozadí je implementován pomocí dynamicky generovaných kruhových prvků (`.color-circle`) s interaktivními klikacími událostmi, které aktualizují barvu v reálném čase.
+  - **Vlastní barvy nástrojů**: Každý nástroj (tužka, štětec, text) má vlastní barvu, která se ukládá nezávisle. Při přepnutí nástroje se automaticky načítá jeho poslední použitá barva, což umožňuje uživateli rychle pokračovat v práci s preferovanými barvami.
 
 - **Čištění plátna**: Tlačítko "Clear" vymaže obsah plátna a resetuje jeho původní stav, s uložením akce do historie.
 
@@ -35,6 +36,7 @@ Vytvořit webovou stránku pro online návrh trička s možností:
 - **Výběr velikosti nástrojů**:
   - Posuvník (`<input type="range">`) s rozsahem 1–300 px (výchozí 10 px) nastavuje velikost nástrojů. Velikost se aplikuje na šířku čáry (tužka, štětec, guma), velikost písma (text) nebo poloměr rozmazání (voda).
   - Aktuální velikost je zobrazena nad posuvníkem, přesně sleduje pozici ukazatele, s inicializací a popisky "1px" a "300px".
+  - **Vlastní velikosti nástrojů**: Každý nástroj (tužka, štětec, text, guma, voda) má vlastní uloženou velikost, která se nezávisle ukládá a načítá při přepnutí nástroje. To umožňuje uživateli mít například menší velikost pro tužku (např. 10 px) a větší pro štětec (např. 35 px) bez nutnosti opakovaného nastavování.
 
 - **Popisky nástrojů**: Popisky ("Pencil", "Brush", "Text", "Water", "Eraser") pod nástroji jsou generovány dynamicky z `tools.js`, zvyšují srozumitelnost rozhraní.
 
@@ -42,7 +44,7 @@ Vytvořit webovou stránku pro online návrh trička s možností:
   - Ikona nástroje Text je výrazný symbol "𝐓".
   - Popisky "Color" a "Brush Size" jsou zarovnány s popisky nástrojů, všechny kontejnery mají jednotnou výšku 76px.
   - Prvky ovládání (posuvník, výběr barvy) jsou v samostatných kontejnerech (`.control-element`, `.control-label`) pro flexibilní stylování.
-  - Tlačítka efektů (razítko, rozprašovač, válec, míchačka, šreder) jsou horizontálně centrovaná, tlačítka "Save" a "Clear" jsou vertikálně zarovnaná v horizontálním řádku s textovým zalomením.
+  - Tlačítka efektů (razítko, rozprašovač, válec, míchačka, šreder) jsou horizontálně centrovaná, tlačítka "Save" a "Clear" jsou vertikálně zarovnána v horizontálním řádku s textovým zalomením.
   - Kontejner trička (`.shirt-container`) má šířku 65% rodiče, výšku 300px, je centrovaný s flex zobrazením.
   - Color picker pro pozadí má výrazný oranžový puntíkovaný rámeček (2px dashed #ff4500) s efektem při najetí (#ffa500).
 
@@ -74,7 +76,7 @@ Vytvořit webovou stránku pro online návrh trička s možností:
   - Zvuky efektů přehrávají se při stisknutí tlačítka efektu (`mousedown`) a zastavují se při uvolnění (`mouseup`) nebo opuštění tlačítka (`mouseleave`), implementováno v `effectManagerUI.js` a `soundManager.js`.
   - Efekty jsou ukládány do historie pouze po dokončení nebo přerušení (kromě razítka).
   - Optimalizováno pomocí `canvasPool.js` pro opětovné použití pláten.
-
+  
 - **Uložení a načítání návrhu**:
   - Ukládání projektu do JSON přes tlačítko "Save Project", načítání z JSON přes "Load Project".
   - JSON obsahuje design hlavního plátna (`drawCanvas`) a data začatých fasónů (velikost, barva trička, barva pozadí, vlastní barva pozadí, design trička). Prázdné fasóny se neukládají.
@@ -110,7 +112,12 @@ Vytvořit webovou stránku pro online návrh trička s možností:
     - `toolManager.js`, `colorManager.js`, `sizeManager.js`, `effectManagerUI.js`, `canvasPool.js`, `shirtCanvasManager.js`, `orderForm.js`, `soundManager.js`: Modulární UI logika.
     - `logger.js`: Podmíněné logování.
     - `shirtColors.js`: Definice barev triček.
+    
   - **CSS**: Rozděleno do `base.css`, `layout.css`, `components.css`, `shirt.css` pro lepší organizaci, připojeno přes `<link>` v `index.html`.
+  
+    Vztah javascriptových modulů:
+  
+    ![js_modules_relationship](doc\js_modules_relationship.png)
 
 ## Plánované funkce
 
@@ -119,6 +126,12 @@ Vytvořit webovou stránku pro online návrh trička s možností:
 - Rozšíření funkcionality tlačítka "Remember and Save Design" pro další možnosti ukládání.
 
 ## Historie změn
+
+- **Vylepšení grafických prvků a nástrojů (4. června 2025)**:
+  - Upraven nástroj `Brush` v `tools.js`: Zvýšena průhlednost na 50%, rozmazání na 4px, odstraněn efekt `multiply` a nahrazen standardním `source-over` pro lepší vizuální kvalitu. Přidáno obnovení `globalAlpha` a `filter` v `onMouseUp` pro prevenci ovlivnění jiných nástrojů.
+  - Implementovány **vlastní velikosti a barvy nástrojů**: Každý nástroj (tužka, štětec, text, guma, voda) má nyní nezávisle uloženou velikost a barvu (pro tužku, štětec a text), které se automaticky načtou při přepnutí nástroje, což zlepšuje uživatelskou zkušenost a flexibilitu při kreslení.
+  - Upraven nástroj `Voda` v `tools.js`: Nyní simuluje efekt stírání designu na tričku (`shirtCanvas`) až do úplné průhlednosti, což umožňuje uživateli "vymazat" design a začít znovu bez resetu celého plátna.
+  - Aktualizován `README.md` s popisem nových funkcí, včetně vlastních velikostí a barev nástrojů a efektu stírání trička.
 
 - **Navigace mezi obrazovkami a zvukové efekty (4. června 2025)**:
   - Upraven `index.html` pro zahrnutí obrazovek Nastavení a O aplikaci.
@@ -219,7 +232,7 @@ Projekt splňuje všechny povinné požadavky a většinu nepovinných požadavk
   - **Formuláře (2/2)**: Implementovány formuláře s `<input type="email">`, `<input type="number">`, validací v `orderForm.js`.
   - **Offline aplikace (0/1)**: Neimplementováno.
 - **CSS (3/5)**:
-  - **Vendor prefix (0/1)**: Nepoužity, moderní vlastnosti (`transition`, `transform`) fungují bez prefixů.
+  - **Vendor prefix (0/1)**: Nebyly použity, moderní vlastnosti (`transition`, `transform`) fungují bez prefixů.
   - **Transformace 2D/3D (1/2)**: Použita 2D transformace (`translate` v `shirt.css`), 3D chybí.
   - **Media queries (2/2)**: Adaptivní design pro rozlišení 1000px, 820px, 500px.
 - **JavaScript (4/7)**:
@@ -237,8 +250,10 @@ Projekt splňuje všechny povinné požadavky a většinu nepovinných požadavk
 - **Nepovinné požadavky**: 18/25 bodů.
 - **Celkem**: 29/36 bodů.
 
-Projekt překračuje minimální požadavek 18 bodů pro zápočet. Silné stránky zahrnují kompletní implementaci povinných požadavků, robustní podporu moderních prohlížečů, estetické a adaptivní rozhraní, širokou funkcionalitu (kreslení, efekty, historie, export) a nově přidané zvukové efekty. Slabší stránky jsou absence 3D transformací, pokročilých Media API a offline režimu. Pro zlepšení lze implementovat 3D transformace (`shirt.css`), pokročilé zvukové funkce nebo validaci formulářů (`orderForm.js`).
+Projekt překračuje minimální požadavk 18 bodů pro zápočet. Silné stránky zahrnují kompletní implementaci povinných požadavků, robustní podporu moderních prohlížečů, estetické a adaptivní rozhraní, širokou funkcionalitu (kreslení, efekty, historie, export) a nově přidané zvukové efekty. Nové funkce, jako vlastní velikosti a barvy nástrojů, zlepšují flexibilitu při kreslení, a efekt stírání trička nástrojem "Voda" přidává realističtější manipulaci s designem, což zvyšuje kvalitu grafických prvků. Slabší stránky jsou absence 3D transformací, pokročilých Media API a offline režimu. Pro zlepšení lze implementovat 3D transformace (`shirt.css`), pokročilé zvukové funkce a převedení aplikace do možnosti pracovat offline například s použitím servis-workerů.
+
+Ovšem v první řadě je prostor pro zlepšení funkcionality nástrojů malování a jednoznačnost chování efektů v souladu s canvasy. Zlepšení a zefektivnění zpracování grafiky na canvasech bylo částečně dosaženo přidáním vlastních velikostí a barev nástrojů a efektem stírání trička, což zlepšuje uživatelskou kontrolu nad designem. Další kroky mohou zahrnovat zlepšení kvality výsledku pro tisk a dotažení do typografické kvality, k tomu lze vyzkoušet vektorovou grafiku, například práci s SVG. Na kvalitním základě primárního účelu aplikace lze potom rozvíjet i zlepšení interaktivních prvků pro uživatele.
 
 ## Kontakt
 - Vývojář: bobazu
-- E-mail: zubkvla@fel.cvut.cz
+- E-mail: zubkovla@fel.cvut.cz
