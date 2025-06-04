@@ -7,6 +7,7 @@ import { initCanvasEvents } from './canvasManager.js';
 import { initUI } from './uiManager.js';
 import { getCurrentShirtCanvas } from './shirtCanvasManager.js';
 import { initOrderForm, openOrderModal } from './orderForm.js';
+import { initScreenNavigation } from './screenManager.js';
 import { logger } from './logger.js';
 
 const { jsPDF } = window.jspdf;
@@ -55,10 +56,11 @@ toolClasses.forEach(ToolClass => {
 
 initUI(tools, drawCanvas, shirtCanvas);
 initOrderForm();
-loadSavedPNG(); // Load saved PNG after initialization
+initScreenNavigation(); // Initialize screen navigation
+loadSavedPNG();
 
 document.getElementById('saveDesignButton').addEventListener('click', () => {
-  exportToPNG(drawCanvas); // Export PNG from drawCanvas and save to localStorage
+  exportToPNG(drawCanvas);
 });
 
 document.getElementById('saveProjectButton').addEventListener('click', () => {
@@ -67,14 +69,13 @@ document.getElementById('saveProjectButton').addEventListener('click', () => {
 
 document.getElementById('loadProjectButton').addEventListener('click', () => {
   loadProject(drawCanvas, () => {
-    // Callback to refresh UI after project load
     initUI(tools, drawCanvas, getCurrentShirtCanvas());
   });
 });
 
 document.getElementById('downloadPDFButton').addEventListener('click', () => {
   const shirtCanvas = getCurrentShirtCanvas();
-  exportToPDF(drawCanvas, shirtCanvas, false); // Save PDF
+  exportToPDF(drawCanvas, shirtCanvas, false);
 });
 
 document.getElementById('newShirtButton').addEventListener('click', () => {

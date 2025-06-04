@@ -53,16 +53,25 @@ export function initCanvasEvents(drawCanvas, shirtCanvas, tools) {
   // Handle drag-and-drop
   drawCanvas.addEventListener('dragenter', (e) => {
     e.preventDefault();
+    drawCanvas.classList.add('drag-active');
     logger.debug(`[${new Date().toISOString()}] dragenter canvas`);
   });
 
   drawCanvas.addEventListener('dragover', (e) => {
     e.preventDefault();
+    drawCanvas.classList.add('drag-active');
     logger.debug(`[${new Date().toISOString()}] dragover canvas`);
+  });
+
+  drawCanvas.addEventListener('dragleave', (e) => {
+    e.preventDefault();
+    drawCanvas.classList.remove('drag-active');
+    logger.debug(`[${new Date().toISOString()}] dragleave canvas`);
   });
 
   drawCanvas.addEventListener('drop', (e) => {
     e.preventDefault();
+    drawCanvas.classList.remove('drag-active');
     logger.info(`[${new Date().toISOString()}] Drop on canvas`);
     const files = e.dataTransfer.files;
     if (files.length > 0) {

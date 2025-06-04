@@ -331,6 +331,12 @@
   visibility: visible;
 }
 
+/* Canvas drag-and-drop styles */
+#drawCanvas.drag-active {
+  background: #e6f3ff; /* Light blue background */
+  border: 2px solid #87ceeb; /* Light blue border */
+}
+
 /* Responsive components */
 @media (max-width: 1000px) {
   #project-controls {

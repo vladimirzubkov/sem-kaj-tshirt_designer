@@ -110,6 +110,13 @@ Vytvořit webovou stránku pro online návrh trička s možností:
 
 ## Historie změn
 
+- **Navigace mezi obrazovkami (4. června 2025)**:
+  - Upraven `index.html` pro zahrnutí obrazovek Nastavení a O aplikaci.
+  - Aktualizován `layout.css` pro přechody mezi obrazovkami a správu viditelnosti.
+  - Přidán `screenManager.js` pro logiku přepínání obrazovek.
+  - Aktualizován `main.js` pro inicializaci navigace mezi obrazovkami.
+  - Aktualizován `README.md` s popisem nových funkcí.
+
 - **Počáteční ladění a optimalizace**:
   - Centralizována správa událostí myši v `canvasManager.js`, přidáno logování pro nástroje a plátno.
   - Nahrazeno `console.log` podmíněným logováním v `logger.js` s úrovněmi `debug`, `info`, `warn`, `error`.
@@ -143,7 +150,7 @@ Vytvořit webovou stránku pro online návrh trička s možností:
   - Prázdné fasóny se při ukládání ignorují, UI se po načtení automaticky aktualizuje voláním `initUI`.
   - Opraveno načítání JSON v `projectManager.js` zajištěním správného přepnutí fasónu (`switchStyle`) a aktualizací DOM pro zachování obnovených pláten.
   - Přidána podpora načítání SVG, PNG, GIF, JPG obrázků na hlavní plátno přes tlačítko "Load Project", s automatickým škálováním a centrováním.
-  - **Uložení PNG z plátna pro kreslení (4. června 2025)**: Tlačítko "Save Design" nyní ukládá obsah plátna pro kreslení (`drawCanvas`) jako PNG do localStorage pod klíčem `tshirtDesignPNG`. Při načtení stránky se uložený PNG načítá zpět na plátno pro kreslení, což umožňuje uživatelům pokračovat v úpravách designu.
+  - Uložení PNG z plátna pro kreslení: Tlačítko "Save Design" nyní ukládá obsah plátna pro kreslení (`drawCanvas`) jako PNG do localStorage pod klíčem `tshirtDesignPNG`. Při načtení stránky se uložený PNG načítá zpět na plátno pro kreslení, což umožňuje uživatelům pokračovat v úpravách designu.
 
 - **Export do PDF a forma objednávky**:
   - Vylepšen export PDF v `projectManager.js` pro vícestránkový výstup (jedna stránka na neprázdný fasón) ve formátu A3. Tlačítko "Download PDF" ukládá soubor `shirt-designs.pdf` s designy všech neprázdných fasónů.
@@ -181,13 +188,13 @@ Projekt splňuje většinu povinných a část nepovinných požadavků dle krit
   - **Podpora prohlížečů**: Kompatibilita s Chrome, Firefox, Edge, Opera.
   - **Grafika**: Canvas plně implementován, SVG jako obrázek.
   - **Média**: Zvuky neimplementovány.
-  - **Formuláře**: `<input type="color">`, `<input type="range">`, `<input type="file">`, formulář objednávky s validací.
+  - **Formuláře**: `<input type="color">`, `<input type="radio">`, `<input type="file">`, formulář objednávky s validací.
   - **Offline aplikace**: Neimplementováno.
 - **CSS**:
   - **Vendor prefix**: Nepotřebné.
   - **Transformace 2D/3D**: Pouze `translateX` pro `.size-value`.
   - **Media queries**: Adaptivní design pro 1000px, 820px, 500px.
-- **JavaScript**:
+- **JavaScript**::
   - **Frameworky**: Nepoužity.
   - **History API**: Plně implementováno.
   - **Media API**: Zvuky neimplementovány.
@@ -195,9 +202,9 @@ Projekt splňuje většinu povinných a část nepovinných požadavků dle krit
   - **Offline aplikace**: Neimplementováno.
 - **Ostatní**:
   - **Kompletnost řešení**: Většina funkcí implementována, včetně formy objednávky, chybí 3D model a zvuky.
-  - **Estetické zpracování**: Funkční UI s kurzory, adaptivností, barevným výběrem, formulářem.
+  - **Estetické zpracování**: Funkční UI s kurzy, adaptivitou, barevným výběrem, formulářem.
 
 ### Celkové hodnocení
-- **Povinné požadavky**: 11/11 bodů.
+- **Povinné požadavky: 11/11 bodův.
 - **Nepovinné požadavky**: 14.5+?/25 bodů.
 - **Celkem**: 25.5+?/36 bodů.

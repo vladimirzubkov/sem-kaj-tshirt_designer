@@ -13,130 +13,163 @@
 </head>
 <body>
 <header class="debug-border">
-  <nav>T-Shirt Editor | Settings | About</nav>
+  <nav>
+    <a class="nav-link active" data-screen="editor-screen">T-Shirt Editor</a> |
+    <a class="nav-link" data-screen="settings-screen">Settings</a> |
+    <a class="nav-link" data-screen="about-screen">About</a>
+  </nav>
   <div>English</div>
 </header>
 
 <main>
-  <section class="panel-b debug-border">
-    <div class="instruction">
-      Canvas: Draw here using tools below or drag’n’drop an image (SVG, PNG, GIF, JPG supported).
-    </div>
-    <div class="canvas-area debug-border">
-      <canvas id="drawCanvas" width="375" height="500"></canvas>
-    </div>
-    <div class="tools-bar debug-border">
-      <div class="tool-item">
-        <div class="tool-icon" data-tool="pencil">✏️</div>
-        <div class="tool-label" data-tool-label="pencil">Pencil</div>
+  <div id="editor-screen" class="screen active">
+    <section class="panel-b debug-border">
+      <div class="instruction">
+        Canvas: Draw here using tools below or drag’n’drop an image (SVG, PNG, GIF, JPG supported).
       </div>
-      <div class="tool-item">
-        <div class="tool-icon" data-tool="brush">🖌️</div>
-        <div class="tool-label" data-tool-label="brush">Brush</div>
+      <div class="canvas-area debug-border">
+        <canvas id="drawCanvas" width="375" height="500"></canvas>
       </div>
-      <div class="tool-item">
-        <div class="tool-icon" data-tool="text">𝐓</div>
-        <div class="tool-label" data-tool-label="text">Text</div>
-      </div>
-      <div class="tool-item">
-        <div class="tool-icon" data-tool="water">💧</div>
-        <div class="tool-label" data-tool-label="water">Water</div>
-      </div>
-      <div class="tool-item">
-        <div class="tool-icon" data-tool="eraser">🧽</div>
-        <div class="tool-label" data-tool-label="eraser">Eraser</div>
-      </div>
-      <div class="size-control">
-        <div class="control-element">
-          <input type="range" id="sizeSlider" min="1" max="300" value="10">
-          <div class="size-value" id="sizeValue">10</div>
-          <div class="size-labels">
-            <span>1px</span>
-            <span>300px</span>
+      <div class="tools-bar debug-border">
+        <div class="tool-item">
+          <div class="tool-icon" data-tool="pencil">✏️</div>
+          <div class="tool-label" data-tool-label="pencil">Pencil</div>
+        </div>
+        <div class="tool-item">
+          <div class="tool-icon" data-tool="brush">🖌️</div>
+          <div class="tool-label" data-tool-label="brush">Brush</div>
+        </div>
+        <div class="tool-item">
+          <div class="tool-icon" data-tool="text">𝐓</div>
+          <div class="tool-label" data-tool-label="text">Text</div>
+        </div>
+        <div class="tool-item">
+          <div class="tool-icon" data-tool="water">💧</div>
+          <div class="tool-label" data-tool-label="water">Water</div>
+        </div>
+        <div class="tool-item">
+          <div class="tool-icon" data-tool="eraser">🧽</div>
+          <div class="tool-label" data-tool-label="eraser">Eraser</div>
+        </div>
+        <div class="size-control">
+          <div class="control-element">
+            <input type="range" id="sizeSlider" min="1" max="300" value="10">
+            <div class="size-value" id="sizeValue">10</div>
+            <div class="size-labels">
+              <span>1px</span>
+              <span>300px</span>
+            </div>
+          </div>
+          <div class="control-label">Brush Size</div>
+        </div>
+        <div class="color-picker-container">
+          <div class="color-picker-wrapper"></div>
+          <div class="control-label">Color</div>
+        </div>
+        <div class="save-clear-buttons">
+          <div class="tool-item">
+            <button class="button" title="Remember and Save Design" id="saveDesignButton">Remember and Save Design</button>
+          </div>
+          <div class="tool-item">
+            <button class="button" id="clearButton">Clear</button>
           </div>
         </div>
-        <div class="control-label">Brush Size</div>
       </div>
-      <div class="color-picker-container">
-        <div class="color-picker-wrapper"></div>
-        <div class="control-label">Color</div>
+    </section>
+    <section class="panel-c debug-border">
+      <div class="shirt-options debug-border">
+        <div class="style-size-options debug-border">
+          <div class="style-buttons">
+            <button class="style-button selected" data-style="man">Man</button>
+            <button class="style-button" data-style="woman">Woman</button>
+            <button class="style-button" data-style="kid">Kid</button>
+          </div>
+          <div class="size-buttons">
+            <button class="size-button" data-size="xxl">XXL</button>
+            <button class="size-button" data-size="xl">XL</button>
+            <button class="size-button selected" data-size="l">L</button>
+            <button class="size-button" data-size="m">M</button>
+            <button class="size-button" data-size="s">S</button>
+          </div>
+        </div>
+        <div id="color-options">
+          <div class="shirt-color-row debug-border">
+            <span class="color-label">Shirt Color:</span>
+          </div>
+          <div class="background-color-row debug-border">
+            <span class="color-label">Background:</span>
+            <div class="color-circle" data-background-color="transparent"></div>
+            <div class="color-circle" data-background-color="white"></div>
+            <div class="color-circle" data-background-color="gray"></div>
+            <div class="color-circle" data-background-color="custom"></div>
+          </div>
+        </div>
       </div>
-      <div class="save-clear-buttons">
+      <div class="new-shirt-container">
+        <button class="button" id="newShirtButton">New Shirt</button>
+      </div>
+      <div class="shirt-preview">
+        <div class="shirt-container debug-border">
+          <img class="shirt-base" src="assets/tshirt-placeholder-man.png" alt="Shirt base" data-style="man">
+          <canvas class="shirt-design" id="shirtCanvas" width="213" height="284"></canvas>
+        </div>
+      </div>
+      <div class="progress-container">
+        <div class="progress-bar" id="effectProgress"></div>
+      </div>
+      <div class="effect-buttons debug-border">
         <div class="tool-item">
-          <button class="button" title="Remember and Save Design" id="saveDesignButton">Remember and Save Design</button>
+          <div class="tool-icon" data-effect="stamp">Stamp</div>
         </div>
         <div class="tool-item">
-          <button class="button" id="clearButton">Clear</button>
+          <div class="tool-icon" data-effect="spray">Spray</div>
+        </div>
+        <div class="tool-item">
+          <div class="tool-icon" data-effect="roll">Roll</div>
+        </div>
+        <div class="tool-item">
+          <div class="tool-icon" data-effect="mixer">Mixer</div>
+        </div>
+        <div class="tool-item">
+          <div class="tool-icon" data-effect="shred">Shred</div>
         </div>
       </div>
-    </div>
-  </section>
-
-  <section class="panel-c debug-border">
-    <div class="shirt-options debug-border">
-      <div class="style-size-options debug-border">
-        <div class="style-buttons">
-          <button class="style-button selected" data-style="man">Man</button>
-          <button class="style-button" data-style="woman">Woman</button>
-          <button class="style-button" data-style="kid">Kid</button>
-        </div>
-        <div class="size-buttons">
-          <button class="size-button" data-size="xxl">XXL</button>
-          <button class="size-button" data-size="xl">XL</button>
-          <button class="size-button selected" data-size="l">L</button>
-          <button class="size-button" data-size="m">M</button>
-          <button class="size-button" data-size="s">S</button>
-        </div>
+      <div id="project-controls" class="debug-border">
+        <button class="button" id="saveProjectButton">Save Project</button>
+        <button class="button" id="loadProjectButton">Load Project</button>
+        <button class="button" id="downloadPDFButton">Download PDF</button>
+        <button class="button" id="orderForm">Order T-Shirts</button>
       </div>
-      <div id="color-options">
-        <div class="shirt-color-row debug-border">
-          <span class="color-label">Shirt Color:</span>
-        </div>
-        <div class="background-color-row debug-border">
-          <span class="color-label">Background:</span>
-          <div class="color-circle" data-background-color="transparent"></div>
-          <div class="color-circle" data-background-color="white"></div>
-          <div class="color-circle" data-background-color="gray"></div>
-          <div class="color-circle" data-background-color="custom"></div>
-        </div>
+    </section>
+  </div>
+  <div id="settings-screen" class="screen">
+    <section class="panel-c debug-border settings-panel">
+      <h2>Settings</h2>
+      <p>Customize your editor preferences here.</p>
+      <div class="form-group">
+        <label for="theme">Theme:</label>
+        <select id="theme">
+          <option value="debug">Debug</option>
+          <option value="auto">Auto</option>
+          <option value="dark">Dark</option>
+          <option value="light">Night</option>
+        </select>
       </div>
-    </div>
-    <div class="new-shirt-container">
-      <button class="button" id="newShirtButton">New Shirt</button>
-    </div>
-    <div class="shirt-preview">
-      <div class="shirt-container debug-border">
-        <img class="shirt-base" src="assets/tshirt-placeholder-man.png" alt="Shirt base" data-style="man">
-        <canvas class="shirt-design" id="shirtCanvas" width="213" height="284"></canvas>
-      </div>
-    </div>
-    <div class="progress-container">
-      <div class="progress-bar" id="effectProgress"></div>
-    </div>
-    <div class="effect-buttons debug-border">
-      <div class="tool-item">
-        <div class="tool-icon" data-effect="stamp">Stamp</div>
-      </div>
-      <div class="tool-item">
-        <div class="tool-icon" data-effect="spray">Spray</div>
-      </div>
-      <div class="tool-item">
-        <div class="tool-icon" data-effect="roll">Roll</div>
-      </div>
-      <div class="tool-item">
-        <div class="tool-icon" data-effect="mixer">Mixer</div>
-      </div>
-      <div class="tool-item">
-        <div class="tool-icon" data-effect="shred">Shred</div>
-      </div>
-    </div>
-    <div id="project-controls" class="debug-border">
-      <button class="button" id="saveProjectButton">Save Project</button>
-      <button class="button" id="loadProjectButton">Load Project</button>
-      <button class="button" id="downloadPDFButton">Download PDF</button>
-      <button class="button" id="orderForm">Order T-Shirts</button>
-    </div>
-  </section>
+    </section>
+  </div>
+  <div id="about-screen" class="screen">
+    <section class="panel-c debug-border about-panel">
+      <h2>About</h2>
+      <p>Either you are BOLD,<br>
+        BIG,<br>
+        or SMALL!<br>
+        WE CAN MAKE A DESIGN THATS FEETS YOU!<br>
+        ONLY YOUR IMAGINATION IS THE LIMIT..</p>
+      <p>Version: 0.8.0-beta</p>
+      <p>Developed by: bobazu</p>
+      <p>Contact: zubkvla@fel.cvut.cz</p>
+    </section>
+  </div>
 </main>
 
 <footer class="debug-border">
