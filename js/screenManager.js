@@ -25,6 +25,43 @@ export function initScreenNavigation() {
     const currentScreenElement = screens[currentScreen];
     const targetScreenElement = screens[targetScreenId];
 
+    // Handle video for about screen
+    const video = document.getElementById('about-background-video');
+    logger.debug(`[${new Date().toISOString()}] Video element found: ${!!video}`);
+    if (video) {
+      if (targetScreenId === 'about-screen') {
+        logger.debug(`[${new Date().toISOString()}] Video readyState: ${video.readyState}`);
+        video.loop = false; // Play only once
+        video.currentTime = 0; // Reset to start
+        const playVideo = () => {
+          logger.debug(`[${new Date().toISOString()}] Attempting to play video`);
+          video.play()
+              .then(() => {
+                logger.info(`[${new Date().toISOString()}] Playing about background video`);
+              })
+              .catch(error => {
+                logger.error(`[${new Date().toISOString()}] Failed to play about video:`, error);
+              });
+        };
+        // Play immediately if ready, otherwise wait for canplay
+        if (video.readyState >= 2) { // HAVE_CURRENT_DATA or higher
+          playVideo();
+        } else {
+          video.addEventListener('canplay', playVideo, { once: true });
+          video.load(); // Force load if not started
+          logger.debug(`[${new Date().toISOString()}] Waiting for video canplay event`);
+        }
+      } else {
+        if (!video.paused) {
+          video.pause();
+          video.currentTime = 0;
+          logger.info(`[${new Date().toISOString()}] Paused about background video`);
+        }
+      }
+    } else if (targetScreenId === 'about-screen') {
+      logger.warn(`[${new Date().toISOString()}] About background video element not found`);
+    }
+
     // Determine animation direction based on screen order
     const currentIndex = screenOrder.indexOf(currentScreen);
     const targetIndex = screenOrder.indexOf(targetScreenId);
