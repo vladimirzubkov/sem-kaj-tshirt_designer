@@ -1,0 +1,13 @@
+stages:
+     - deploy
+
+   pages:
+     stage: deploy
+     script:
+       - mkdir -p public
+       - cp -r * public # Копируем все файлы в папку public
+     artifacts:
+       paths:
+         - public
+     rules:
+       - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH # Разворачиваем только для основной ветки (например, main)
