@@ -79,27 +79,23 @@ Vytvořit webovou stránku pro online návrh trička s možností:
   - Zvuky efektů přehrávají se při stisknutí tlačítka efektu (`mousedown`) a zastavují se při uvolnění (`mouseup`) nebo opuštění tlačítka (`mouseleave`), implementováno v `effectManagerUI.js` a `soundManager.js`.
   - Efekty jsou ukládány do historie pouze po dokončení nebo přerušení (kromě razítka).
   - Optimalizováno pomocí `canvasPool.js` pro opětovné použití pláten.
-  - **Stírání trička do průhlednosti**: Nástroj "Voda" nyní simuluje efekt stírání, postupně snižuje průhlednost pixelů na tričku (`shirtCanvas`) až na transparentní stav, což umožňuje uživateli "vymazat" design na tričku a začít znovu bez nutnosti resetu celého plátna.
-
+  
 - **Uložení a načítání návrhu**:
   - Ukládání projektu do JSON přes tlačítko "Save Project", načítání z JSON přes "Load Project".
   - JSON obsahuje design hlavního plátna (`drawCanvas`) a data začatých fasónů (velikost, barva trička, barva pozadí, vlastní barva pozadí, design trička). Prázdné fasóny se neukládají.
   - Při ukládání je možné zadat název souboru, při nevyplnění se použije formát `t-shirt-design-yymmdd-hh-mm.json`.
-  - Akce uložení a načítání jsou integrovány do historie pro Undo/Redo.
   - Ukládání designu jako PNG z plátna pro kreslení (`drawCanvas`) do localStorage pod klíčem `tshirtDesignPNG` přes tlačítko "Remember and Save Design". Při načtení stránky se PNG načítá zpět na plátno pro kreslení, což umožňuje pokračovat v úpravách. Tento obrázek se rovněž stáhne v okamžik ukládání do počítače. 
-
+  
 - **Export do PDF a odeslání e-mailem**:
   
   - **Export do PDF**: Tlačítko "Download PDF" exportuje návrhy všech neprázdných fasónů do PDF (A3 formát) přes `jsPDF` s doprovodným zvukem `stapler.mp3`. Každý fasón má samostatnou stránku s textem (styl, velikost, barvy), náhledy barev, škálovaným obrazem trička, typografickými značkami a měřítkem.
   - **Forma objednávky**: Tlačítko "Order T-Shirts" otevírá formulář s doprovodným zvukem `cashier.mp3`, který dynamicky zobrazuje pouze fasóny s neprázdnými designy. Uživatel zadá email a množství pro každý fasón a velikost. Při odeslání (`submit`) se generují PDF pro každý fasón (Data URL) s doprovodným zvukem `hooray.mp3` a ukládají do `orderData.designs`, spolu s emailem a množstvím. Při zrušení formuláře tlačítkem `Cancel` se přehraje `booo.mp3`, při tlačítku `Close` (při prázdném designu) se přehraje `huh.mp3`. Data jsou logována do konzole, simulujíc odeslání na server.
-  - Simulace odeslání e-mailem (mailto odkaz s PNG), integrovaná do historie.
   
 - **Zvukové efekty**:
   - Implementovány zvukové efekty v `soundManager.js` pro interaktivní akce:
     - Přepínač zvuku (`sound-toggle-input`): Při zapnutí hraje `yes.mp3`, při vypnutí `no.mp3`, s persistentním ukládáním stavu do `localStorage`.
     - Tlačítko "New Shirt": Přehraje `void.mp3` při vytvoření nového trička.
     - Efekty přenosu návrhu na tričko (`effectManagerUI.js`): `stamp.mp3` pro razítko, `spray.mp3` pro rozprašovač, `roll.mp3` pro válec, `mixer.mp3` pro míchačku, `shredder.mp3` pro šreder. Zvuky se přehrávají při stisknutí (`mousedown`) a zastavují při uvolnění (`mouseup`) nebo opuštění tlačítka (`mouseleave`).
-    - Forma objednávky (`orderForm.js`): `cashier.mp3` při otevření formuláře, `hooray.mp3` při odeslání, `booo.mp3` při zrušení tlačítkem `Cancel`, `huh.mp3` při zrušení tlačítkem `Close` (při prázdném designu) nebo kliknutí mimo formulář.
   - Zvuky jsou spravovány v `soundManager.js` s přednačítáním (`new Audio`), zastavováním předchozího zvuku (`stopCurrentSound`) a logováním chyb načítání nebo přehrávání.
   - Všechny zvukové soubory (`yes.mp3`, `no.mp3`, `void.mp3`, `stamp.mp3`, `spray.mp3`, `roll.mp3`, `mixer.mp3`, `shredder.mp3`, `stapler.mp3`, `cashier.mp3`, `hooray.mp3`, `booo.mp3`, `huh.mp3`) jsou uloženy v `assets/` a mají formát MP3.
   
