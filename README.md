@@ -1,3 +1,17 @@
+# T-Shirt Designer
+
+**Semester project (B0B39KAJ)** — browser-based t-shirt graphics designer.
+
+**Demo:** https://vladimirzubkov.github.io/sem-kaj-tshirt_designer/
+
+| | |
+|---|---|
+| **Stack** | Vanilla JavaScript, HTML5 Canvas, CSS, jsPDF |
+| **Features** | Drawing tools, image upload (SVG/PNG/GIF/JPG), transfer effects (stamp, spray, roll, mixer, shredder), undo/redo, JSON project save/load, PDF export |
+| **Run locally** | Open `index.html` in a browser or serve the folder with any static file server |
+
+---
+
 # T-Shirt Designer: Semestrální práce pro B0B39KAJ
 
 ## Téma

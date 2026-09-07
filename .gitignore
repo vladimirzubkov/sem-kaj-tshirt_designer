@@ -1,1 +1,4 @@
-/.idea/
+.idea/
+*.iml
+CP1_contents.txt
+*.log

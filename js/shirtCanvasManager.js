@@ -3,6 +3,7 @@ import { saveCanvasState } from './historyManager.js';
 import { createOptimizedContext } from './effectManager.js';
 import { logger } from './logger.js';
 import { updateBackgroundColorOptions, updateShirtColorOptions } from './colorManager.js';
+import { canvasPool } from './canvasPool.js'; // Add import
 
 let shirtCanvases = {
   man: createShirtCanvas(), // Initialize man style by default
@@ -134,4 +135,35 @@ export function setShirtCanvasEmpty() {
     shirtCanvases[currentStyle].originalDesign.getContext('2d').clearRect(0, 0, 213, 284);
     logger.info(`[${new Date().toISOString()}] Marked ${currentStyle} shirtCanvas as empty`);
   }
+}
+
+/**
+ * Resets the shirt canvas for the specified style, clearing its content,
+ * original design, and all temporary canvases in the pool.
+ * @param {string} style - The style of the shirt canvas to reset (e.g., 'man', 'woman', 'kid')
+ */
+export function resetShirtCanvas(style) {
+  if (!shirtCanvases[style]) {
+    logger.warn(`[${new Date().toISOString()}] No shirt canvas for style: ${style}`);
+    return;
+  }
+
+  const canvasData = shirtCanvases[style];
+  canvasData.shirtCtx.clearRect(0, 0, canvasData.shirtCanvas.width, canvasData.shirtCanvas.height);
+  canvasData.originalDesign.getContext('2d').clearRect(0, 0, canvasData.originalDesign.width, canvasData.originalDesign.height);
+  canvasData.isEmpty = true;
+
+  // Clear all temporary canvases in the pool
+  canvasPool.available.forEach(canvas => {
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    logger.debug(`[${new Date().toISOString()}] Cleared available temporary canvas: ${canvas.width}x${canvas.height}`);
+  });
+  canvasPool.inUse.forEach(canvas => {
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    logger.debug(`[${new Date().toISOString()}] Cleared in-use temporary canvas: ${canvas.width}x${canvas.height}`);
+  });
+
+  logger.info(`[${new Date().toISOString()}] Reset shirt canvas for style: ${style} and cleared all temporary canvases`);
 }

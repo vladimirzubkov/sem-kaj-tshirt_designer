@@ -5,7 +5,7 @@ import { showProgress, hideProgress } from './progressManager.js';
 import { saveProject, loadProject, exportToPDF, exportToPNG } from './projectManager.js';
 import { initCanvasEvents } from './canvasManager.js';
 import { initUI } from './uiManager.js';
-import { getCurrentShirtCanvas } from './shirtCanvasManager.js';
+import { getCurrentShirtCanvas, resetShirtCanvas, getAllShirtCanvases } from './shirtCanvasManager.js'; // Update import
 import { initOrderForm, openOrderModal } from './orderForm.js';
 import { initScreenNavigation } from './screenManager.js';
 import { initSoundManager, playSound } from './soundManager.js';
@@ -44,8 +44,8 @@ function loadSavedPNG() {
 function resetShirt() {
   logger.info(`[${new Date().toISOString()}] Resetting shirt`);
   const shirtCanvas = getCurrentShirtCanvas();
-  const shirtCtx = shirtCanvas.getContext('2d');
-  shirtCtx.clearRect(0, 0, shirtCanvas.width, shirtCanvas.height);
+  const shirtCanvases = getAllShirtCanvases();
+  resetShirtCanvas(shirtCanvases.currentStyle); // Call resetShirtCanvas
   saveCanvasState(drawCanvas, shirtCanvas, 'Reset Shirt', null);
 }
 
@@ -89,7 +89,6 @@ document.getElementById('newShirtButton').addEventListener('click', () => {
 
 document.getElementById('clearButton').addEventListener('click', () => {
   logger.info(`[${new Date().toISOString()}] Clearing canvas and localStorage`);
-  // Remove playSound('void')
   ctx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
   localStorage.removeItem('tshirtDesignPNG');
   logger.info(`[${new Date().toISOString()}] Removed tshirtDesignPNG from localStorage`);

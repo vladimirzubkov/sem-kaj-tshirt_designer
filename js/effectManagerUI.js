@@ -68,8 +68,9 @@ export async function transferDesignToShirt(effect, drawCanvas, shirtCanvas) {
     return;
   }
   const tempDrawCtx = createOptimizedContext(tempDrawCanvas);
+  tempDrawCtx.clearRect(0, 0, tempDrawCanvas.width, tempDrawCanvas.height); // Explicitly clear
   tempDrawCtx.drawImage(drawCanvas, 0, 0);
-  logger.debug(`[${new Date().toISOString()}] tempDrawCtx created for effect: ${effect}`);
+  logger.debug(`[${new Date().toISOString()}] tempDrawCtx created and cleared for effect: ${effect}`);
   const drawData = tempDrawCtx.getImageData(0, 0, drawCanvas.width, drawCanvas.height).data;
   let drawNonZeroPixels = 0;
   for (let i = 3; i < drawData.length; i += 4) {
@@ -92,6 +93,7 @@ export async function transferDesignToShirt(effect, drawCanvas, shirtCanvas) {
     return;
   }
   const tempCtx = createOptimizedContext(tempCanvas);
+  tempCtx.clearRect(0, 0, tempCanvas.width, tempCanvas.height); // Explicitly clear
 
   let isStateSaved = false;
 
@@ -129,6 +131,7 @@ export async function transferDesignToShirt(effect, drawCanvas, shirtCanvas) {
         return;
       }
       const scaledCtx = createOptimizedContext(scaledCanvas);
+      scaledCtx.clearRect(0, 0, scaledCanvas.width, scaledCanvas.height); // Explicitly clear
       scaledCtx.drawImage(shirtCanvas, 0, 0);
 
       shirtCtx.clearRect(0, 0, 213, 284);
@@ -177,6 +180,7 @@ export function stopEffect(drawCanvas, shirtCanvas) {
       return;
     }
     const tempCtx = createOptimizedContext(tempCanvas);
+    tempCtx.clearRect(0, 0, tempCanvas.width, tempCanvas.height); // Explicitly clear
     tempCtx.drawImage(shirtCanvas, 0, 0);
     const tempData = tempCtx.getImageData(0, 0, 213, 284).data;
     let tempNonZeroPixels = 0;
